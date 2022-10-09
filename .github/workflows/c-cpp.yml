@@ -18,7 +18,9 @@ jobs:
         ls -la
         ./configure
     - name: make
-      run: make
+      run: |
+        make clean
+        make
     - name: make check
       run: make check
     - name: make distcheck
