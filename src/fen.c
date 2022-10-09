@@ -24,7 +24,8 @@ static void emptyBoard(struct board *board)
  */
 static char *parse_pieces(char *fen, struct board *board)
 {
-	int i = 0, j = 0, piece = EMPTY_SQR;
+	int i = 0, j = 0;
+	enum pieces piece;
 	bool valid = fen ? true : false;
 
 	if (!valid) {

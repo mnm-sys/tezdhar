@@ -99,9 +99,12 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_tezdhar_OBJECTS = chess.$(OBJEXT) fen.$(OBJEXT) ui.$(OBJEXT)
+am_tezdhar_OBJECTS = tezdhar-chess.$(OBJEXT) tezdhar-fen.$(OBJEXT) \
+	tezdhar-ui.$(OBJEXT)
 tezdhar_OBJECTS = $(am_tezdhar_OBJECTS)
 tezdhar_LDADD = $(LDADD)
+tezdhar_LINK = $(CCLD) $(tezdhar_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -117,9 +120,13 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/chess.Po ./$(DEPDIR)/fen.Po \
-	./$(DEPDIR)/ui.Po
+am__depfiles_remade = ./$(DEPDIR)/tezdhar-chess.Po \
+	./$(DEPDIR)/tezdhar-fen.Po ./$(DEPDIR)/tezdhar-ui.Po
 am__mv = mv -f
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
@@ -259,8 +266,109 @@ top_srcdir = @top_srcdir@
 
 # specify which source files get built into an executable
 tezdhar_SOURCES = chess.c fen.c ui.c
+tezdhar_CFLAGS = -fdata-sections			\
+			-fdelete-null-pointer-checks	\
+			-ffunction-sections		\
+			-fno-common			\
+			-fstack-protector		\
+			-fstack-usage 			\
+			-Wabi				\
+			-Waggregate-return		\
+			-Wall 				\
+			-Walloca			\
+			-Wattributes			\
+			-Wbad-function-cast		\
+			-Wbuiltin-macro-redefined	\
+			-Wc++-compat			\
+			-Wc++0x-compat			\
+			-Wc++14-compat			\
+			-Wcast-qual 			\
+			-Wchar-subscripts		\
+			-Wconversion			\
+			-Wconversion-null		\
+			-Wcpp				\
+			-Wctor-dtor-privacy		\
+			-Wdangling-else			\
+			-Wdate-time			\
+			-Wdeclaration-after-statement	\
+			-Wdelete-incomplete		\
+			-Wdelete-non-virtual-dtor	\
+			-Wdeprecated			\
+			-Wdeprecated-declarations	\
+			-Wdisabled-optimization		\
+			-Wdiv-by-zero			\
+			-Wdouble-promotion 		\
+			-Weffc++			\
+			-Wendif-labels			\
+			-Wextra 			\
+			-Wfloat-equal			\
+			-Wformat-extra-args		\
+			-Wformat-zero-length		\
+			-Wformat=2 			\
+			-Wignored-qualifiers		\
+			-Wincompatible-pointer-types	\
+			-Winit-self 			\
+			-Winline			\
+			-Wint-conversion		\
+			-Wint-in-bool-context		\
+			-Wint-to-pointer-cast		\
+			-Winvalid-offsetof		\
+			-Winvalid-pch			\
+			-Wmain				\
+			-Wmemset-transposed-args	\
+			-Wmissing-declarations		\
+			-Wmissing-include-dirs		\
+			-Wmissing-prototypes		\
+			-Wmultichar			\
+			-Wnarrowing			\
+			-Wnested-externs		\
+			-Wnon-virtual-dtor		\
+			-Wnull-dereference		\
+			-Wodr				\
+			-Wold-style-cast 		\
+			-Wold-style-definition		\
+			-Woverflow			\
+			-Woverloaded-virtual 		\
+			-Wpacked			\
+			-Wpadded			\
+			-Wparentheses			\
+			-Wpedantic 			\
+			-Wpointer-to-int-cast		\
+			-Wpragmas			\
+			-Wprotocol			\
+			-Wredundant-decls 		\
+			-Wreorder			\
+			-Wreturn-type			\
+			-Wselector			\
+			-Wsequence-point		\
+			-Wshadow 			\
+			-Wshift-count-negative		\
+			-Wshift-count-overflow		\
+			-Wsign-promo 			\
+			-Wsizeof-array-argument		\
+			-Wstack-protector		\
+			-Wstrict-overflow=5 		\
+			-Wstrict-prototypes		\
+			-Wstrict-selector-match		\
+			-Wsuggest-override		\
+			-Wswitch-bool			\
+			-Wswitch-default 		\
+			-Wswitch-enum			\
+			-Wsynth				\
+			-Wundeclared-selector		\
+			-Wundef 			\
+			-Wuninitialized			\
+			-Wunknown-pragmas		\
+			-Wunused-const-variable		\
+			-Wunused-macros			\
+			-Wvarargs			\
+			-Wvla				\
+			-Wwrite-strings			\
+			-Wzero-as-null-pointer-constant
+
+
+#AM_LDFLAGS = --gc-sections --print-gc-sections
 ACLOCAL_AMFLAGS = -I ./../build-aux/m4
-AM_CFLAGS = -Wall -Wextra
 all: all-am
 
 .SUFFIXES:
@@ -339,7 +447,7 @@ clean-binPROGRAMS:
 
 tezdhar$(EXEEXT): $(tezdhar_OBJECTS) $(tezdhar_DEPENDENCIES) $(EXTRA_tezdhar_DEPENDENCIES) 
 	@rm -f tezdhar$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(tezdhar_OBJECTS) $(tezdhar_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(tezdhar_LINK) $(tezdhar_OBJECTS) $(tezdhar_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -347,9 +455,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chess.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fen.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-chess.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-fen.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-ui.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -370,6 +478,48 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+tezdhar-chess.o: chess.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-chess.o -MD -MP -MF $(DEPDIR)/tezdhar-chess.Tpo -c -o tezdhar-chess.o `test -f 'chess.c' || echo '$(srcdir)/'`chess.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-chess.Tpo $(DEPDIR)/tezdhar-chess.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='chess.c' object='tezdhar-chess.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-chess.o `test -f 'chess.c' || echo '$(srcdir)/'`chess.c
+
+tezdhar-chess.obj: chess.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-chess.obj -MD -MP -MF $(DEPDIR)/tezdhar-chess.Tpo -c -o tezdhar-chess.obj `if test -f 'chess.c'; then $(CYGPATH_W) 'chess.c'; else $(CYGPATH_W) '$(srcdir)/chess.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-chess.Tpo $(DEPDIR)/tezdhar-chess.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='chess.c' object='tezdhar-chess.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-chess.obj `if test -f 'chess.c'; then $(CYGPATH_W) 'chess.c'; else $(CYGPATH_W) '$(srcdir)/chess.c'; fi`
+
+tezdhar-fen.o: fen.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-fen.o -MD -MP -MF $(DEPDIR)/tezdhar-fen.Tpo -c -o tezdhar-fen.o `test -f 'fen.c' || echo '$(srcdir)/'`fen.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-fen.Tpo $(DEPDIR)/tezdhar-fen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='fen.c' object='tezdhar-fen.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-fen.o `test -f 'fen.c' || echo '$(srcdir)/'`fen.c
+
+tezdhar-fen.obj: fen.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-fen.obj -MD -MP -MF $(DEPDIR)/tezdhar-fen.Tpo -c -o tezdhar-fen.obj `if test -f 'fen.c'; then $(CYGPATH_W) 'fen.c'; else $(CYGPATH_W) '$(srcdir)/fen.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-fen.Tpo $(DEPDIR)/tezdhar-fen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='fen.c' object='tezdhar-fen.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-fen.obj `if test -f 'fen.c'; then $(CYGPATH_W) 'fen.c'; else $(CYGPATH_W) '$(srcdir)/fen.c'; fi`
+
+tezdhar-ui.o: ui.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-ui.o -MD -MP -MF $(DEPDIR)/tezdhar-ui.Tpo -c -o tezdhar-ui.o `test -f 'ui.c' || echo '$(srcdir)/'`ui.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-ui.Tpo $(DEPDIR)/tezdhar-ui.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ui.c' object='tezdhar-ui.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-ui.o `test -f 'ui.c' || echo '$(srcdir)/'`ui.c
+
+tezdhar-ui.obj: ui.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-ui.obj -MD -MP -MF $(DEPDIR)/tezdhar-ui.Tpo -c -o tezdhar-ui.obj `if test -f 'ui.c'; then $(CYGPATH_W) 'ui.c'; else $(CYGPATH_W) '$(srcdir)/ui.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-ui.Tpo $(DEPDIR)/tezdhar-ui.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ui.c' object='tezdhar-ui.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-ui.obj `if test -f 'ui.c'; then $(CYGPATH_W) 'ui.c'; else $(CYGPATH_W) '$(srcdir)/ui.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -497,9 +647,9 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/chess.Po
-	-rm -f ./$(DEPDIR)/fen.Po
-	-rm -f ./$(DEPDIR)/ui.Po
+		-rm -f ./$(DEPDIR)/tezdhar-chess.Po
+	-rm -f ./$(DEPDIR)/tezdhar-fen.Po
+	-rm -f ./$(DEPDIR)/tezdhar-ui.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -545,9 +695,9 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/chess.Po
-	-rm -f ./$(DEPDIR)/fen.Po
-	-rm -f ./$(DEPDIR)/ui.Po
+		-rm -f ./$(DEPDIR)/tezdhar-chess.Po
+	-rm -f ./$(DEPDIR)/tezdhar-fen.Po
+	-rm -f ./$(DEPDIR)/tezdhar-ui.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
