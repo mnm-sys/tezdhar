@@ -5254,7 +5254,6 @@ fi
 
 # checks for header files
 $ac_includes_default
-
 ac_fn_c_check_header_compile "$LINENO" "langinfo.h" "ac_cv_header_langinfo_h" "$ac_includes_default"
 if test "x$ac_cv_header_langinfo_h" = xyes
 then :
@@ -7038,42 +7037,6 @@ printf "%s\n" "$ac_cv_c_const" >&6; }
 if test $ac_cv_c_const = no; then
 
 printf "%s\n" "#define const /**/" >>confdefs.h
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for _Generic" >&5
-printf %s "checking for _Generic... " >&6; }
-if test ${ac_cv_c__Generic+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-int
-	 main (int argc, char **argv)
-	 {
-	   int a = _Generic (argc, int: argc = 1);
-	   int *b = &_Generic (argc, default: argc);
-	   char ***c = _Generic (argv, int: argc, default: argv ? &argv : 0);
-	   _Generic (1 ? 0 : b, int: a, default: b) = &argc;
-	   _Generic (a = 1, default: a) = 3;
-	   return a + !b + !c;
-	 }
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  ac_cv_c__Generic=yes
-else $as_nop
-  ac_cv_c__Generic=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c__Generic" >&5
-printf "%s\n" "$ac_cv_c__Generic" >&6; }
-if test $ac_cv_c__Generic = yes; then
-
-printf "%s\n" "#define HAVE_C__GENERIC 1" >>confdefs.h
 
 fi
 

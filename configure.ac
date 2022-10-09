@@ -32,7 +32,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 # Standards. GNU packages should always distribute additional files such
 # as ChangeLog, AUTHORS, etc. We do not want automake to complain about
 # these missing files in our codebase.
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall foreign])
 
 
 # Add a macro to account for the compiler your project needs. If your
@@ -55,7 +55,6 @@ AC_CHECK_LIB([ncurses],[tgetent])
 
 # checks for header files
 AC_INCLUDES_DEFAULT
-AC_CHECK_INCLUDES_DEFAULT
 AC_CHECK_HEADERS([langinfo.h])
 AC_CHECK_HEADER_STDBOOL
 AC_HEADER_STDBOOL
@@ -94,7 +93,6 @@ AC_STRUCT_TIMEZONE
 AC_CHECK_SIZEOF([int *])
 AC_C_BIGENDIAN
 AC_C_CONST
-AC_C__GENERIC
 AC_C_RESTRICT
 AC_C_VOLATILE
 AC_C_INLINE

@@ -15,9 +15,6 @@
 /* Define to 1 if C supports variable-length arrays. */
 #undef HAVE_C_VARARRAYS
 
-/* Define to 1 if C11-style _Generic works. */
-#undef HAVE_C__GENERIC
-
 /* Define to 1 if you have the declaration of `tzname', and to 0 if you don't.
    */
 #undef HAVE_DECL_TZNAME
