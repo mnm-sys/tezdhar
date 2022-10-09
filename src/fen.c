@@ -24,8 +24,7 @@ static void emptyBoard(struct board *board)
  */
 static char *parse_pieces(char *fen, struct board *board)
 {
-	int i = 0, j = 0;
-	unsigned char piece;
+	int i = 0, j = 0, piece = EMPTY_SQR;
 	bool valid = fen ? true : false;
 
 	if (!valid) {
@@ -34,6 +33,7 @@ static char *parse_pieces(char *fen, struct board *board)
 	}
 
 	while (*fen != ' ' && valid) {
+		piece = EMPTY_SQR;
 		switch(*fen) {
 			case 'r': piece = BLACK_ROOK; break;
 			case 'n': piece = BLACK_KNIGHT; break;

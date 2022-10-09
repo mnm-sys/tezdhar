@@ -300,6 +300,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = src
 ACLOCAL_AMFLAGS = -I ./build-aux/m4
+EXTRA_DIST = src/chess.h
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
