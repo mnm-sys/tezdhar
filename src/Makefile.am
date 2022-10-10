@@ -6,10 +6,12 @@ tezdhar_SOURCES = chess.c fen.c ui.c
 
 tezdhar_CFLAGS =	-fdata-sections			\
 			-fdelete-null-pointer-checks	\
+			-fexceptions			\
 			-ffunction-sections		\
 			-fno-common			\
 			-fstack-protector		\
 			-fstack-usage 			\
+			-v				\
 			-Wabi				\
 			-Waggregate-return		\
 			-Wall 				\
@@ -108,3 +110,7 @@ tezdhar_CFLAGS =	-fdata-sections			\
 #AM_LDFLAGS = --gc-sections --print-gc-sections
 
 ACLOCAL_AMFLAGS = -I ./../build-aux/m4
+
+clean-local:
+	-rm -f *.su
+
