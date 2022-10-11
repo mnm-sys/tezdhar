@@ -22,7 +22,7 @@ static void emptyBoard(struct board *board)
 /* Parse pieces from FEN string and place them on board 
  * at their designated squares according to FEN
  */
-static char *parse_pieces(char *fen, struct board *board)
+static char *parse_pieces_from_fen(char *fen, struct board *board)
 {
 	int i = 0, j = 0;
 	enum pieces piece;
@@ -86,7 +86,7 @@ static void clear_castling_rights(struct board *board)
  * set castling rights for each player. Finally, set the
  * en-passant square position, if any.
  */
-static char *parse_flags(char *fen, struct board *board)
+static char *parse_fen_flags(char *fen, struct board *board)
 {
 	char rank = -1, file = -1, field = 0;
 	bool turn = true;
@@ -109,7 +109,7 @@ static char *parse_flags(char *fen, struct board *board)
 						board->status = BLACK_TURN;
 					    }
 					    else
-						file = B_file;
+						file = B_FILE;
 					    turn = false;
 					    break;	
 			case 'w': case 'W': board->status = WHITE_TURN;
@@ -120,13 +120,13 @@ static char *parse_flags(char *fen, struct board *board)
 			case 'Q': board->castling[WHITE_QS] = true; break;
 			case 'k': board->castling[BLACK_KS] = true; break;
 			case 'q': board->castling[BLACK_QS] = true; break;
-			case 'a': file = A_file; break; 
-			case 'c': file = C_file; break; 
-			case 'd': file = D_file; break; 
-			case 'e': file = E_file; break; 
-			case 'f': file = F_file; break; 
-			case 'g': file = G_file; break; 
-			case 'h': file = H_file; break; 
+			case 'a': file = A_FILE; break; 
+			case 'c': file = C_FILE; break; 
+			case 'd': file = D_FILE; break; 
+			case 'e': file = E_FILE; break; 
+			case 'f': file = F_FILE; break; 
+			case 'g': file = G_FILE; break; 
+			case 'h': file = H_FILE; break; 
 			case '1': rank = RANK_1; break;
 			case '2': rank = RANK_2; break;
 			case '3': rank = RANK_3; break;
@@ -148,7 +148,7 @@ static char *parse_flags(char *fen, struct board *board)
 	return valid ? fen : NULL;
 }
 
-static bool has_digits_only(char *fen)
+static bool str_has_digits_only(char *fen)
 {
 	if (fen) {
 		while (*fen) {
@@ -168,7 +168,7 @@ static bool has_digits_only(char *fen)
 
 static bool parse_move_cnt(char *fen, struct board *b)
 {
-	if (has_digits_only(fen)) {
+	if (str_has_digits_only(fen)) {
 		sscanf(fen, "%d%d", &(b->halfmove), &(b->fullmove));
 		dbg_print("hm = %d, fm = %d\n", b->halfmove, b->fullmove);
 		return true;
@@ -178,15 +178,18 @@ static bool parse_move_cnt(char *fen, struct board *b)
 	}
 }
 
-static void parse_fen_record(char *fen, struct board *board)
+static bool parse_fen_record(char *fen, struct board *board)
 {
-	parse_move_cnt(parse_flags(parse_pieces(fen, board), board), board);
+	//parse_move_cnt(parse_fen_flags(parse_pieces_from_fen(fen, board), board), board);
+	fen = parse_pieces_from_fen(fen, board);
+	fen = parse_fen_flags(fen, board);
+	return(parse_move_cnt(fen, board));
 }
 
 
-int print_fen_str(struct board *board)
+void print_fen_str(struct board *board)
 {
-	return printf("\nFEN: %s\n", board->fen);
+	printf("\nFEN: %s\n", board->fen);
 }
 
 
@@ -205,4 +208,38 @@ bool init_board(char *fen, struct board *board, enum player w, enum player b)
 	board->blackPlayer = b;
 	return true;
 }
+
+
+/* Parse Standard Algebraic Notation (SAN) and Universal Chess Interface (UCI)
+ * move format. The user may input both short as well as long algebraic
+ * notation moves. For example, the shorter SAN notation "Nc3" is equivalent
+ * to the longer UCI notation "b2c3". The function handles both the short and
+ * long notation formats interchangeably.
+ */
+void parse_san_input(char *input)
+{
+        enum chessmen piece = PAWN;
+        enum files file;
+        enum rank rank;
+
+        while (*input) {
+                switch(*input) {
+                        case 'K': piece = KING; break;
+                        case 'Q': piece = QUEEN; break;
+                        case 'B': piece = BISHOP; break;
+                        case 'N': piece = KNIGHT; break;
+                        case 'R': piece = ROOK; break;
+                        case 'a': file = A_FILE; break;
+                        case 'b': file = B_FILE; break;
+                        case 'c': file = C_FILE; break;
+                        case 'd': file = D_FILE; break;
+                        case 'e': file = E_FILE; break;
+                        case 'f': file = F_FILE; break;
+                        case 'g': file = G_FILE; break;
+                        case 'h': file = H_FILE; break;
+                        case 'x': break;
+                }
+        }
+}
+
 

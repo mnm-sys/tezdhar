@@ -7,6 +7,10 @@
 
 #include "chess.h"
 
+/* Maximum length of Standard Algebraic Notation move
+ * text including annotation symbols, if any */
+#define MAX_SAN_LEN 16
+
 enum chessmen_utf {
 	WCK 	= 0x2654,	// ♔ white chess king
 	WCQ 	= 0x2655,	// ♕ white chess queen
@@ -24,8 +28,8 @@ enum chessmen_utf {
 };
 	
 enum box_drawing_utf {
-	LF	= 0x000A,	//   Line Feed \n
-	CR	= 0x000D,	//   Carriage Return \r
+	LF	= 0x000A,	// \n line Feed
+	CR	= 0x000D,	// \r carriage Return
 	NBSP	= 0x00A0,	//   non breaking space
 
 	HRZ	= 0x2501,	// ━ horizontal
@@ -212,5 +216,18 @@ void print_board_status(struct board *board)
 
 	printf("Half-moves: %d\n", board->halfmove);
 	printf("Full-moves: %d\n", board->fullmove);
+}
+
+
+void input_user_move(void)
+{
+	char user_input[MAX_SAN_LEN];
+	if (!fgets(user_input, MAX_SAN_LEN, stdin)) {
+		dbg_print(perror("fgets() failed: "));
+		return;
+	}
+
+	parse_san_input(user_input);
+
 }
 
