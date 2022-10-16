@@ -38,6 +38,7 @@
 int main(int argc, char *argv[])
 {
         struct board board;
+	struct move move;
 
         printf("Tezdhar Chess Engine %s by %s\n%s\n", VERSION, AUTHOR, URL);
         printf("This is free software: you are free to redistribute it.\n");
@@ -46,7 +47,14 @@ int main(int argc, char *argv[])
         init_board(NULL, &board, HUMAN, AI);
         print_fen_str(&board);
         print_board(&board);
-	print_board_status(&board);
+	print_board_struct_info(&board);
+
+	printf("<< .. Testing updation of move struct .. >>\n");
+	printf("Enter move in SAN, UCI or ICCF format, type quit to exit\n");
+	printf("Your move: ");
+
+	move = parse_input_move(input_user_move());
+	print_move_struct_info(&move);
 
 	return 0;
 }

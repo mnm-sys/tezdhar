@@ -17,7 +17,7 @@ static void emptyBoard(struct board *board)
 		for (int j=0; j<8; j++)
 			board->sqr[i][j] = EMPTY_SQR;
 }
-	
+
 
 /* Parse pieces from FEN string and place them on board 
  * at their designated squares according to FEN
@@ -77,8 +77,9 @@ static char *parse_pieces_from_fen(char *fen, struct board *board)
 /* Clear King and Queen side castling rights of both players */
 static void clear_castling_rights(struct board *board)
 {
-	for (int i=0; i<4; i++)
+	for (int i=0; i<4; i++) {
 		board->castling[i] = false;
+	}
 }
 
 
@@ -100,18 +101,18 @@ static char *parse_fen_flags(char *fen, struct board *board)
 			case '-': break;
 			case ' ': field++; break;
 
-			/* Since 'b' can represent both black's turn
-			 * or file 'b' on board, so we toggle turn
-			 * after assigning the player's turn value,
-			 * so that when 'b' is encountered again, it
-			 * is used to assign en-passant square. */
+				  /* Since 'b' can represent both black's turn
+				   * or file 'b' on board, so we toggle turn
+				   * after assigning the player's turn value,
+				   * so that when 'b' is encountered again, it
+				   * is used to assign en-passant square. */
 			case 'b': case 'B': if (turn) {
-						board->status = BLACK_TURN;
+						    board->status = BLACK_TURN;
 					    }
-					    else
-						file = B_FILE;
-					    turn = false;
-					    break;	
+				  else
+					  file = B_FILE;
+				  turn = false;
+				  break;	
 			case 'w': case 'W': board->status = WHITE_TURN;
 					    turn = false;
 					    break;
@@ -169,7 +170,7 @@ static bool str_has_digits_only(char *fen)
 static bool parse_move_cnt(char *fen, struct board *b)
 {
 	if (str_has_digits_only(fen)) {
-		sscanf(fen, "%d%d", &(b->halfmove), &(b->fullmove));
+		sscanf(fen, "%hd%hd", &(b->halfmove), &(b->fullmove));
 		dbg_print("hm = %d, fm = %d\n", b->halfmove, b->fullmove);
 		return true;
 	} else {
@@ -210,36 +211,982 @@ bool init_board(char *fen, struct board *board, enum player w, enum player b)
 }
 
 
+/* setup move struct before parsing user input movetext */
+static void setup_move_struct(const char * const movetext, struct move *move)
+{
+	strncpy(move->movetext, movetext, MAX_MOVE_LEN);
+
+	move->chessman		= EMPTY;
+	move->promoted		= EMPTY;
+
+	move->from_file		= -1;
+	move->from_rank		= -1;
+	move->to_file		= -1;
+	move->to_rank		= -1;
+
+	move->castle_ks		= false;
+	move->castle_qs		= false;
+	move->null		= false;
+	move->invalid		= false;
+	move->draw_offered	= false;
+	move->ep		= false;
+	move->capture		= false;
+	move->check		= false;
+	move->checkmate		= false;
+}
+
+
+/* strip substring from a string, and return success if substring is found */
+static bool strip_text(char * const movetext, const char * const *delim)
+{
+	int len = sizeof(delim)/sizeof(delim[0]);
+
+	if (movetext) {
+		for (int i = 0; i < len; i++) {
+			char *p = strcasestr(movetext, delim[i]);
+			if (p) {
+				*p = '\0';
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+
+/* According to UCI protocol specifications, a "nullmove" from the Engine to
+ * the GUI should be sent as 0000. A null move just passes the turn to the
+ * other side (and possibly forfeits en-passant capturing). Several
+ * possibilities present themselves as to what the SAN notation can be,
+ * but none claim to be the official standard specification for SAN.
+ */
+static bool is_null_move(char * const movetext, struct move * const move)
+{
+	const char * const delim[] = {
+		"(null)",
+		"00-00",
+		"null",		// Stockfish SAN
+		"0000",
+		"pass",
+		"@@@@",		// WinBoard protocol
+		"any",
+		"Z0",		// ChessAssistant, Aquarium
+		"<>",
+		"--",		// PGN SAN, Fritz, Chessbase, SCID
+		"$0"		// NAG (Numeric Annotation Glyph)
+	};
+
+	if (movetext) {
+		if (strip_text(movetext, delim)) {
+			move->null = true;
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+
+/* FIXME: Some annotations which use Unicode symbols are not compared here
+ * for the sake of brevity. Fixing this issue would also mean inputting the
+ * user move in wchar_t format and also reading the PGN file in wchar_t format.
+ */
+static void strip_evaluation_annotation_symbols(char * const movetext)
+{
+	/* since the function returns after first match,
+	 * the strings are listed in descending length order */
+	const char * const annotations[] = {
+		"????",			// absurdly bad blunder
+		"!!!!",			// extraordinarily brilliant move
+		"\?\?!",		// peculiar move
+		"!!?", "?!?", "!?!",	// particularly unusual move
+		"(?)",			// inferior move
+		"(!)",			// objectively good move
+		"!!!",			// exceptionally brilliant move
+		"???",			// exceptionally bad blunder
+
+		"+/=",			// slight plus position for white
+		"=/+",			// slight plus position for black
+		"+/-",			// clear plus for white
+		"-/+",			// clear plus for black
+
+		"+-",			// decisive advantage for white
+		"-+",			// decisive advantage for black
+
+		"??",			// blunder
+		"?!",			// dubious move
+		"!?",			// interesting move
+		"!!",			// brilliant move
+		"TN",			// theoretical novelty
+
+		"?",			// mistake
+		"!",			// good move
+		"N",			// theoretical novelty
+	};
+
+	if (movetext) {
+		strip_text(movetext, annotations);
+	}
+}
+
+
+/* strip equal position annnotation symbols at the end */
+static void strip_eq_pos_annotation(char * const movetext)
+{
+	if (movetext) {
+		char *p = strrchr(movetext, '=');
+
+		/* the following check is necessary to distinguish between
+		 * equal position annotation and pawn promotion notation */
+		if (p) {
+			if ((*(p+1) == '\0') || (*(p+1) == ' ')) {
+				*p = '\0';
+			}
+		}
+	}
+}
+
+
+/* strip end-of-game annotation symbols */
+static void strip_eog_indicators(char * const movetext)
+{
+	const char * const indicators[] = {
+		"White Resigns",
+		"Black Resigns",
+		"1-0", "0-1",
+		"0-0", "-/-"
+	};
+
+	if (movetext) {
+		strip_text(movetext, indicators);
+	}
+}
+
+
+/* FIDE specifies draw offers to be recorded by an equals sign
+ * with parentheses "(=)" after the move on the score sheet. */
+static void strip_draw_offered_flag(char * const movetext, struct move *move)
+{
+	const char * const indicators[] = {"(=)"};
+
+	if (movetext) {
+		if (strip_text(movetext, indicators)) {
+			move->draw_offered = true;
+		}
+	}
+}
+
+
+/* strip check to king annotation indicators */
+static void strip_check_indicators(char * const movetext, struct move *move)
+{
+	const char * const indicators[] = {
+		"dis. ch.",		// discovered check
+		"dbl. ch.",		// double check
+		"ch.", "ch",		// check
+		"++",			// double check
+		"+"			// check
+	};
+
+	if (movetext) {
+		if (strip_text(movetext, indicators)) {
+			move->check = true;
+		}
+	}
+}
+
+
+/* strip checkmate annotations */
+static void strip_checkmate_indicators(char * const movetext, struct move *move)
+{
+	const char * const indicators[] = {"mate", "++", "#"};
+
+	if (movetext) {
+		if (strip_text(movetext, indicators)) {
+			move->checkmate = true;
+		}
+	}
+}
+
+
+/* check for king side castling sequence */
+static bool is_ks_castling_seq(char * const movetext, struct move *move)
+{
+	const char * const seq[] = {
+		"0-0",		// digit zero format (FIDE standard)
+		"O-O"		// uppercase letter O (PGN specification)
+	};
+
+	if (movetext) {
+		if (strip_text(movetext, seq)) {
+			move->chessman = KING;
+			move->castle_ks = true;
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+
+/* check for queen side castling sequence */
+static bool is_qs_castling_seq(char * const movetext, struct move *move)
+{
+	const char * const seq[] = {
+		"0-0-0",	// digit zero format (FIDE standard)
+		"O-O-O"		// uppercase letter O (PGN specification)
+	};
+
+	if (movetext) {
+		if (strip_text(movetext, seq)) {
+			move->chessman = KING;
+			move->castle_qs = true;
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+
+static enum chessmen get_chessman(const char pos)
+{
+	switch (pos) {
+		case 'K': return KING;
+		case 'Q': return QUEEN;
+		case 'B': return BISHOP;
+		case 'N': return KNIGHT;
+		case 'R': return ROOK;
+		case 'P': return PAWN;
+		default:  return EMPTY;
+	}
+}
+
+
+static int8_t get_file_index(const char pos)
+{
+	switch(pos) {
+		case 'a': return A_FILE;
+		case 'b': return B_FILE;
+		case 'c': return C_FILE;
+		case 'd': return D_FILE;
+		case 'e': return E_FILE;
+		case 'f': return F_FILE;
+		case 'g': return G_FILE;
+		case 'h': return H_FILE;
+		default: return -1;
+	}
+}
+
+
+static int8_t get_rank_index(const char pos)
+{
+	switch(pos) {
+		case '1': return RANK_1;
+		case '2': return RANK_2;
+		case '3': return RANK_3;
+		case '4': return RANK_4;
+		case '5': return RANK_5;
+		case '6': return RANK_6;
+		case '7': return RANK_7;
+		case '8': return RANK_8;
+		default: return -1;
+	}
+}
+
+
+/* When a pawn promotes, the piece promoted to is indicated at the end of the
+ * move notation, for example: e8Q (promoting to queen). In standard FIDE
+ * notation, no punctuation is used; in Portable Game Notation (PGN) and many
+ * publications, pawn promotion is indicated by the equals sign (e8=Q). Other
+ * formulations used in chess literature include parentheses (e.g. e8(Q)) and
+ * a forward slash (e.g. e8/Q).
+ */
+static bool is_pawn_promotion(char * const movetext, struct move *move)
+{
+	bool flag = false;
+	char *p = NULL;
+	const char * const delim[] = {
+		"8=", "8(", "8/", "8",		// white side pawn promotion
+		"1=", "1(", "1/", "1",		// black side pawn promotion
+	};
+	int len = sizeof(delim)/sizeof(delim[0]);
+
+	if (!movetext) {
+		return false;
+	}
+
+	for (int i = 0; i < len; i++) {
+		p = strstr(movetext, delim[i]);
+		if (p) {
+			if (*(p+1)) {
+				/* FIDE notation without punctuation */
+				switch (*(p+1)) {
+					/* UCI protocol allows for use of
+					 * lowercase letters for piece
+					 * promotion, for example e7e8q */
+					case 'Q': case 'q':
+					case 'R': case 'r':
+					case 'N': case 'n':
+					case 'B': move->promoted = \
+						  get_chessman(*(p+1));
+						  flag = true;
+						  break;
+					case 'b': /* check for special moves
+						     like f8b4, a8b8, a1a5,
+						     c8b7, a1b1, Qc8b8, etc. */
+						  if (strlen(p+1) == 1) {
+							  move->promoted = BISHOP;
+							  flag = true;
+						  } break;
+					default:  break;
+				}
+				if (flag) {
+					*(p+1) = '\0';
+					move->chessman = PAWN;
+					return true;
+				} else {
+					/* PGN and other formulations */
+					switch (*(p+1)) {
+						case '=':
+						case '/':
+						case '(': flag = true; break;
+						default:  break;
+					}
+				}
+			}
+		}
+		if (flag) {
+			break;
+		}
+	}
+
+	if (flag) {
+		if (strlen(p) > 2) {
+			move->promoted = get_chessman(*(p+2));
+			if (move->promoted != EMPTY) {
+				*(p+1) = '\0';
+				move->chessman = PAWN;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+
+static bool is_pawn_move(char * const movetext, struct move *move)
+{
+	const char delim[] = "KQBNR";
+
+	if (movetext) {
+		if (strpbrk(movetext, delim)) {
+			move->invalid = true;
+			return false;
+		} else {
+			move->chessman = PAWN;
+			return true;
+		}
+	}
+}
+
+
+static bool strip_ep_suffix(char * const movetext, struct move *move)
+{
+	const char * const suffix[] = {"e.p.","ep.", "ep"};
+
+	if (movetext) {
+		if (strip_text(movetext, suffix)) {
+			move->ep = true;
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+
+static int get_moving_piece_count(char * const movetext)
+{
+	int count = 0;
+
+	if (movetext) {
+		for (int i=0; i<strlen(movetext); i++) {
+			if (get_chessman(movetext[i]) != EMPTY) {
+				count++;
+			}
+		}
+	}
+
+	return count;
+}
+
+
+static int get_x_symbol_count(const char * const movetext)
+{
+	int count = 0;
+
+	if (movetext) {
+		for (int i=0; i<strlen(movetext); i++) {
+			if (movetext[i] == 'x') {
+				count++;
+			}
+		}
+	}
+
+	return count;
+}
+
+
+static bool move_has_valid_chars(const char * const movetext, struct move *move)
+{
+	const char charset[] = "KQBNRabcdefghx12345678";
+	size_t span = strspn(movetext, charset);
+
+	if (!movetext) {
+		return false;
+	}
+
+	if (strlen(movetext) != span) {
+		move->invalid = true;
+		dbg_print("Move: %s contains invalid character: %c\n",
+				move->movetext, movetext[span+1]);
+		return false;
+	}
+
+	/* each valid move should have only one moving piece */
+	if (get_moving_piece_count(movetext) > 1) {
+		move->invalid = true;
+		dbg_print("Invalid: Move has multiple moving pieces: %s\n",
+				move->movetext);
+		return false;
+	}
+
+	/* each valid move should make only one capture, if any */
+	if (get_x_symbol_count(movetext) > 1) {
+		move->invalid = true;
+		dbg_print("Invalid: Move has multiple captures: %s\n",
+				move->movetext);
+		return false;
+	}
+
+	return true;
+}
+
+
+static void strip_char_from_string(char * const movetext, const char ch)
+{
+	if (movetext) {
+		char *reader = movetext;
+		char *writer = movetext;
+
+		while (*reader) {
+			*writer = *reader++;
+			writer += (*writer != ch);
+		}
+		*writer = '\0';
+	}
+}
+
+
+static void strip_non_essential_symbols(char * const movetext)
+{
+	if (movetext) {
+		strip_char_from_string(movetext, 'P');
+		strip_char_from_string(movetext, '-');
+	}
+}
+
+
+/* UCI move format using from-to square notation, for example,
+ * d3d7 or d3-d7 or d3xd7 are all equivalent moves */
+static bool is_uci_move_format(char * const movetext)
+{
+	const char charset[] = "abcdefgh12345678";
+	size_t len = strlen(movetext);
+
+	if (!movetext) {
+		return false;
+	}
+
+	/* since '-' symbol has been stripped earlier,
+	 * we need to strip only symbol 'x', if present */
+	strip_char_from_string(movetext, 'x');
+
+	/* note that the promoted piece, if any, has been
+	 * stripped earlier, so the max lenght is 4 only */
+	if ((len != 4) || (strspn(movetext, charset) != len)) {
+		return false;
+	}
+
+	if ((isalpha(movetext[0]) == 0) || (isalpha(movetext[2]) == 0)) {
+		return false;
+	}
+
+	if ((isdigit(movetext[1]) == 0) || (isdigit(movetext[3]) == 0)) {
+		return false;
+	}
+
+	return true;
+}
+
+
+static void parse_stripped_uci_move(char *movetext, struct move *move)
+{
+	int8_t i = 0, *p[] = {
+		&move->from_file,
+		&move->from_rank,
+		&move->to_file,
+		&move->to_rank
+	};
+
+	if (movetext) {
+		while (*movetext) {
+			if (i%2) {
+				*p[i] = get_rank_index(movetext[0]);
+			} else {
+				*p[i] = get_file_index(movetext[0]);
+			}
+			movetext++;
+			i++;
+		}
+	}
+}
+
+/* parse 2 symbols of non-capture SAN move */
+static bool parse_2_sym_nc_san(const char *movetext, struct move * const move)
+{
+	if ((!movetext) || (!move)) {
+		return false;
+	} else {
+		if (strlen(movetext) != 2) {
+			return false;
+		}
+	}
+
+	move->chessman = PAWN;
+	move->to_file = get_file_index(movetext[0]);
+	move->to_rank = get_rank_index(movetext[1]);
+	return true;
+}
+
+
+/* parse 3 symbols of non-capture SAN move */
+static bool parse_3_sym_nc_san(const char *movetext, struct move * const move)
+{
+	if ((!movetext) || (!move)) {
+		return false;
+	} else {
+		if (strlen(movetext) != 3) {
+			return false;
+		}
+	}
+
+	move->chessman = get_chessman(movetext[0]);
+	move->to_file = get_file_index(movetext[1]);
+	move->to_rank = get_rank_index(movetext[2]);
+	return true;
+}
+
+
+/* parse 4 symbols of non-capture SAN move */
+static bool parse_4_sym_nc_san(const char *movetext, struct move * const move)
+{
+	if ((!movetext) || (!move)) {
+		return false;
+	} else {
+		if (strlen(movetext) != 4) {
+			return false;
+		}
+	}
+
+	move->chessman = get_chessman(movetext[0]);
+
+	if (isalpha(movetext[1])) {
+		move->from_rank = get_rank_index(movetext[1]);
+	} else {
+		if (isdigit(movetext[1])) {
+			move->from_file = get_file_index(movetext[1]);
+		}
+	}
+
+	move->to_file = get_file_index(movetext[2]);
+	move->to_rank = get_rank_index(movetext[3]);
+	return true;
+}
+
+
+/* parse 5 symbols of non-capture SAN move like Qh4e1, etc. */
+static bool parse_5_sym_nc_san(const char *movetext, struct move * const move)
+{
+	if ((!movetext) || (!move)) {
+		return false;
+	} else {
+		if (strlen(movetext) != 5) {
+			return false;
+		}
+	}
+
+	move->chessman = get_chessman(movetext[0]);
+	move->from_file = get_file_index(movetext[1]);
+	move->from_rank = get_rank_index(movetext[2]);
+	move->to_file = get_file_index(movetext[3]);
+	move->to_rank = get_rank_index(movetext[4]);
+	return true;
+}
+
+
+static void parse_non_capture_san_move(char *movetext, struct move *move)
+{
+	if (!parse_2_sym_nc_san(movetext, move)) {
+		if (!parse_3_sym_nc_san(movetext, move)) {
+			if (!parse_4_sym_nc_san(movetext, move)) {
+				parse_5_sym_nc_san(movetext, move);
+			}
+		}
+	}
+}
+
+
+/* parse single length from-token of SAN capture moves
+ * like bxa8, gxf5, Rxb7, Nxe5, Qxf7+, etc. */
+static bool parse_1_sym_from_token(const char *tok, struct move * const m)
+{
+	if ((!tok) || (!m)) {
+		return false;
+	} else {
+		if (strlen(tok) != 1) {
+			return false;
+		}
+	}
+
+	if (isupper(tok[0])) {
+		m->chessman = get_chessman(tok[0]);
+		return true;
+	} else {
+		if (islower(tok[0])) {
+			m->chessman = PAWN;
+			m->from_file = get_file_index(tok[0]);
+			return true;
+		} else {
+			m->invalid = true;
+			dbg_print("Illegal from-token: %c in move: %s\n",
+					tok[0], m->movetext);
+			return false;
+		}
+	}
+
+	return false;
+}
+
+/* parse double length from-token of SAN capture moves
+ * like Qgxf7, R7xd5, b4xc5, b7xa8Q, Rdxe5, etc. */
+static bool parse_2_sym_from_token(const char *tok, struct move * const m)
+{
+	if ((!tok) || (!m)) {
+		return false;
+	} else {
+		if (strlen(tok) != 2) {
+			return false;
+		}
+	}
+
+	/* Parse and process first symbol */
+	if (isupper(tok[0])) {
+		m->chessman = get_chessman(tok[0]);
+	} else {
+		if (islower(tok[0])) {
+			m->chessman = PAWN;
+			m->from_file = get_file_index(tok[0]);
+		} else {
+			m->invalid = true;
+			dbg_print("Illegal from-token: %c in move: %s\n",
+					tok[0], m->movetext);
+			return false;
+		}
+	}
+
+	/* Parse and process second symbol */
+	if (isupper(tok[1])) {
+		m->invalid = true;
+		dbg_print("Illegal from-token: %c in move: %s\n",
+				tok[1], m->movetext);
+		return false;
+	} else {
+		if (islower(tok[1])) {
+			m->from_file = get_file_index(tok[1]);
+			return true;
+		} else {
+			if (isdigit(tok[1])) {
+				if (m->chessman == EMPTY) {
+					m->chessman = PAWN;
+				}
+				m->from_rank = get_rank_index(tok[1]);
+				return true;
+			} else {
+				m->invalid = true;
+				dbg_print("Illegal from-token: %c in move: %s\n",
+						tok[1], m->movetext);
+				return false;
+			}
+		}
+	}
+}
+
+
+/* parse triple length from-token of SAN capture moves like Qh4xe1, etc. */
+static bool parse_3_sym_from_token(const char *tok, struct move * const m)
+{
+	if ((!tok) || (!m)) {
+		return false;
+	} else {
+		if (strlen(tok) != 3) {
+			return false;
+		}
+	}
+
+	/* Parse and process first symbol */
+	if (isupper(tok[0])) {
+		m->chessman = get_chessman(tok[0]);
+	} else {
+		m->invalid = true;
+		dbg_print("Illegal from-token: %c in move: %s\n",
+				tok[0], m->movetext);
+		return false;
+	}
+
+	/* Parse and process second symbol */
+	if (islower(tok[1])) {
+		m->from_file = get_file_index(tok[1]);
+	} else {
+		m->invalid = true;
+		dbg_print("Illegal from-token: %c in move: %s\n",
+				tok[1], m->movetext);
+		return false;
+	}
+
+	/* Parse and process third symbol */
+	if (isdigit(tok[2])) {
+		m->from_rank = get_rank_index(tok[2]);
+	} else {
+		m->invalid = true;
+		dbg_print("Illegal from-token: %c in move: %s\n",
+				tok[2], m->movetext);
+		return false;
+	}
+
+	return true;
+}
+
+
+/* Parse single length to-square token of SAN capture move */
+static bool parse_1_sym_to_sqr_tok(char * const tok, struct move * const m)
+{
+	if ((!tok) || (!m)) {
+		return false;
+	} else {
+		if (strlen(tok) != 1) {
+			return false;
+		}
+	}
+
+	if (islower(tok[0])) {
+		m->to_file = get_file_index(tok[0]);
+		return true;
+	} else {
+		m->invalid = true;
+		dbg_print("Illegal to-square token: %c in move: %s\n",
+				tok[0], m->movetext);
+		return false;
+	}
+}
+
+/* Parse double length to-square token of SAN capture move */
+static bool parse_2_sym_to_sqr_tok(char * const tok, struct move * const m)
+{
+	if ((!tok) || (!m)) {
+		return false;
+	} else {
+		if (strlen(tok) != 2) {
+			return false;
+		}
+	}
+
+	if (parse_1_sym_to_sqr_tok(tok, m)) {
+		if (isdigit(tok[1])) {
+			m->to_rank = get_rank_index(tok[1]);
+			return true;
+		} else {
+			m->invalid = true;
+			dbg_print("Illegal to-square token: %c in move: %s\n",
+					tok[1], m->movetext);
+		}
+	}
+
+	return false;
+}
+
+
+static bool parse_san_capture_move(char * const movetext, struct move *move)
+{
+	/* Step 1: find if it's a capture move, if yes, then seperate the
+	 * move into from-square and to-square tokens, then process each
+	 * token seperately */
+	if ((!movetext) || (!move)) {
+		return false;
+	}
+
+	char *saveptr, *token = strtok_r(movetext, "x", &saveptr);
+
+	if (token) {
+		return false;
+	}
+
+	if (!parse_1_sym_from_token(token, move)) {
+		if (!parse_2_sym_from_token(token, move)) {
+			if (!parse_3_sym_from_token(token, move)) {
+				dbg_print("Invalid from-token: %s in move: %s\n",
+						from_token, move->movetext);
+				return false;
+			}
+		}
+	}
+
+	token = strtok_r(NULL, "x", &saveptr);
+
+	if (!token) {
+		return false;
+	}
+
+	if (!parse_2_sym_to_sqr_tok(token, move)) {
+		if (!parse_1_sym_to_sqr_tok(token, move)) {
+				dbg_print("Invalid to-token: %s in move: %s\n",
+						token, move->movetext);
+				return false;
+		}
+	}
+
+	return true;
+}
+
+
+static void parse_stripped_san_move(char *movetext, struct move *move)
+{
+	if (movetext) {
+		if (strchr(movetext, 'x')) {
+			parse_san_capture_move(movetext, move);
+		} else {
+			parse_non_capture_san_move(movetext, move);
+		}
+	}
+}
+
+
+static void strip_annotations(char * const movetext, struct move * const move)
+{
+	if (movetext) {
+		/* Step 2: first get rid of annotations at the end */
+		strip_evaluation_annotation_symbols(movetext);
+		strip_eq_pos_annotation(movetext);
+		strip_eog_indicators(movetext);
+
+		/* Step 2.5: check if player has offered draw */
+		strip_draw_offered_flag(movetext, &move);
+
+		/* Step 3: strip check and checkmate suffix indicators */
+		strip_check_indicators(movetext, &move);
+		strip_checkmate_indicators(movetext, &move);
+		strip_non_essential_symbols(movetext);
+	}
+}
+
+
+static bool is_castling_move(char * const movetext, struct move * const move)
+{
+	/* Step 3.5: check for castling move */
+	if (movetext) {
+		if (is_ks_castling_seq(movetext, &move) ||
+				is_qs_castling_seq(movetext, &move))
+		{
+			if (strlen(movetext)) {
+				move->invalid = true;
+				dbg_print("Invalid chars in castling move: %s\n",
+						move->movetext);
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+
+static bool is_special_move(char * const movetext, struct move * const move)
+{
+	if (movetext) {
+		if (is_castling_move(movetext, &move)) {
+			return true;
+		} else {
+			if (is_pawn_promotion(movetext, &move) ||
+					strip_ep_suffix(movetext, &move)) {
+				if (is_pawn_move(movetext, &move)) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 /* Parse Standard Algebraic Notation (SAN) and Universal Chess Interface (UCI)
  * move format. The user may input both short as well as long algebraic
  * notation moves. For example, the shorter SAN notation "Nc3" is equivalent
  * to the longer UCI notation "b2c3". The function handles both the short and
  * long notation formats interchangeably.
  */
-void parse_san_input(char *input)
+struct move parse_input_move(char * const movetext)
 {
-        enum chessmen piece = PAWN;
-        enum files file;
-        enum rank rank;
+	struct move move;
 
-        while (*input) {
-                switch(*input) {
-                        case 'K': piece = KING; break;
-                        case 'Q': piece = QUEEN; break;
-                        case 'B': piece = BISHOP; break;
-                        case 'N': piece = KNIGHT; break;
-                        case 'R': piece = ROOK; break;
-                        case 'a': file = A_FILE; break;
-                        case 'b': file = B_FILE; break;
-                        case 'c': file = C_FILE; break;
-                        case 'd': file = D_FILE; break;
-                        case 'e': file = E_FILE; break;
-                        case 'f': file = F_FILE; break;
-                        case 'g': file = G_FILE; break;
-                        case 'h': file = H_FILE; break;
-                        case 'x': break;
-                }
-        }
+	/* Step 1: setup move struct */
+	if (movetext == NULL) {
+		dbg_print("Invalid: Move string is empty");
+		move.invalid = true;
+		return move;
+	} else {
+		setup_move_struct(movetext, &move);
+	}
+
+	/* Step 1: check for null move */
+	if (is_null_move(movetext, &move)) {
+		return move;
+	}
+
+	strip_annotations(movetext, &move);
+
+	if (is_special_move(movetext, &move)) {
+		return move;
+	}
+
+	/* Step 5.5: Now, since all annnotations are stripped
+	 * check that move text contains only valid chars */
+	if (!move_has_valid_chars(movetext, &move)) {
+		return move;
+	}
+
+	/* Step 6: check for UCI from/to square move format */
+	if (is_uci_move_format(movetext)) {
+		/* Step 7: parse UCI move */
+		parse_stripped_uci_move(movetext, &move);
+	} else {
+		/* Step 8: parse SAN move */
+		parse_stripped_san_move(movetext, &move);
+	}
+
+	return move;
 }
 
 

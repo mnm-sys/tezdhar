@@ -9,6 +9,7 @@
 #define __CHESS_H__	1
 
 #include <stdbool.h>	// for bool
+#include <stdint.h>	// for uint8_t
 
 #define VERSION "0.1"
 #define AUTHOR "Manavendra Nath Manav"
@@ -16,6 +17,7 @@
 
 #define MAX_FEN_LEN 88		// 87 plus 1 for Null terminator
 #define MAX_INPUT_LEN 128	// max user input length
+#define MAX_MOVE_LEN 16		// max move lenght for SAN, UCI or ICCF format
 
 /* Initial Forsyth–Edwards Notation (FEN) of a chess game */
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -149,18 +151,27 @@ enum rank {
 };
 
 
-/* move struct encodes the piece to be moved
- * from source square to destination square
- * along with other information to make the
- * engine decide whether its a best move or not */
 struct move {
-	enum pieces piece;	// piece to be moved
-        enum chessmen prom;	// type of promoted piece, if any
-	char baseSqr;		// source square
-	char targetSqr;		// destination square
-	int flags;		// promotion, enpassant flags
-	int eval;		// move evaluation score
+	char movetext[MAX_MOVE_LEN];	// move text in SAN, UCI or ICCF format
+	enum chessmen chessman;		// piece type irrespective of color
+	enum chessmen promoted;		// promoted piece type
+
+	int8_t from_file;		// file number of move's from-square
+	int8_t from_rank;		// rank number of move's from-square
+	int8_t to_file;			// file number of move's to-square
+	int8_t to_rank;			// rank number of move's to-square
+
+	bool castle_ks;			// is move king side castling
+	bool castle_qs;			// is move queen side castling
+	bool null;			// is null move
+	bool invalid;			// is valid or invalid move
+	bool draw_offered;		// does player offers draw in this move
+	bool ep;			// move claims to be en-passant move
+	bool capture;			// move claims to capture opponent piece
+	bool check;			// move claims to give check
+	bool checkmate;			// move claims to give checkmate
 };
+
 
 /* all current board information necessary to make
  * the next move is encapsulated in board struct.
@@ -174,15 +185,18 @@ struct board
 	enum pieces sqr[8][8];			// pieces on each square
 	bool castling[4];			// current castling rights
 	char enpassant;				// en-passant square number
-	unsigned int halfmove;			// number of half moves
-	unsigned int fullmove;			// number of full moves
+	uint16_t halfmove;			// number of half moves
+	uint16_t fullmove;			// number of full moves
 };
 
 /* Function prototypes */
 void print_fen_str(struct board *board);
 bool init_board(char *fen, struct board *board, enum player w, enum player b);
 void print_board(struct board *board);
-void print_board_status(struct board *board);
+void print_board_struct_info(struct board *board);
 void parse_san_input(char *input);
+char *input_user_move();
+struct move parse_input_move(char * const movetext);
+void print_move_struct_info(struct move *m);
 
 #endif	/* __CHESS_H__ */

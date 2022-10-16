@@ -187,7 +187,7 @@ void print_board(struct board *board)
 	}
 }
 
-void print_board_status(struct board *board)
+void print_board_struct_info(struct board *board)
 {
 	printf("Game Status: %d\n", board->status);
 
@@ -203,31 +203,52 @@ void print_board_status(struct board *board)
 	}
 
 	printf("Castling Rights:\n");
-	printf("White KS: ");
-	board->castling[0] ? printf("Yes\n") : printf("No\n");
-	printf("White QS: ");
-	board->castling[1] ? printf("Yes\n") : printf("No\n");
-	printf("Black KS: ");
-	board->castling[2] ? printf("Yes\n") : printf("No\n");
-	printf("Black QS: ");
-	board->castling[3] ? printf("Yes\n") : printf("No\n");
-
+	printf("White KS: %d\n", board->castling[0]);
+	printf("White QS: %d\n", board->castling[1]);
+	printf("Black KS: %d\n", board->castling[2]);
+	printf("Black QS: %d\n", board->castling[3]);
 	printf("En-passant square: %d\n", board->enpassant);
-
 	printf("Half-moves: %d\n", board->halfmove);
 	printf("Full-moves: %d\n", board->fullmove);
 }
 
-
-void input_user_move(void)
+void print_move_struct_info(struct move *m)
 {
-	char user_input[MAX_SAN_LEN];
-	if (!fgets(user_input, MAX_SAN_LEN, stdin)) {
-		dbg_print(perror("fgets() failed: "));
-		return;
+	printf("move->movetext		= %s\n", m->movetext);
+        printf("move->chessman          = %d\n", m->chessman);
+        printf("move->promoted          = %d\n", m->promoted);
+
+        printf("move->from_file		= %d\n", m->from_file);
+        printf("move->from_rank         = %d\n", m->from_rank);
+        printf("move->to_file           = %d\n", m->to_file);
+        printf("move->to_rank           = %d\n", m->to_rank);
+
+        printf("move->castle_ks         = %d\n", m->castle_ks);
+        printf("move->castle_qs         = %d\n", m->castle_qs);
+        printf("move->null              = %d\n", m->null);
+        printf("move->invalid           = %d\n", m->invalid);
+        printf("move->draw_offered      = %d\n", m->draw_offered);
+        printf("move->ep                = %d\n", m->ep);
+        printf("move->capture           = %d\n", m->capture);
+        printf("move->check             = %d\n", m->check);
+        printf("move->checkmate         = %d\n", m->checkmate);
+}
+
+char *input_user_move(char *buf)
+{
+	char *p, user_input[MAX_SAN_LEN];
+
+	if (buf) {
+		p = buf;
+	} else {
+		p = user_input;
 	}
 
-	parse_san_input(user_input);
-
+	if (!fgets(p, MAX_SAN_LEN, stdin)) {
+		dbg_print(perror("fgets() failed: "));
+		return NULL;
+	} else {
+		return user_input;
+	}
 }
 
