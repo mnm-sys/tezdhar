@@ -1,23 +1,13 @@
-/* tezdhar/src/fen.c
+/* @file: tezdhar/src/parse.c
  *
- * Contains routines to parse FEN string and update the board
- * position accordingly.
+ * Contains routines to parse FEN, SAN, ICCF and PGN
+ * formats and update the board position accordingly.
  */
 
 #include "chess.h"	// for struct board
 #include <stdio.h>	// for printf, fprintf
 #include <ctype.h>	// for isdigit, isspace
 #include <string.h>	// for strcpy, strlen
-#include <stdlib.h>	// for malloc
-
-
-/* Remove pieces from board and make every square empty */
-static void emptyBoard(struct board *board)
-{
-	for (int i=0; i<8; i++)
-		for (int j=0; j<8; j++)
-			board->sqr[i][j] = EMPTY_SQR;
-}
 
 
 /* Parse pieces from FEN string and place them on board 
@@ -72,15 +62,6 @@ static char *parse_pieces_from_fen(char *fen, struct board *board)
 	}
 
 	return valid ? fen : NULL;
-}
-
-
-/* Clear King and Queen side castling rights of both players */
-static void clear_castling_rights(struct board *board)
-{
-	for (int i=0; i<4; i++) {
-		board->castling[i] = false;
-	}
 }
 
 
@@ -150,6 +131,7 @@ static char *parse_fen_flags(char *fen, struct board *board)
 	return valid ? fen : NULL;
 }
 
+
 static bool str_has_digits_only(char *fen)
 {
 	if (fen) {
@@ -168,6 +150,7 @@ static bool str_has_digits_only(char *fen)
 	}
 }
 
+
 static bool parse_move_cnt(char *fen, struct board *b)
 {
 	if (str_has_digits_only(fen)) {
@@ -180,9 +163,9 @@ static bool parse_move_cnt(char *fen, struct board *b)
 	}
 }
 
-static bool parse_fen_record(char *fen, struct board *board)
+
+bool parse_fen_record(char *fen, struct board *board)
 {
-	//parse_move_cnt(parse_fen_flags(parse_pieces_from_fen(fen, board), board), board);
 	fen = parse_pieces_from_fen(fen, board);
 	fen = parse_fen_flags(fen, board);
 	return(parse_move_cnt(fen, board));
@@ -192,54 +175,6 @@ static bool parse_fen_record(char *fen, struct board *board)
 void print_fen_str(struct board *board)
 {
 	printf("\nFEN: %s\n", board->fen);
-}
-
-
-/* Initialize board with given fen string and select players for White
- * and Black. After the FEN is parsed the game status, castling rights,
- * which player has to move are set in the board struct.
- */
-bool init_board(char *fen, struct board *brd, enum player w, enum player b)
-{
-	emptyBoard(brd);
-	if (!fen) {
-		if (!(fen = malloc(MAX_FEN_LEN))) {
-			perror("malloc failed");
-			return false;
-		}
-		strncpy(fen, INITIAL_FEN, sizeof(fen) - 1);
-		fen[sizeof(fen) - 1] = '\0';
-	}
-	strcpy(brd->fen, fen);
-	parse_fen_record(fen, brd);
-	brd->whitePlayer = w;
-	brd->blackPlayer = b;
-	return true;
-}
-
-
-/* setup move struct before parsing user input movetext */
-static void setup_move_struct(const char * const movetext, struct move *move)
-{
-	strncpy(move->movetext, movetext, MAX_MOVE_LEN);
-
-	move->chessman		= EMPTY;
-	move->promoted		= EMPTY;
-
-	move->from_file		= -1;
-	move->from_rank		= -1;
-	move->to_file		= -1;
-	move->to_rank		= -1;
-
-	move->castle_ks		= false;
-	move->castle_qs		= false;
-	move->null		= false;
-	move->invalid		= false;
-	move->draw_offered	= false;
-	move->ep		= false;
-	move->capture		= false;
-	move->check		= false;
-	move->checkmate		= false;
 }
 
 
@@ -772,6 +707,7 @@ static void parse_stripped_uci_move(char *movetext, struct move *move)
 	}
 }
 
+
 /* parse 2 symbols of non-capture SAN move */
 static bool parse_2_sym_nc_san(const char *movetext, struct move * const move)
 {
@@ -898,6 +834,7 @@ static bool parse_1_sym_from_token(const char *tok, struct move * const m)
 	return false;
 }
 
+
 /* parse double length from-token of SAN capture moves
  * like Qgxf7, R7xd5, b4xc5, b7xa8Q, Rdxe5, etc. */
 static bool parse_2_sym_from_token(const char *tok, struct move * const m)
@@ -1019,6 +956,7 @@ static bool parse_1_sym_to_sqr_tok(char * const tok, struct move * const m)
 		return false;
 	}
 }
+
 
 /* Parse double length to-square token of SAN capture move */
 static bool parse_2_sym_to_sqr_tok(char * const tok, struct move * const m)
@@ -1208,5 +1146,4 @@ struct move parse_input_move(char * const movetext)
 
 	return move;
 }
-
 

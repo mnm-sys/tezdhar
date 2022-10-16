@@ -203,5 +203,8 @@ void parse_san_input(char *input);
 char *input_user_move(char *buf);
 struct move parse_input_move(char * const movetext);
 void print_move_struct_info(struct move *m);
+bool parse_fen_record(char *fen, struct board *board);
+void clear_castling_rights(struct board *board);
+void setup_move_struct(const char * const movetext, struct move *move);
 
 #endif	/* __CHESS_H__ */

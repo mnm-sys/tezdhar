@@ -215,9 +215,14 @@ void print_board_struct_info(struct board *board)
 
 void print_move_struct_info(struct move *m)
 {
+	const char *chessmen[] = {"King", "Queen", "Knight", "Bishop",
+			"Rook", "Pawn", "Empty"};
+
 	printf("move->movetext		= %s\n", m->movetext);
-        printf("move->chessman          = %d\n", m->chessman);
-        printf("move->promoted          = %d\n", m->promoted);
+        printf("move->chessman          = %d [%s]\n",
+			m->chessman, chessmen[m->chessman]);
+        printf("move->promoted          = %d [%s]\n",
+			m->promoted, chessmen[m->promoted]);
 
         printf("move->from_file		= %d\n", m->from_file);
         printf("move->from_rank         = %d\n", m->from_rank);
@@ -245,6 +250,8 @@ char *input_user_move(char *buf)
 		perror("fgets() failed");
 		return NULL;
 	} else {
+		/* remove the trailing '\n' */
+		buf[strcspn(buf, "\n")] = 0;
 		return buf;
 	}
 }

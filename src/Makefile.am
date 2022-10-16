@@ -2,7 +2,10 @@
 bin_PROGRAMS = tezdhar
 
 # specify which source files get built into an executable
-tezdhar_SOURCES = chess.c parse.c ui.c
+tezdhar_SOURCES = board.c \
+		  chess.c \
+		  parse.c \
+		  ui.c
 
 tezdhar_CFLAGS =	-fdata-sections			\
 			-fdelete-null-pointer-checks	\
