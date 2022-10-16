@@ -35,8 +35,10 @@
  * but only if, the previous token is a comma.
  */
 #ifdef DEBUG
-#define dbg_print(fmt, ...) do { fprintf(stderr, "%s:%d:%s(): " fmt, \
-		__FILE__, __LINE__, __func__, ##__VA_ARGS__); } while (0)
+#define debug_print(fmt, ...) do { \
+	fprintf(stderr, "%s:%d:%s(): " fmt "\n%s", \
+		__FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
+#define dbg_print(...) debug_print(__VA_ARGS__, "")
 #else
 #define dbg_print(fmt, ...) do {} while (0)
 #endif
