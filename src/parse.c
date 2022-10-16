@@ -8,6 +8,7 @@
 #include <stdio.h>	// for printf, fprintf
 #include <ctype.h>	// for isdigit, isspace
 #include <string.h>	// for strcpy, strlen
+#include <stdlib.h>	// for malloc
 
 
 /* Remove pieces from board and make every square empty */
@@ -194,19 +195,25 @@ void print_fen_str(struct board *board)
 }
 
 
-/*
- * Initialize board with given fen string and select players for White
+/* Initialize board with given fen string and select players for White
  * and Black. After the FEN is parsed the game status, castling rights,
  * which player has to move are set in the board struct.
  */
-bool init_board(char *fen, struct board *board, enum player w, enum player b)
+bool init_board(char *fen, struct board *brd, enum player w, enum player b)
 {
-	emptyBoard(board);
-	fen = fen ? fen : INITIAL_FEN;
-	strcpy(board->fen, fen);
-	parse_fen_record(fen, board);
-	board->whitePlayer = w;
-	board->blackPlayer = b;
+	emptyBoard(brd);
+	if (!fen) {
+		if (!(fen = malloc(MAX_FEN_LEN))) {
+			perror("malloc failed");
+			return false;
+		}
+		strncpy(fen, INITIAL_FEN, sizeof(fen) - 1);
+		fen[sizeof(fen) - 1] = '\0';
+	}
+	strcpy(brd->fen, fen);
+	parse_fen_record(fen, brd);
+	brd->whitePlayer = w;
+	brd->blackPlayer = b;
 	return true;
 }
 
@@ -277,13 +284,15 @@ static bool is_null_move(char * const movetext, struct move * const move)
 		"$0"		// NAG (Numeric Annotation Glyph)
 	};
 
-	if (movetext) {
-		if (strip_text(movetext, delim)) {
-			move->null = true;
-			return true;
-		} else {
-			return false;
-		}
+	if (!movetext) {
+		return false;
+	}
+
+	if (strip_text(movetext, delim)) {
+		move->null = true;
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -366,7 +375,7 @@ static void strip_eog_indicators(char * const movetext)
 
 /* FIDE specifies draw offers to be recorded by an equals sign
  * with parentheses "(=)" after the move on the score sheet. */
-static void strip_draw_offered_flag(char * const movetext, struct move *move)
+static void strip_draw_offered_flag(char * const movetext, struct move * const move)
 {
 	const char * const indicators[] = {"(=)"};
 
@@ -379,7 +388,7 @@ static void strip_draw_offered_flag(char * const movetext, struct move *move)
 
 
 /* strip check to king annotation indicators */
-static void strip_check_indicators(char * const movetext, struct move *move)
+static void strip_check_indicators(char * const movetext, struct move * const move)
 {
 	const char * const indicators[] = {
 		"dis. ch.",		// discovered check
@@ -398,7 +407,7 @@ static void strip_check_indicators(char * const movetext, struct move *move)
 
 
 /* strip checkmate annotations */
-static void strip_checkmate_indicators(char * const movetext, struct move *move)
+static void strip_checkmate_indicators(char * const movetext, struct move * const move)
 {
 	const char * const indicators[] = {"mate", "++", "#"};
 
@@ -411,41 +420,45 @@ static void strip_checkmate_indicators(char * const movetext, struct move *move)
 
 
 /* check for king side castling sequence */
-static bool is_ks_castling_seq(char * const movetext, struct move *move)
+static bool is_ks_castling_seq(char * const movetext, struct move * const move)
 {
 	const char * const seq[] = {
 		"0-0",		// digit zero format (FIDE standard)
 		"O-O"		// uppercase letter O (PGN specification)
 	};
 
-	if (movetext) {
-		if (strip_text(movetext, seq)) {
-			move->chessman = KING;
-			move->castle_ks = true;
-			return true;
-		} else {
-			return false;
-		}
+	if (!movetext) {
+		return false;
+	}
+
+	if (strip_text(movetext, seq)) {
+		move->chessman = KING;
+		move->castle_ks = true;
+		return true;
+	} else {
+		return false;
 	}
 }
 
 
 /* check for queen side castling sequence */
-static bool is_qs_castling_seq(char * const movetext, struct move *move)
+static bool is_qs_castling_seq(char * const movetext, struct move * const move)
 {
 	const char * const seq[] = {
 		"0-0-0",	// digit zero format (FIDE standard)
 		"O-O-O"		// uppercase letter O (PGN specification)
 	};
 
-	if (movetext) {
-		if (strip_text(movetext, seq)) {
-			move->chessman = KING;
-			move->castle_qs = true;
-			return true;
-		} else {
-			return false;
-		}
+	if (!movetext) {
+		return false;
+	}
+
+	if (strip_text(movetext, seq)) {
+		move->chessman = KING;
+		move->castle_qs = true;
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -581,14 +594,16 @@ static bool is_pawn_move(char * const movetext, struct move *move)
 {
 	const char delim[] = "KQBNR";
 
-	if (movetext) {
-		if (strpbrk(movetext, delim)) {
-			move->invalid = true;
-			return false;
-		} else {
-			move->chessman = PAWN;
-			return true;
-		}
+	if (!movetext) {
+		return false;
+	}
+
+	if (strpbrk(movetext, delim)) {
+		move->invalid = true;
+		return false;
+	} else {
+		move->chessman = PAWN;
+		return true;
 	}
 }
 
@@ -597,23 +612,25 @@ static bool strip_ep_suffix(char * const movetext, struct move *move)
 {
 	const char * const suffix[] = {"e.p.","ep.", "ep"};
 
-	if (movetext) {
-		if (strip_text(movetext, suffix)) {
-			move->ep = true;
-			return true;
-		} else {
-			return false;
-		}
+	if (!movetext) {
+		return false;
+	}
+
+	if (strip_text(movetext, suffix)) {
+		move->ep = true;
+		return true;
+	} else {
+		return false;
 	}
 }
 
 
-static int get_moving_piece_count(char * const movetext)
+static int get_moving_piece_count(const char * const movetext)
 {
 	int count = 0;
 
 	if (movetext) {
-		for (int i=0; i<strlen(movetext); i++) {
+		for (size_t i=0; i<strlen(movetext); i++) {
 			if (get_chessman(movetext[i]) != EMPTY) {
 				count++;
 			}
@@ -629,7 +646,7 @@ static int get_x_symbol_count(const char * const movetext)
 	int count = 0;
 
 	if (movetext) {
-		for (int i=0; i<strlen(movetext); i++) {
+		for (size_t i=0; i<strlen(movetext); i++) {
 			if (movetext[i] == 'x') {
 				count++;
 			}
@@ -651,7 +668,7 @@ static bool move_has_valid_chars(const char * const movetext, struct move *move)
 
 	if (strlen(movetext) != span) {
 		move->invalid = true;
-		dbg_print("Move: %s contains invalid character: %c\n",
+		dbg_print("Move: %s contains invalid character: '%c'\n",
 				move->movetext, movetext[span+1]);
 		return false;
 	}
@@ -1048,7 +1065,7 @@ static bool parse_san_capture_move(char * const movetext, struct move *move)
 		if (!parse_2_sym_from_token(token, move)) {
 			if (!parse_3_sym_from_token(token, move)) {
 				dbg_print("Invalid from-token: %s in move: %s\n",
-						from_token, move->movetext);
+						token, move->movetext);
 				return false;
 			}
 		}
@@ -1062,9 +1079,9 @@ static bool parse_san_capture_move(char * const movetext, struct move *move)
 
 	if (!parse_2_sym_to_sqr_tok(token, move)) {
 		if (!parse_1_sym_to_sqr_tok(token, move)) {
-				dbg_print("Invalid to-token: %s in move: %s\n",
-						token, move->movetext);
-				return false;
+			dbg_print("Invalid to-token: %s in move: %s\n",
+					token, move->movetext);
+			return false;
 		}
 	}
 
@@ -1093,11 +1110,11 @@ static void strip_annotations(char * const movetext, struct move * const move)
 		strip_eog_indicators(movetext);
 
 		/* Step 2.5: check if player has offered draw */
-		strip_draw_offered_flag(movetext, &move);
+		strip_draw_offered_flag(movetext, move);
 
 		/* Step 3: strip check and checkmate suffix indicators */
-		strip_check_indicators(movetext, &move);
-		strip_checkmate_indicators(movetext, &move);
+		strip_check_indicators(movetext, move);
+		strip_checkmate_indicators(movetext, move);
 		strip_non_essential_symbols(movetext);
 	}
 }
@@ -1106,19 +1123,21 @@ static void strip_annotations(char * const movetext, struct move * const move)
 static bool is_castling_move(char * const movetext, struct move * const move)
 {
 	/* Step 3.5: check for castling move */
-	if (movetext) {
-		if (is_ks_castling_seq(movetext, &move) ||
-				is_qs_castling_seq(movetext, &move))
-		{
-			if (strlen(movetext)) {
-				move->invalid = true;
-				dbg_print("Invalid chars in castling move: %s\n",
-						move->movetext);
-			}
-			return true;
-		} else {
-			return false;
+	if (!movetext) {
+		return false;
+	}
+
+	if (is_ks_castling_seq(movetext, move) ||
+			is_qs_castling_seq(movetext, move))
+	{
+		if (strlen(movetext)) {
+			move->invalid = true;
+			dbg_print("Invalid chars in castling move: %s\n",
+					move->movetext);
 		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -1126,12 +1145,12 @@ static bool is_castling_move(char * const movetext, struct move * const move)
 static bool is_special_move(char * const movetext, struct move * const move)
 {
 	if (movetext) {
-		if (is_castling_move(movetext, &move)) {
+		if (is_castling_move(movetext, move)) {
 			return true;
 		} else {
-			if (is_pawn_promotion(movetext, &move) ||
-					strip_ep_suffix(movetext, &move)) {
-				if (is_pawn_move(movetext, &move)) {
+			if (is_pawn_promotion(movetext, move) ||
+					strip_ep_suffix(movetext, move)) {
+				if (is_pawn_move(movetext, move)) {
 					return true;
 				}
 			}
@@ -1154,6 +1173,7 @@ struct move parse_input_move(char * const movetext)
 	/* Step 1: setup move struct */
 	if (movetext == NULL) {
 		dbg_print("Invalid: Move string is empty");
+		setup_move_struct("", &move);
 		move.invalid = true;
 		return move;
 	} else {

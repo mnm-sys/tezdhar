@@ -195,7 +195,7 @@ bool init_board(char *fen, struct board *board, enum player w, enum player b);
 void print_board(struct board *board);
 void print_board_struct_info(struct board *board);
 void parse_san_input(char *input);
-char *input_user_move();
+char *input_user_move(char *buf);
 struct move parse_input_move(char * const movetext);
 void print_move_struct_info(struct move *m);
 

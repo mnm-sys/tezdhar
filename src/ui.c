@@ -4,6 +4,7 @@
 #include <stdbool.h>	// for bool
 #include <string.h>	// for strcmp
 #include <wchar.h>	// for wprintf
+#include <errno.h>	// for errno
 
 #include "chess.h"
 
@@ -236,19 +237,15 @@ void print_move_struct_info(struct move *m)
 
 char *input_user_move(char *buf)
 {
-	char *p, user_input[MAX_SAN_LEN];
-
-	if (buf) {
-		p = buf;
-	} else {
-		p = user_input;
+	if (!buf) {
+		return NULL;
 	}
 
-	if (!fgets(p, MAX_SAN_LEN, stdin)) {
-		dbg_print(perror("fgets() failed: "));
+	if (!fgets(buf, MAX_SAN_LEN, stdin)) {
+		perror("fgets() failed");
 		return NULL;
 	} else {
-		return user_input;
+		return buf;
 	}
 }
 
