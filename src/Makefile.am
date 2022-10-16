@@ -11,7 +11,6 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-fno-common			\
 			-fstack-protector		\
 			-fstack-usage 			\
-			-v				\
 			-Wabi				\
 			-Waggregate-return		\
 			-Wall 				\
@@ -70,7 +69,6 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-Woverflow			\
 			-Woverloaded-virtual 		\
 			-Wpacked			\
-			-Wpadded			\
 			-Wparentheses			\
 			-Wpedantic 			\
 			-Wpointer-to-int-cast		\
@@ -106,6 +104,7 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-Wwrite-strings			\
 			-Wzero-as-null-pointer-constant
 
+# removed CFLAGS: -v -Wpadded
 
 #AM_LDFLAGS = --gc-sections --print-gc-sections
 
