@@ -190,6 +190,7 @@ void print_board(struct board *board)
 
 void print_board_struct_info(struct board *board)
 {
+#ifdef DEBUG
 	printf("Game Status: %d\n", board->status);
 
 	printf("Player Turn: ");
@@ -211,23 +212,25 @@ void print_board_struct_info(struct board *board)
 	printf("En-passant square: %d\n", board->enpassant);
 	printf("Half-moves: %d\n", board->halfmove);
 	printf("Full-moves: %d\n", board->fullmove);
+#endif
 }
 
 void print_move_struct_info(struct move *m)
 {
-	const char *chessmen[] = {"King", "Queen", "Knight", "Bishop",
-			"Rook", "Pawn", "Empty"};
+#ifdef DEBUG
+	const char *chessmen[] = {"King", "Queen", "Knight",
+			"Bishop", "Rook", "Pawn", "Empty"};
+	const char files[] = "-abcdefgh";
+	const char ranks[] = "-87654321";
 
 	printf("move->movetext		= %s\n", m->movetext);
-        printf("move->chessman          = %d [%s]\n",
-			m->chessman, chessmen[m->chessman]);
-        printf("move->promoted          = %d [%s]\n",
-			m->promoted, chessmen[m->promoted]);
+        printf("move->chessman          = %s\n", chessmen[m->chessman]);
+        printf("move->promoted          = %s\n", chessmen[m->promoted]);
 
-        printf("move->from_file		= %d\n", m->from_file);
-        printf("move->from_rank         = %d\n", m->from_rank);
-        printf("move->to_file           = %d\n", m->to_file);
-        printf("move->to_rank           = %d\n", m->to_rank);
+        printf("move->from_file		= %c\n", files[m->from_file + 1]);
+        printf("move->from_rank         = %c\n", ranks[m->from_rank + 1]);
+        printf("move->to_file           = %c\n", files[m->to_file + 1]);
+        printf("move->to_rank           = %c\n", ranks[m->to_rank + 1]);
 
         printf("move->castle_ks         = %d\n", m->castle_ks);
         printf("move->castle_qs         = %d\n", m->castle_qs);
@@ -238,6 +241,7 @@ void print_move_struct_info(struct move *m)
         printf("move->capture           = %d\n", m->capture);
         printf("move->check             = %d\n", m->check);
         printf("move->checkmate         = %d\n", m->checkmate);
+#endif
 }
 
 char *input_user_move(char *buf)
