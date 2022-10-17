@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
 	printf("Tezdhar Chess Engine %s by %s\n%s\n", VERSION, AUTHOR, URL);
 	printf("This is free software: you are free to redistribute it.\n");
-	printf("There is NO WARRANTY, to the extent permitted by law.\n");
+	printf("There is NO WARRANTY, to the extent permitted by law.\r\n");
 
 	init_board(NULL, &board, HUMAN, AI);
 	print_fen_str(&board);
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 	print_board_struct_info(&board);
 
 	while (1) {
-		printf("<< .. Testing updation of move struct .. >>\n");
+		printf("\n<< .. Testing updation of move struct .. >>\n");
 		printf("Your move: ");
 		move = parse_input_move(input_user_move(user_input));
 		print_move_struct_info(__FILE__, __LINE__, __func__, &move);

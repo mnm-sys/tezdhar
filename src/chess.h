@@ -36,12 +36,12 @@
  */
 #ifdef DEBUG
 #define debug_print(fmt, ...) do { \
-	fprintf(stderr, "[%s:%d:%s()]: " fmt "%s", \
+	fprintf(stderr, "[%s:%d:%s()] -------> " fmt "%s", \
 			__FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
 #define dbg_print(...) debug_print(__VA_ARGS__, "")
 #else
 #define debug_print(fmt, ...) while(0) { \
-	fprintf(stderr, "%s:%d:%s(): " fmt "\n%s", \
+	fprintf(stderr, "[%s:%d:%s()] " fmt "%s", \
 			__FILE__, __LINE__, __func__, __VA_ARGS__); }
 #define dbg_print(...) debug_print(__VA_ARGS__, "")
 #endif
