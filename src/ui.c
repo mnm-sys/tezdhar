@@ -190,7 +190,7 @@ void print_board(struct board *board)
 
 void print_board_struct_info(struct board *board)
 {
-#ifdef DEBUG
+//#ifdef DEBUG
 	printf("Game Status: %d\n", board->status);
 
 	printf("Player Turn: ");
@@ -212,12 +212,12 @@ void print_board_struct_info(struct board *board)
 	printf("En-passant square: %d\n", board->enpassant);
 	printf("Half-moves: %d\n", board->halfmove);
 	printf("Full-moves: %d\n", board->fullmove);
-#endif
+//#endif
 }
 
 void print_move_struct_info(struct move *m)
 {
-#ifdef DEBUG
+//#ifdef DEBUG
 	const char *chessmen[] = {"King", "Queen", "Knight",
 			"Bishop", "Rook", "Pawn", "Empty"};
 	const char files[] = "-abcdefgh";
@@ -241,7 +241,7 @@ void print_move_struct_info(struct move *m)
         printf("move->capture           = %d\n", m->capture);
         printf("move->check             = %d\n", m->check);
         printf("move->checkmate         = %d\n", m->checkmate);
-#endif
+//#endif
 }
 
 char *input_user_move(char *buf)
