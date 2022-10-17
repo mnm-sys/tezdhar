@@ -8,6 +8,7 @@
 #include <stdio.h>	// for printf, fprintf
 #include <ctype.h>	// for isdigit, isspace
 #include <string.h>	// for strcpy, strlen
+#include <stdlib.h>	// for free
 
 
 /* Parse pieces from FEN string and place them on board 
@@ -537,6 +538,7 @@ static bool is_pawn_move(char * const movetext, struct move *move)
 		move->invalid = true;
 		return false;
 	} else {
+		dbg_print("movetext = %s\n", movetext);
 		move->chessman = PAWN;
 		return true;
 	}
@@ -656,31 +658,37 @@ static void strip_non_essential_symbols(char * const movetext)
  * d3d7 or d3-d7 or d3xd7 are all equivalent moves */
 static bool is_uci_move_format(char * const movetext)
 {
+	size_t len;
+	char *buf;
 	const char charset[] = "abcdefgh12345678";
-	size_t len = strlen(movetext);
 
 	if (!movetext) {
 		return false;
 	}
 
-	/* since '-' symbol has been stripped earlier,
-	 * we need to strip only symbol 'x', if present */
-	strip_char_from_string(movetext, 'x');
+	/* Since '-' symbol has been stripped earlier, we need to strip only
+	 * the symbol 'x', if present. Note that we are stripping the duplicate
+	 * move text instead of the original, so that the original is retained
+	 * unstripped, in case if this is not UCI format */
+	buf = strdup(movetext);
+	strip_char_from_string(buf, 'x');
+	len = strlen(buf);
 
 	/* note that the promoted piece, if any, has been
 	 * stripped earlier, so the max lenght is 4 only */
-	if ((len != 4) || (strspn(movetext, charset) != len)) {
+	if ((len != 4) || (strspn(buf, charset) != len)) {
 		return false;
 	}
 
-	if ((isalpha(movetext[0]) == 0) || (isalpha(movetext[2]) == 0)) {
+	if ((isalpha(buf[0]) == 0) || (isalpha(buf[2]) == 0)) {
 		return false;
 	}
 
-	if ((isdigit(movetext[1]) == 0) || (isdigit(movetext[3]) == 0)) {
+	if ((isdigit(buf[1]) == 0) || (isdigit(buf[3]) == 0)) {
 		return false;
 	}
 
+	free(buf);
 	return true;
 }
 
@@ -693,8 +701,14 @@ static void parse_stripped_uci_move(char *movetext, struct move *move)
 		&move->to_file,
 		&move->to_rank
 	};
+	size_t len = strlen(movetext);
 
-	if (movetext) {
+	if (len > 4) {
+		strip_char_from_string(movetext, 'x');
+		len = strlen(movetext);
+	}
+
+	if ((movetext) && (len == 4)) {
 		while (*movetext) {
 			if (i%2) {
 				*p[i] = get_rank_index(movetext[0]);
@@ -969,7 +983,9 @@ static bool parse_2_sym_to_sqr_tok(char * const tok, struct move * const m)
 		}
 	}
 
-	if (parse_1_sym_to_sqr_tok(tok, m)) {
+	char *sym = strndup(tok, 1);
+
+	if (parse_1_sym_to_sqr_tok(sym, m)) {
 		if (isdigit(tok[1])) {
 			m->to_rank = get_rank_index(tok[1]);
 			return true;
@@ -980,6 +996,7 @@ static bool parse_2_sym_to_sqr_tok(char * const tok, struct move * const m)
 		}
 	}
 
+	free(sym);
 	return false;
 }
 
@@ -995,9 +1012,11 @@ static bool parse_san_capture_move(char * const movetext, struct move *move)
 
 	char *saveptr, *token = strtok_r(movetext, "x", &saveptr);
 
-	if (token) {
+	dbg_print("token = %s\tmovetext = %s\n", token, movetext);
+	if (!token) {
 		return false;
 	}
+	dbg_print("movetext = %s\n", movetext);
 
 	if (!parse_1_sym_from_token(token, move)) {
 		if (!parse_2_sym_from_token(token, move)) {
@@ -1008,12 +1027,14 @@ static bool parse_san_capture_move(char * const movetext, struct move *move)
 			}
 		}
 	}
+	dbg_print("movetext = %s\n", movetext);
 
 	token = strtok_r(NULL, "x", &saveptr);
 
 	if (!token) {
 		return false;
 	}
+	dbg_print("movetext = %s\n", movetext);
 
 	if (!parse_2_sym_to_sqr_tok(token, move)) {
 		if (!parse_1_sym_to_sqr_tok(token, move)) {
@@ -1022,6 +1043,7 @@ static bool parse_san_capture_move(char * const movetext, struct move *move)
 			return false;
 		}
 	}
+	dbg_print("movetext = %s\n", movetext);
 
 	return true;
 }
@@ -1031,8 +1053,10 @@ static void parse_stripped_san_move(char *movetext, struct move *move)
 {
 	if (movetext) {
 		if (strchr(movetext, 'x')) {
+			dbg_print("movetext = %s\n", movetext);
 			parse_san_capture_move(movetext, move);
 		} else {
+			dbg_print("movetext = %s\n", movetext);
 			parse_non_capture_san_move(movetext, move);
 		}
 	}
@@ -1126,22 +1150,33 @@ struct move parse_input_move(char * const movetext)
 	strip_annotations(movetext, &move);
 
 	if (is_special_move(movetext, &move)) {
-		return move;
+		if (move.invalid) {
+			return move;
+		}
 	}
+
+	dbg_print("movetext = %s\n", movetext);
 
 	/* Step 5.5: Now, since all annnotations are stripped
 	 * check that move text contains only valid chars */
 	if (!move_has_valid_chars(movetext, &move)) {
+		dbg_print("movetext = %s\n", movetext);
 		return move;
 	}
+
+	dbg_print("movetext = %s\n", movetext);
 
 	/* Step 6: check for UCI from/to square move format */
 	if (is_uci_move_format(movetext)) {
 		/* Step 7: parse UCI move */
+		dbg_print("movetext = %s\n", movetext);
 		parse_stripped_uci_move(movetext, &move);
+		dbg_print("movetext = %s\n", movetext);
 	} else {
 		/* Step 8: parse SAN move */
+		dbg_print("movetext = %s\n", movetext);
 		parse_stripped_san_move(movetext, &move);
+		dbg_print("movetext = %s\n", movetext);
 	}
 
 	return move;

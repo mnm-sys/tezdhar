@@ -36,13 +36,13 @@
  */
 #ifdef DEBUG
 #define debug_print(fmt, ...) do { \
-	fprintf(stderr, "%s:%d:%s(): " fmt "\n%s", \
-		__FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
+	fprintf(stderr, "[%s:%d:%s()]: " fmt "%s", \
+			__FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
 #define dbg_print(...) debug_print(__VA_ARGS__, "")
 #else
 #define debug_print(fmt, ...) while(0) { \
 	fprintf(stderr, "%s:%d:%s(): " fmt "\n%s", \
-		__FILE__, __LINE__, __func__, __VA_ARGS__); }
+			__FILE__, __LINE__, __func__, __VA_ARGS__); }
 #define dbg_print(...) debug_print(__VA_ARGS__, "")
 #endif
 
@@ -132,27 +132,27 @@ enum castling_rights {
 
 /* File numbers on board */
 enum files {
-        A_FILE	= 0,
-        B_FILE	= 1,
-        C_FILE	= 2,
-        D_FILE	= 3,
-        E_FILE	= 4,
-        F_FILE	= 5,
-        G_FILE	= 6,
-        H_FILE	= 7
+	A_FILE	= 0,
+	B_FILE	= 1,
+	C_FILE	= 2,
+	D_FILE	= 3,
+	E_FILE	= 4,
+	F_FILE	= 5,
+	G_FILE	= 6,
+	H_FILE	= 7
 };
 
 
 /* Rank numbers on board */
 enum rank {
-        RANK_8 = 0,
-        RANK_7 = 1,
-        RANK_6 = 2,
-        RANK_5 = 3,
-        RANK_4 = 4,
-        RANK_3 = 5,
-        RANK_2 = 6,
-        RANK_1 = 7
+	RANK_8 = 0,
+	RANK_7 = 1,
+	RANK_6 = 2,
+	RANK_5 = 3,
+	RANK_4 = 4,
+	RANK_3 = 5,
+	RANK_2 = 6,
+	RANK_1 = 7
 };
 
 
@@ -202,7 +202,7 @@ void print_board_struct_info(struct board *board);
 void parse_san_input(char *input);
 char *input_user_move(char *buf);
 struct move parse_input_move(char * const movetext);
-void print_move_struct_info(struct move *m);
+void print_move_struct_info(const char *f, int l, const char *func, struct move *m);
 bool parse_fen_record(char *fen, struct board *board);
 void clear_castling_rights(struct board *board);
 void setup_move_struct(const char * const movetext, struct move *move);

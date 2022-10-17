@@ -27,7 +27,7 @@ enum chessmen_utf {
 	BCN 	= 0x265E,	// ♞ black chess knight
 	BCP 	= 0x265F	// ♟ black chess pawn
 };
-	
+
 enum box_drawing_utf {
 	LF	= 0x000A,	// \n line Feed
 	CR	= 0x000D,	// \r carriage Return
@@ -132,33 +132,33 @@ static void draw_utf_board(struct board *board)
 
 static void draw_ascii_board(struct board *board)
 {
-        printf("\n");
-        for (int i=0; i<8; i++) {
-                printf("   +---+---+---+---+---+---+---+---+\n%d ", 8-i);
-                for (int j=0; j<8; j++) {
-                        printf(" | ");
-                        switch(board->sqr[i][j]) {
-                                case EMPTY_SQR: printf(" ");break;
-                                case BLACK_ROOK: printf("r"); break;
-                                case BLACK_KNIGHT: printf("n"); break;
-                                case BLACK_BISHOP: printf("b"); break;
-                                case BLACK_QUEEN: printf("q"); break;
-                                case BLACK_KING: printf("k"); break;
-                                case BLACK_PAWN: printf("p"); break;
-                                case WHITE_ROOK: printf("R"); break;
-                                case WHITE_KNIGHT: printf("N"); break;
-                                case WHITE_BISHOP: printf("B"); break;
-                                case WHITE_QUEEN: printf("Q"); break;
-                                case WHITE_KING: printf("K"); break;
-                                case WHITE_PAWN: printf("P"); break;
-                                default: printf("x");
-                        }   
-                }   
-                printf(" |\n");
-        }   
+	printf("\n");
+	for (int i=0; i<8; i++) {
+		printf("   +---+---+---+---+---+---+---+---+\n%d ", 8-i);
+		for (int j=0; j<8; j++) {
+			printf(" | ");
+			switch(board->sqr[i][j]) {
+				case EMPTY_SQR: printf(" ");break;
+				case BLACK_ROOK: printf("r"); break;
+				case BLACK_KNIGHT: printf("n"); break;
+				case BLACK_BISHOP: printf("b"); break;
+				case BLACK_QUEEN: printf("q"); break;
+				case BLACK_KING: printf("k"); break;
+				case BLACK_PAWN: printf("p"); break;
+				case WHITE_ROOK: printf("R"); break;
+				case WHITE_KNIGHT: printf("N"); break;
+				case WHITE_BISHOP: printf("B"); break;
+				case WHITE_QUEEN: printf("Q"); break;
+				case WHITE_KING: printf("K"); break;
+				case WHITE_PAWN: printf("P"); break;
+				default: printf("x");
+			}
+		}
+		printf(" |\n");
+	}
 
-        printf("   +---+---+---+---+---+---+---+---+\n");
-        printf("     a   b   c   d   e   f   g   h\n\n");
+	printf("   +---+---+---+---+---+---+---+---+\n");
+	printf("     a   b   c   d   e   f   g   h\n\n");
 }
 
 static bool term_has_unicode()
@@ -190,7 +190,7 @@ void print_board(struct board *board)
 
 void print_board_struct_info(struct board *board)
 {
-//#ifdef DEBUG
+	//#ifdef DEBUG
 	printf("Game Status: %d\n", board->status);
 
 	printf("Player Turn: ");
@@ -198,7 +198,7 @@ void print_board_struct_info(struct board *board)
 		printf("White\n");
 	} else {
 		if (board->status == BLACK_TURN) {
-		printf("Black\n");
+			printf("Black\n");
 		} else {
 			printf("None\n");
 		}
@@ -212,36 +212,42 @@ void print_board_struct_info(struct board *board)
 	printf("En-passant square: %d\n", board->enpassant);
 	printf("Half-moves: %d\n", board->halfmove);
 	printf("Full-moves: %d\n", board->fullmove);
-//#endif
+	//#endif
 }
 
-void print_move_struct_info(struct move *m)
+void print_move_struct_info(const char *f, int l, const char *fn, struct move *m)
 {
-//#ifdef DEBUG
+	//#ifdef DEBUG
+	int i = printf("-------- Called by: %s:%d:%s() --------\n", f, l, fn);
 	const char *chessmen[] = {"King", "Queen", "Knight",
-			"Bishop", "Rook", "Pawn", "Empty"};
+		"Bishop", "Rook", "Pawn", "Empty"};
 	const char files[] = "-abcdefgh";
 	const char ranks[] = "-87654321";
 
 	printf("move->movetext		= %s\n", m->movetext);
-        printf("move->chessman          = %s\n", chessmen[m->chessman]);
-        printf("move->promoted          = %s\n", chessmen[m->promoted]);
+	printf("move->chessman          = %s\n", chessmen[m->chessman]);
+	printf("move->promoted          = %s\n", chessmen[m->promoted]);
 
-        printf("move->from_file		= %c\n", files[m->from_file + 1]);
-        printf("move->from_rank         = %c\n", ranks[m->from_rank + 1]);
-        printf("move->to_file           = %c\n", files[m->to_file + 1]);
-        printf("move->to_rank           = %c\n", ranks[m->to_rank + 1]);
+	printf("move->from_file		= %c\n", files[m->from_file + 1]);
+	printf("move->from_rank         = %c\n", ranks[m->from_rank + 1]);
+	printf("move->to_file           = %c\n", files[m->to_file + 1]);
+	printf("move->to_rank           = %c\n", ranks[m->to_rank + 1]);
 
-        printf("move->castle_ks         = %d\n", m->castle_ks);
-        printf("move->castle_qs         = %d\n", m->castle_qs);
-        printf("move->null              = %d\n", m->null);
-        printf("move->invalid           = %d\n", m->invalid);
-        printf("move->draw_offered      = %d\n", m->draw_offered);
-        printf("move->ep                = %d\n", m->ep);
-        printf("move->capture           = %d\n", m->capture);
-        printf("move->check             = %d\n", m->check);
-        printf("move->checkmate         = %d\n", m->checkmate);
-//#endif
+	printf("move->castle_ks         = %d\n", m->castle_ks);
+	printf("move->castle_qs         = %d\n", m->castle_qs);
+	printf("move->null              = %d\n", m->null);
+	printf("move->invalid           = %d\n", m->invalid);
+	printf("move->draw_offered      = %d\n", m->draw_offered);
+	printf("move->ep                = %d\n", m->ep);
+	printf("move->capture           = %d\n", m->capture);
+	printf("move->check             = %d\n", m->check);
+	printf("move->checkmate         = %d\n", m->checkmate);
+
+	while (--i) {
+		printf("-");
+	}
+	printf("\n");
+	//#endif
 }
 
 char *input_user_move(char *buf)

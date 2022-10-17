@@ -37,25 +37,25 @@
  */
 int main(int argc, char *argv[])
 {
-        struct board board;
+	struct board board;
 	struct move move;
 	char user_input[MAX_INPUT_LEN];
 
-        printf("Tezdhar Chess Engine %s by %s\n%s\n", VERSION, AUTHOR, URL);
-        printf("This is free software: you are free to redistribute it.\n");
-        printf("There is NO WARRANTY, to the extent permitted by law.\n");
+	printf("Tezdhar Chess Engine %s by %s\n%s\n", VERSION, AUTHOR, URL);
+	printf("This is free software: you are free to redistribute it.\n");
+	printf("There is NO WARRANTY, to the extent permitted by law.\n");
 
-        init_board(NULL, &board, HUMAN, AI);
-        print_fen_str(&board);
-        print_board(&board);
+	init_board(NULL, &board, HUMAN, AI);
+	print_fen_str(&board);
+	print_board(&board);
 	print_board_struct_info(&board);
 
-	printf("<< .. Testing updation of move struct .. >>\n");
-	printf("Enter move in SAN, UCI or ICCF format, type quit to exit\n");
-	printf("Your move: ");
-
-	move = parse_input_move(input_user_move(user_input));
-	print_move_struct_info(&move);
+	while (1) {
+		printf("<< .. Testing updation of move struct .. >>\n");
+		printf("Your move: ");
+		move = parse_input_move(input_user_move(user_input));
+		print_move_struct_info(__FILE__, __LINE__, __func__, &move);
+	}
 
 	return 0;
 }
