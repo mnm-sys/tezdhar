@@ -838,10 +838,10 @@ static bool parse_4_sym_nc_san(const char *movetext, struct move * const move)
 	}
 
 	if (islower(movetext[1])) {
-		move->from_rank = get_rank_index(movetext[1]);
+		move->from_file = get_file_index(movetext[1]);
 	} else {
 		if (isdigit(movetext[1])) {
-			move->from_file = get_file_index(movetext[1]);
+			move->from_rank = get_rank_index(movetext[1]);
 		} else {
 			move->invalid = true;
 			return false;
