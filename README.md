@@ -28,6 +28,7 @@ $ make
 - [ ] Move Validation w.r.t. board position
 - [ ] Draw Detection
 - [ ] Move Generation
+- [ ] Move Evaluation
 - [ ] Best Move Search
 - [ ] ... TBD ...
 
