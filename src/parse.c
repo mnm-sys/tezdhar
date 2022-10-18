@@ -711,7 +711,7 @@ static bool is_uci_move_format(char * const movetext)
 		return false;
 	}
 
-	if ((isalpha(buf[0]) == 0) || (isalpha(buf[2]) == 0)) {
+	if ((islower(buf[0]) == 0) || (islower(buf[2]) == 0)) {
 		return false;
 	}
 
@@ -764,9 +764,21 @@ static bool parse_2_sym_nc_san(const char *movetext, struct move * const move)
 		}
 	}
 
-	move->chessman = PAWN;
-	move->to_file = get_file_index(movetext[0]);
-	move->to_rank = get_rank_index(movetext[1]);
+	if (islower(movetext[0])) {
+		move->chessman = PAWN;
+		move->to_file = get_file_index(movetext[0]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
+	if (isdigit(movetext[1])) {
+		move->to_rank = get_rank_index(movetext[1]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
 	return true;
 }
 
@@ -782,14 +794,32 @@ static bool parse_3_sym_nc_san(const char *movetext, struct move * const move)
 		}
 	}
 
-	move->chessman = get_chessman(movetext[0]);
-	move->to_file = get_file_index(movetext[1]);
-	move->to_rank = get_rank_index(movetext[2]);
+	if (isupper(movetext[0])) {
+		move->chessman = get_chessman(movetext[0]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
+	if (islower(movetext[1])) {
+		move->to_file = get_file_index(movetext[1]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
+	if (isdigit(movetext[2])) {
+		move->to_rank = get_rank_index(movetext[2]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
 	return true;
 }
 
 
-/* parse 4 symbols of non-capture SAN move */
+/* parse 4 symbols of non-capture SAN moves like Nbd7, Rae1, Rac8, Nge4, etc. */
 static bool parse_4_sym_nc_san(const char *movetext, struct move * const move)
 {
 	if ((!movetext) || (!move)) {
@@ -800,18 +830,38 @@ static bool parse_4_sym_nc_san(const char *movetext, struct move * const move)
 		}
 	}
 
-	move->chessman = get_chessman(movetext[0]);
+	if (isupper(movetext[0])) {
+		move->chessman = get_chessman(movetext[0]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
 
-	if (isalpha(movetext[1])) {
+	if (islower(movetext[1])) {
 		move->from_rank = get_rank_index(movetext[1]);
 	} else {
 		if (isdigit(movetext[1])) {
 			move->from_file = get_file_index(movetext[1]);
+		} else {
+			move->invalid = true;
+			return false;
 		}
 	}
 
-	move->to_file = get_file_index(movetext[2]);
-	move->to_rank = get_rank_index(movetext[3]);
+	if (islower(movetext[2])) {
+		move->to_file = get_file_index(movetext[2]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
+	if (isdigit(movetext[3])) {
+		move->to_rank = get_rank_index(movetext[3]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
 	return true;
 }
 
@@ -827,11 +877,41 @@ static bool parse_5_sym_nc_san(const char *movetext, struct move * const move)
 		}
 	}
 
-	move->chessman = get_chessman(movetext[0]);
-	move->from_file = get_file_index(movetext[1]);
-	move->from_rank = get_rank_index(movetext[2]);
-	move->to_file = get_file_index(movetext[3]);
-	move->to_rank = get_rank_index(movetext[4]);
+	if (isupper(movetext[0])) {
+		move->chessman = get_chessman(movetext[0]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
+	if (islower(movetext[1])) {
+		move->from_file = get_file_index(movetext[1]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
+	if (isdigit(movetext[2])) {
+		move->from_rank = get_rank_index(movetext[2]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
+	if (islower(movetext[3])) {
+		move->to_file = get_file_index(movetext[3]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
+	if (isdigit(movetext[4])) {
+		move->to_rank = get_rank_index(movetext[4]);
+	} else {
+		move->invalid = true;
+		return false;
+	}
+
 	return true;
 }
 
