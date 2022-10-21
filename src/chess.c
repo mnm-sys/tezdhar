@@ -22,11 +22,20 @@
  *            a   b   c   d   e   f   g   h               *
  *                                                        *
  **********************************************************
- * Author: Manavendra Nath Manav                          *
- * Email: manav.nit@gmail.com                             *
- * Repo: https://github.com/mnm-sys/tezdhar.git           *
- * Copyright: 2022 @ Manavendra Nath Manav                *
+ * Repository:  https://github.com/mnm-sys/tezdhar.git    *
  **********************************************************/
+
+
+/* @file:	tezdhar/src/chess.c
+ * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/chess.c
+ * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
+ * @copyright:	GNU GPLv3 2022
+ * @desc:
+ *
+ * This file contains the main() entry function to setup the board
+ * and start the chess engine. It also contains routines to parse
+ * command line options.
+ */
 
 #include "chess.h"
 #include <stdio.h>	// for printf

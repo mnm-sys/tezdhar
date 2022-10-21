@@ -1,3 +1,11 @@
+/* @file:	tezdhar/src/ui.c
+ * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/ui.c
+ * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
+ * @copyright:	GNU GPLv3 2022
+ * @desc:
+ *
+ */
+
 #include <langinfo.h>	// for nl_langinfo
 #include <locale.h>	// for setlocale
 #include <stdio.h>	// for printf

@@ -1,4 +1,8 @@
-/* @file: tezdhar/src/parse.c
+/* @file:	tezdhar/src/parse.c
+ * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/parse.c
+ * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
+ * @copyright:	GNU GPLv3 2022
+ * @desc:
  *
  * Contains routines to parse FEN, SAN, ICCF and PGN
  * formats and update the board position accordingly.
@@ -199,7 +203,7 @@ static bool strip_text(char * const str, const char * const delim[], int len)
 						delim[i], str);
 				memmove(match, match+len_delim,
 						len_match - len_delim + 1);
-				dbg_print("Movetext = %s\n", str);
+				dbg_print("Stripped Movetext = %s\n", str);
 				return true;
 			}
 		}
@@ -660,18 +664,36 @@ static bool move_has_valid_chars(const char * const movetext, struct move *move)
 }
 
 
-static void strip_char_from_string(char * const movetext, const char ch)
+static bool strip_char_from_string(char * const movetext, const char ch)
 {
-	if (movetext) {
-		char *reader = movetext;
-		char *writer = movetext;
-
-		while (*reader) {
-			*writer = *reader++;
-			writer += (*writer != ch);
-		}
-		*writer = '\0';
+	if (!movetext) {
+		return false;
 	}
+
+#if 0
+	/* Old implementation (possibly slower) */
+	char *reader = movetext;
+	char *writer = movetext;
+
+	while (*reader) {
+		*writer = *reader++;
+		writer += (*writer != ch);
+	}
+	*writer = '\0';
+#endif
+
+	char *match = strchr(movetext, ch);
+	if (match) {
+		size_t len = strlen(match);
+		if (len > 0) {
+			dbg_print("Stripping [%c] from [%s]\n", ch, movetext);
+			memmove(match, match+len, len);
+			dbg_print("Stripped Movetext = %s\n", movetext);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 
@@ -735,7 +757,9 @@ static void parse_stripped_uci_move(char *movetext, struct move *move)
 	size_t len = strlen(movetext);
 
 	if (len > 4) {
-		strip_char_from_string(movetext, 'x');
+		if (strip_char_from_string(movetext, 'x')) {
+			move->capture = true;
+		}
 		len = strlen(movetext);
 	}
 
@@ -1140,7 +1164,10 @@ static bool parse_san_capture_move(char * const movetext, struct move *move)
 	token = strtok_r(NULL, "x", &saveptr);
 
 	if (!token) {
+		move->invalid = true;
 		return false;
+	} else {
+		move->capture = true;
 	}
 
 	if (!parse_2_sym_to_sqr_tok(token, move)) {
@@ -1228,6 +1255,22 @@ static bool is_special_move(char * const movetext, struct move * const move)
 	return false;
 }
 
+
+static bool extra_checks_for_legality(const char * const movetext, struct move *move)
+{
+	/* The king cannot give check to another king i.e. it's not
+	 * possible to give check or checkmate with a king's move */
+
+	/* The promoted piece cannot be a pawn or a king */
+
+	/* The bishop cannot move to the same file or rank, for example,
+	 * the bishop on 'd' file cannot move to any squares on the 'd'
+	 * file. Similarly, the bishop on rank '6' cannot move to any
+	 * squares present on the same rank. */
+
+	/* The rook can move either in it's own file or in it's own rank */
+}
+
 /* Parse Standard Algebraic Notation (SAN) and Universal Chess Interface (UCI)
  * move format. The user may input both short as well as long algebraic
  * notation moves. For example, the shorter SAN notation "Nc3" is equivalent
@@ -1238,7 +1281,7 @@ struct move parse_input_move(char * const movetext)
 {
 	struct move move;
 
-	/* Step 1: setup move struct */
+	/* Step 0: setup move struct */
 	if (movetext == NULL) {
 		dbg_print("Invalid: Move string is empty");
 		setup_move_struct("", &move);
@@ -1284,6 +1327,10 @@ struct move parse_input_move(char * const movetext)
 		/* Step 8: parse SAN move */
 		dbg_print("movetext = %s\n", movetext);
 		parse_stripped_san_move(movetext, &move);
+	}
+
+	if (extra_checks_for_legality(movetext, &move)) {
+		move.invalid = true;
 	}
 
 	return move;

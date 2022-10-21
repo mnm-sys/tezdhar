@@ -1,5 +1,5 @@
 /* @file:	tezdhar/src/board.c
- * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/parse.c
+ * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/board.c
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
  * @copyright:	GNU GPLv3 2022
  *
