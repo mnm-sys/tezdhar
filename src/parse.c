@@ -1,7 +1,8 @@
 /* @file:	tezdhar/src/parse.c
  * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/parse.c
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
- * @copyright:	GNU GPLv3 2022
+ * @created:	Oct. 2022
+ * @copyright:	GPLv3
  * @desc:
  *
  * Contains routines to parse FEN, SAN, ICCF and PGN
@@ -15,10 +16,88 @@
 #include <stdlib.h>	// for free
 
 
+static enum chessmen get_chessman(const char pos)
+{
+	switch (pos) {
+		case 'K': return KING;
+		case 'Q': return QUEEN;
+		case 'B': return BISHOP;
+		case 'N': return KNIGHT;
+		case 'R': return ROOK;
+		case 'P': return PAWN;
+		default:  return EMPTY;
+	}
+}
+
+
+static enum pieces get_piece(const char pos)
+{
+	switch(pos) {
+		case 'r': return BLACK_ROOK;
+		case 'n': return BLACK_KNIGHT;
+		case 'b': return BLACK_BISHOP;
+		case 'q': return BLACK_QUEEN;
+		case 'k': return BLACK_KING;
+		case 'p': return BLACK_PAWN;
+		case 'R': return WHITE_ROOK;
+		case 'N': return WHITE_KNIGHT;
+		case 'B': return WHITE_BISHOP;
+		case 'Q': return WHITE_QUEEN;
+		case 'K': return WHITE_KING;
+		case 'P': return WHITE_PAWN;
+		default:  return EMPTY_SQR;
+	}
+}
+
+
+static int8_t get_file_index(const char pos)
+{
+	switch(pos) {
+		case 'a': return A_FILE;
+		case 'b': return B_FILE;
+		case 'c': return C_FILE;
+		case 'd': return D_FILE;
+		case 'e': return E_FILE;
+		case 'f': return F_FILE;
+		case 'g': return G_FILE;
+		case 'h': return H_FILE;
+		default:  return -1;
+	}
+}
+
+
+static int8_t get_rank_index(const char pos)
+{
+	switch(pos) {
+		case '1': return RANK_1;
+		case '2': return RANK_2;
+		case '3': return RANK_3;
+		case '4': return RANK_4;
+		case '5': return RANK_5;
+		case '6': return RANK_6;
+		case '7': return RANK_7;
+		case '8': return RANK_8;
+		default:  return -1;
+	}
+}
+
+
+
+static void set_castling_rights(struct board * const board, const char pos)
+{
+	switch(pos) {
+		case 'K': board->castling[WHITE_KS] = true; break;
+		case 'Q': board->castling[WHITE_QS] = true; break;
+		case 'k': board->castling[BLACK_KS] = true; break;
+		case 'q': board->castling[BLACK_QS] = true; break;
+		default:  break;
+	}
+}
+
 /* Parse pieces from FEN string and place them on board 
  * at their designated squares according to FEN
  */
-static char *parse_pieces_from_fen(char *fen, struct board *board)
+static char *parse_pieces_from_fen(char *fen, struct board * const board)
 {
 	int i = 0, j = 0;
 	enum pieces piece;
@@ -32,28 +111,22 @@ static char *parse_pieces_from_fen(char *fen, struct board *board)
 	while (*fen != ' ' && valid) {
 		piece = EMPTY_SQR;
 		switch(*fen) {
-			case 'r': piece = BLACK_ROOK; break;
-			case 'n': piece = BLACK_KNIGHT; break;
-			case 'b': piece = BLACK_BISHOP; break;
-			case 'q': piece = BLACK_QUEEN; break;
-			case 'k': piece = BLACK_KING; break;
-			case 'p': piece = BLACK_PAWN; break;
-			case 'R': piece = WHITE_ROOK; break;
-			case 'N': piece = WHITE_KNIGHT; break;
-			case 'B': piece = WHITE_BISHOP; break;
-			case 'Q': piece = WHITE_QUEEN; break;
-			case 'K': piece = WHITE_KING; break;
-			case 'P': piece = WHITE_PAWN; break;
+			case 'r': case 'n': case 'b':
+			case 'q': case 'k': case 'p':
+			case 'R': case 'N': case 'B':
+			case 'Q': case 'K': case 'P':
+				piece = get_piece(*fen);
+				break;
+
 			case '/': i++; j = 0; break;
 			case '1': break;
-			case '2': j += 1; break;
-			case '3': j += 2; break;
-			case '4': j += 3; break;
-			case '5': j += 4; break;
-			case '6': j += 5; break;
-			case '7': j += 6; break;
+
+			case '2': case '3': case '4':
+			case '5': case '6': case '7':
+				  j += *fen - '1'; break;
+
 			case '8': j = 0; break;
-			default: valid = false;
+			default:  valid = false;
 		}
 
 		if (*fen != '/') {
@@ -88,41 +161,39 @@ static char *parse_fen_flags(char *fen, struct board *board)
 			case '-': break;
 			case ' ': field++; break;
 
+			case 'b': case 'B':
 				  /* Since 'b' can represent both black's turn
 				   * or file 'b' on board, so we toggle turn
 				   * after assigning the player's turn value,
 				   * so that when 'b' is encountered again, it
 				   * is used to assign en-passant square. */
-			case 'b': case 'B': if (turn) {
-						    board->status = BLACK_TURN;
-					    }
-				  else
+				  if (turn) {
+					  board->status = BLACK_TURN;
+				  } else {
 					  file = B_FILE;
+				  }
 				  turn = false;
 				  break;	
-			case 'w': case 'W': board->status = WHITE_TURN;
-					    turn = false;
-					    break;
 
-			case 'K': board->castling[WHITE_KS] = true; break;
-			case 'Q': board->castling[WHITE_QS] = true; break;
-			case 'k': board->castling[BLACK_KS] = true; break;
-			case 'q': board->castling[BLACK_QS] = true; break;
-			case 'a': file = A_FILE; break; 
-			case 'c': file = C_FILE; break; 
-			case 'd': file = D_FILE; break; 
-			case 'e': file = E_FILE; break; 
-			case 'f': file = F_FILE; break; 
-			case 'g': file = G_FILE; break; 
-			case 'h': file = H_FILE; break; 
-			case '1': rank = RANK_1; break;
-			case '2': rank = RANK_2; break;
-			case '3': rank = RANK_3; break;
-			case '4': rank = RANK_4; break;
-			case '5': rank = RANK_5; break;
-			case '6': rank = RANK_6; break;
-			case '7': rank = RANK_7; break;
-			case '8': rank = RANK_8; break;
+			case 'w': case 'W':
+				  board->status = WHITE_TURN;
+				  turn = false;
+				  break;
+
+			case 'K': case 'Q': case 'k': case 'q':
+				  set_castling_rights(board, *fen);
+				  break;
+
+			case 'a': case 'c': case 'd': case 'e':
+			case 'f': case 'g': case 'h':
+				  file = get_file_index(*fen);
+				  break;
+
+			case '1': case '2': case '3': case '4':
+			case '5': case '6': case '7': case '8':
+				  rank = get_rank_index(*fen);
+				  break;
+
 			default: valid = false;
 		}
 		valid ? true : fprintf(stderr, "Invalid character in FEN record: %c\n", *fen);
@@ -328,7 +399,8 @@ static void strip_eog_indicators(char * const movetext)
 
 
 /* FIDE specifies draw offers to be recorded by an equals sign
- * with parentheses "(=)" after the move on the score sheet. */
+ * with parentheses "(=)" after the move on the score sheet.
+ */
 static void strip_draw_offered_flag(char * const movetext, struct move * const move)
 {
 	const char * const indicators[] = {"(=)"};
@@ -433,52 +505,6 @@ static bool is_qs_castling_seq(char * const movetext, struct move * const move)
 }
 
 
-static enum chessmen get_chessman(const char pos)
-{
-	switch (pos) {
-		case 'K': return KING;
-		case 'Q': return QUEEN;
-		case 'B': return BISHOP;
-		case 'N': return KNIGHT;
-		case 'R': return ROOK;
-		case 'P': return PAWN;
-		default:  return EMPTY;
-	}
-}
-
-
-static int8_t get_file_index(const char pos)
-{
-	switch(pos) {
-		case 'a': return A_FILE;
-		case 'b': return B_FILE;
-		case 'c': return C_FILE;
-		case 'd': return D_FILE;
-		case 'e': return E_FILE;
-		case 'f': return F_FILE;
-		case 'g': return G_FILE;
-		case 'h': return H_FILE;
-		default: return -1;
-	}
-}
-
-
-static int8_t get_rank_index(const char pos)
-{
-	switch(pos) {
-		case '1': return RANK_1;
-		case '2': return RANK_2;
-		case '3': return RANK_3;
-		case '4': return RANK_4;
-		case '5': return RANK_5;
-		case '6': return RANK_6;
-		case '7': return RANK_7;
-		case '8': return RANK_8;
-		default: return -1;
-	}
-}
-
-
 /* When a pawn promotes, the piece promoted to is indicated at the end of the
  * move notation, for example: e8Q (promoting to queen). In standard FIDE
  * notation, no punctuation is used; in Portable Game Notation (PGN) and many
@@ -488,12 +514,11 @@ static int8_t get_rank_index(const char pos)
  */
 static bool is_pawn_promotion(char * const movetext, struct move *move)
 {
-	bool flag = false;
 	char *p = NULL;
+	bool flag = false;
 	const char * const delim[] = {
 		"8=", "8(", "8/", "8",		// white side pawn promotion
-		"1=", "1(", "1/", "1",		// black side pawn promotion
-	};
+		"1=", "1(", "1/", "1"};		// black side pawn promotion
 	int len = sizeof(delim)/sizeof(delim[0]);
 
 	if (!movetext) {
@@ -670,27 +695,17 @@ static bool strip_char_from_string(char * const movetext, const char ch)
 		return false;
 	}
 
-#if 0
-	/* Old implementation (possibly slower) */
-	char *reader = movetext;
-	char *writer = movetext;
-
-	while (*reader) {
-		*writer = *reader++;
-		writer += (*writer != ch);
-	}
-	*writer = '\0';
-#endif
-
 	char *match = strchr(movetext, ch);
 	if (match) {
 		size_t len = strlen(match);
-		if (len > 0) {
-			dbg_print("Stripping [%c] from [%s]\n", ch, movetext);
-			memmove(match, match+len, len);
-			dbg_print("Stripped Movetext = %s\n", movetext);
-			return true;
+		if (!len) {
+			return false;
 		}
+
+		dbg_print("Stripping first [%c] from [%s]\n", ch, movetext);
+		memmove(match, match+1, len);
+		dbg_print("Stripped Movetext = %s\n", movetext);
+		return true;
 	}
 
 	return false;

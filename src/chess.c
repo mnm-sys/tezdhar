@@ -29,7 +29,8 @@
 /* @file:	tezdhar/src/chess.c
  * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/chess.c
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
- * @copyright:	GNU GPLv3 2022
+ * @created:	Oct. 2022
+ * @copyright:	GPLv3
  * @desc:
  *
  * This file contains the main() entry function to setup the board

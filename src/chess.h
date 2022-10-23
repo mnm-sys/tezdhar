@@ -1,7 +1,8 @@
 /* @file:	tezdhar/src/chess.h
  * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/chess.h
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
- * @copyright:	GNU GPLv3 2022
+ * @created:	Oct. 2022
+ * @copyright:	GPLv3
  * @desc:
  *
  * This header file contains various constants and initial values required
