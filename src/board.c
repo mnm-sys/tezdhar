@@ -32,6 +32,7 @@ void clear_castling_rights(struct board *board)
 /* Initialize board with given fen string and select players for White
  * and Black. After the FEN is parsed the game status, castling rights,
  * which player has to move are set in the board struct.
+ * TODO: free(fen) memory after use
  */
 bool init_board(char *fen, struct board *brd, enum player w, enum player b)
 {

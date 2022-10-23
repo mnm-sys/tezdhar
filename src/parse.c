@@ -230,8 +230,8 @@ static bool str_has_digits_only(char *fen)
 static bool parse_move_cnt(char *fen, struct board *b)
 {
 	if (str_has_digits_only(fen)) {
-		sscanf(fen, "%hd%hd", &(b->halfmove), &(b->fullmove));
-		dbg_print("hm = %d, fm = %d\n", b->halfmove, b->fullmove);
+		sscanf(fen, "%hd%hd", &(b->halfMoves), &(b->fullMoves));
+		dbg_print("hm = %d, fm = %d\n", b->halfMoves, b->fullMoves);
 		return true;
 	} else {
 		fprintf(stderr, "FEN contains non-numeric move count: %s\n", fen);

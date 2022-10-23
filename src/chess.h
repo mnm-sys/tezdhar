@@ -51,6 +51,14 @@
 #define dbg_print(...) debug_print(__VA_ARGS__, "")
 #endif
 
+
+/* color of chess pieces */
+enum color {
+	WHITE	= 0,
+	BLACK	= 1
+};
+
+
 /* type of chess player */
 enum player {
 	AI	= 0,	// this chess engine
@@ -192,24 +200,25 @@ struct board
 	char fen[MAX_FEN_LEN];			// FEN representing board
 	enum player whitePlayer, blackPlayer;	// player information
 	enum game_status status;		// current game status
+	enum color turn;			// which side turn to move
 	enum pieces sqr[8][8];			// pieces on each square
 	bool castling[4];			// current castling rights
-	char enpassant;				// en-passant square number
-	uint16_t halfmove;			// number of half moves
-	uint16_t fullmove;			// number of full moves
+	int8_t enpassant;			// en-passant square number
+	uint16_t halfMoves;			// number of half moves
+	uint16_t fullMoves;			// number of full moves
 };
 
 /* Function prototypes */
-void print_fen_str(struct board *board);
-bool init_board(char *fen, struct board *board, enum player w, enum player b);
-void print_board(struct board *board);
-void print_board_struct_info(struct board *board);
+void print_fen_str(struct board *brd);
+bool init_board(char *fen, struct board *brd, enum player w, enum player b);
+void print_board(struct board *brd);
+void print_board_struct_info(struct board *brd);
 void parse_san_input(char *input);
-char *input_user_move(char *buf);
+char *input_user_move(char * const buf, const struct board * const brd);
 struct move parse_input_move(char * const movetext);
 void print_move_struct_info(const char *f, int l, const char *func, struct move *m);
-bool parse_fen_record(char *fen, struct board *board);
-void clear_castling_rights(struct board *board);
+bool parse_fen_record(char *fen, struct board *brd);
+void clear_castling_rights(struct board *brd);
 void setup_move_struct(const char * const movetext, struct move *move);
 
 #endif	/* __CHESS_H__ */

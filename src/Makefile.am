@@ -2,9 +2,11 @@
 bin_PROGRAMS = tezdhar
 
 # specify which source files get built into an executable
-tezdhar_SOURCES = board.c \
-		  chess.c \
-		  parse.c \
+tezdhar_SOURCES = bitboard.h	\
+		  board.c	\
+		  chess.c	\
+		  chess.h	\
+		  parse.c	\
 		  ui.c
 
 tezdhar_CFLAGS =	-fdata-sections			\
@@ -94,7 +96,7 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-Wsuggest-override		\
 			-Wswitch-bool			\
 			-Wswitch-default 		\
-			-Wswitch-enum			\
+			-Wswitch			\
 			-Wsynth				\
 			-Wundeclared-selector		\
 			-Wundef 			\

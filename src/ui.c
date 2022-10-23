@@ -13,12 +13,8 @@
 #include <string.h>	// for strcmp
 #include <wchar.h>	// for wprintf
 #include <errno.h>	// for errno
-
 #include "chess.h"
 
-/* Maximum length of Standard Algebraic Notation move
- * text including annotation symbols, if any */
-#define MAX_SAN_LEN 16
 
 enum chessmen_utf {
 	WCK 	= 0x2654,	// ♔ white chess king
@@ -198,7 +194,7 @@ void print_board(struct board *board)
 
 void print_board_struct_info(struct board *board)
 {
-	//#ifdef DEBUG
+#ifdef DEBUG
 	printf("Game Status: %d\n", board->status);
 
 	printf("Player Turn: ");
@@ -218,14 +214,14 @@ void print_board_struct_info(struct board *board)
 	printf("Black KS: %d\n", board->castling[2]);
 	printf("Black QS: %d\n", board->castling[3]);
 	printf("En-passant square: %d\n", board->enpassant);
-	printf("Half-moves: %d\n", board->halfmove);
-	printf("Full-moves: %d\n", board->fullmove);
-	//#endif
+	printf("Half-moves: %d\n", board->halfMoves);
+	printf("Full-moves: %d\n", board->fullMoves);
+#endif
 }
 
 void print_move_struct_info(const char *f, int l, const char *fn, struct move *m)
 {
-	//#ifdef DEBUG
+#ifdef DEBUG
 	int i = printf("-------- Called by: %s:%d:%s() --------\n", f, l, fn);
 	const char *chessmen[] = {"King", "Queen", "Knight",
 		"Bishop", "Rook", "Pawn", "Empty"};
@@ -255,22 +251,27 @@ void print_move_struct_info(const char *f, int l, const char *fn, struct move *m
 		printf("-");
 	}
 	printf("\n");
-	//#endif
+#endif
 }
 
-char *input_user_move(char *buf)
+char *input_user_move(char * const buf, const struct board * const brd)
 {
 	if (!buf) {
 		return NULL;
 	}
 
-	if (!fgets(buf, MAX_SAN_LEN, stdin)) {
+	printf("Your Move: ");
+	brd->turn == WHITE ? printf("White(") : printf("Black(");
+	printf("%d): ", brd->fullMoves);
+
+	if (!fgets(buf, MAX_MOVE_LEN, stdin)) {
 		perror("fgets() failed");
 		return NULL;
-	} else {
-		/* remove the trailing '\n' */
-		buf[strcspn(buf, "\n")] = 0;
-		return buf;
 	}
+
+	/* remove the trailing '\n' */
+	buf[strcspn(buf, "\n")] = 0;
+
+	return buf;
 }
 
