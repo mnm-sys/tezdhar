@@ -15,6 +15,7 @@
 
 #include <stdbool.h>	// for bool
 #include <stdint.h>	// for uint8_t
+#include <stdio.h>	// for fprintf
 
 #define VERSION "0.1"
 #define AUTHOR "Manavendra Nath Manav"
@@ -145,27 +146,29 @@ enum castling_rights {
 
 /* File numbers on board */
 enum files {
-	A_FILE	= 0,
-	B_FILE	= 1,
-	C_FILE	= 2,
-	D_FILE	= 3,
-	E_FILE	= 4,
-	F_FILE	= 5,
-	G_FILE	= 6,
-	H_FILE	= 7
+	A_FILE		= 0,
+	B_FILE		= 1,
+	C_FILE		= 2,
+	D_FILE		= 3,
+	E_FILE		= 4,
+	F_FILE		= 5,
+	G_FILE		= 6,
+	H_FILE		= 7,
+	MAX_FILE	= 8
 };
 
 
 /* Rank numbers on board */
 enum rank {
-	RANK_8 = 0,
-	RANK_7 = 1,
-	RANK_6 = 2,
-	RANK_5 = 3,
-	RANK_4 = 4,
-	RANK_3 = 5,
-	RANK_2 = 6,
-	RANK_1 = 7
+	RANK_8		= 0,
+	RANK_7		= 1,
+	RANK_6		= 2,
+	RANK_5		= 3,
+	RANK_4		= 4,
+	RANK_3		= 5,
+	RANK_2		= 6,
+	RANK_1		= 7,
+	RANK_MAX	= 8
 };
 
 
@@ -191,22 +194,36 @@ struct move {
 };
 
 
-/* all current board information necessary to make
- * the next move is encapsulated in board struct.
- * If the number of half moves reaches 50, the game
- * is a draw by 50 move rule */
+/* A minimum of 12 bitboards are required to fully represent a chess board */
+struct bitboards {
+	uint64_t wKing, bKing;
+	uint64_t wQueen, bQueen;
+	uint64_t wBishop, bBishop;
+	uint64_t wKnight, bKnight;
+	uint64_t wRook, bRook;
+	uint64_t wPawn, bPawn;
+};
+
+
+/* All current board information necessary to make the next move is
+ * encapsulated in board struct. If the number of half moves reaches 50,
+ * the game is a draw by 50 moves rule. The members of the struct are
+ * arranged in decreasing order of their size */
 struct board
 {
-	char fen[MAX_FEN_LEN];			// FEN representing board
-	enum player whitePlayer, blackPlayer;	// player information
-	enum game_status status;		// current game status
-	enum color turn;			// which side turn to move
-	enum pieces sqr[8][8];			// pieces on each square
-	bool castling[4];			// current castling rights
-	int8_t enpassant;			// en-passant square number
-	uint16_t halfMoves;			// number of half moves
-	uint16_t fullMoves;			// number of full moves
+	enum pieces sqr[8][8];		// pieces on each square
+	struct bitboards bb;		// struct containing 12 bitboards
+	char fen[MAX_FEN_LEN];		// FEN representing board
+	enum player whitePlayer;	// white player information
+	enum player blackPlayer;	// black player information
+	enum game_status status;	// current game status
+	enum color turn;		// which side turn to move
+	bool castling[4];		// current castling rights
+	uint16_t halfMoves;		// number of half moves
+	uint16_t fullMoves;		// number of full moves
+	int8_t enpassant;		// en-passant square number
 };
+
 
 /* Function prototypes */
 void print_fen_str(struct board *brd);
@@ -220,5 +237,7 @@ void print_move_struct_info(const char *f, int l, const char *func, struct move 
 bool parse_fen_record(char *fen, struct board *brd);
 void clear_castling_rights(struct board *brd);
 void setup_move_struct(const char * const movetext, struct move *move);
+bool update_bitboards(struct board * const brd);
+void print_all_bitboards(const struct bitboards * const bb);
 
 #endif	/* __CHESS_H__ */

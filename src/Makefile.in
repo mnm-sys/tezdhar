@@ -99,7 +99,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_tezdhar_OBJECTS = tezdhar-board.$(OBJEXT) tezdhar-chess.$(OBJEXT) \
+am_tezdhar_OBJECTS = tezdhar-bitboard.$(OBJEXT) \
+	tezdhar-board.$(OBJEXT) tezdhar-chess.$(OBJEXT) \
 	tezdhar-parse.$(OBJEXT) tezdhar-ui.$(OBJEXT)
 tezdhar_OBJECTS = $(am_tezdhar_OBJECTS)
 tezdhar_LDADD = $(LDADD)
@@ -120,9 +121,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/tezdhar-board.Po \
-	./$(DEPDIR)/tezdhar-chess.Po ./$(DEPDIR)/tezdhar-parse.Po \
-	./$(DEPDIR)/tezdhar-ui.Po
+am__depfiles_remade = ./$(DEPDIR)/tezdhar-bitboard.Po \
+	./$(DEPDIR)/tezdhar-board.Po ./$(DEPDIR)/tezdhar-chess.Po \
+	./$(DEPDIR)/tezdhar-parse.Po ./$(DEPDIR)/tezdhar-ui.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -267,9 +268,10 @@ top_srcdir = @top_srcdir@
 
 # specify which source files get built into an executable
 tezdhar_SOURCES = bitboard.h	\
+		  bitboard.c	\
 		  board.c	\
-		  chess.c	\
 		  chess.h	\
+		  chess.c	\
 		  parse.c	\
 		  ui.c
 
@@ -464,6 +466,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-bitboard.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-board.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-chess.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-parse.Po@am__quote@ # am--include-marker
@@ -488,6 +491,20 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+tezdhar-bitboard.o: bitboard.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-bitboard.o -MD -MP -MF $(DEPDIR)/tezdhar-bitboard.Tpo -c -o tezdhar-bitboard.o `test -f 'bitboard.c' || echo '$(srcdir)/'`bitboard.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-bitboard.Tpo $(DEPDIR)/tezdhar-bitboard.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bitboard.c' object='tezdhar-bitboard.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-bitboard.o `test -f 'bitboard.c' || echo '$(srcdir)/'`bitboard.c
+
+tezdhar-bitboard.obj: bitboard.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-bitboard.obj -MD -MP -MF $(DEPDIR)/tezdhar-bitboard.Tpo -c -o tezdhar-bitboard.obj `if test -f 'bitboard.c'; then $(CYGPATH_W) 'bitboard.c'; else $(CYGPATH_W) '$(srcdir)/bitboard.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-bitboard.Tpo $(DEPDIR)/tezdhar-bitboard.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bitboard.c' object='tezdhar-bitboard.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-bitboard.obj `if test -f 'bitboard.c'; then $(CYGPATH_W) 'bitboard.c'; else $(CYGPATH_W) '$(srcdir)/bitboard.c'; fi`
 
 tezdhar-board.o: board.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-board.o -MD -MP -MF $(DEPDIR)/tezdhar-board.Tpo -c -o tezdhar-board.o `test -f 'board.c' || echo '$(srcdir)/'`board.c
@@ -671,7 +688,8 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic clean-local mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/tezdhar-board.Po
+		-rm -f ./$(DEPDIR)/tezdhar-bitboard.Po
+	-rm -f ./$(DEPDIR)/tezdhar-board.Po
 	-rm -f ./$(DEPDIR)/tezdhar-chess.Po
 	-rm -f ./$(DEPDIR)/tezdhar-parse.Po
 	-rm -f ./$(DEPDIR)/tezdhar-ui.Po
@@ -720,7 +738,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/tezdhar-board.Po
+		-rm -f ./$(DEPDIR)/tezdhar-bitboard.Po
+	-rm -f ./$(DEPDIR)/tezdhar-board.Po
 	-rm -f ./$(DEPDIR)/tezdhar-chess.Po
 	-rm -f ./$(DEPDIR)/tezdhar-parse.Po
 	-rm -f ./$(DEPDIR)/tezdhar-ui.Po

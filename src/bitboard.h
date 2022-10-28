@@ -6,10 +6,9 @@
  * @desc:
  *
  * Contains bitboard lookup tables for sliding and non-sliding pieces.
- */
-
-
-/*			----------------------------------------
+ *
+ *
+ *			----------------------------------------
  *			Chess Board Square Mapping with Bitboard
  *			----------------------------------------
  *
@@ -59,12 +58,98 @@
  *
  * Although, by convention, most other chess engines and publications use
  * Layout 2, we would be using Layout 1 in this project because of it's above
- * mentiontioned advantages.
+ * mentiontioned advantages and simplicity.
  */
 
+#include <inttypes.h>
+
+/* Bitboard Files */
+#define BB_FILE_A	0x8080808080808080ULL
+#define BB_FILE_B	(BB_FILE_A >> 1)
+#define BB_FILE_C	(BB_FILE_A >> 2)	
+#define BB_FILE_D	(BB_FILE_A >> 3)
+#define BB_FILE_E	(BB_FILE_A >> 4)
+#define BB_FILE_F	(BB_FILE_A >> 5)
+#define BB_FILE_G	(BB_FILE_A >> 6)
+#define BB_FILE_H	(BB_FILE_A >> 7)
+
+/* Bitboard Ranks */
+#define BB_RANK_1	0xffULL
+#define BB_RANK_2	(BB_RANK_1 << (8 * 1))
+#define BB_RANK_3	(BB_RANK_1 << (8 * 2))
+#define BB_RANK_4	(BB_RANK_1 << (8 * 3))
+#define BB_RANK_5	(BB_RANK_1 << (8 * 4))
+#define BB_RANK_6	(BB_RANK_1 << (8 * 5))
+#define BB_RANK_7	(BB_RANK_1 << (8 * 6))
+#define BB_RANK_8	(BB_RANK_1 << (8 * 7))
+
+/* Bitboard's White Squares and Black Squares */
+#define WHITERS	0xaa55aa55aa55aa55ULL
+#define BLACKRS	(~(WHITERS))
+#define ALLRS	(WHITERS | BLACKRS)
+
+/* King side squares and Queen side squares */
+#define KSRS		(BB_FILE_E | BB_FILE_F | BB_FILE_G | BB_FILE_H)
+#define QSRS		(BB_FILE_A | BB_FILE_B | BB_FILE_C | BB_FILE_D)
+
+/* Central Files and Central Squares */
+#define CENTRAL_FILES	(BB_FILE_C | BB_FILE_D | BB_FILE_E | BB_FILE_F)
+#define CENTRALRS	((BB_FILE_D | BB_FILE_E) & (BB_RANK_4 | BB_RANK_5))
+
+/* Useful macros for calculating pawn attacks */
+#define NOT_A_FILE	(~(BB_FILE_A))
+#define NOT_AB_FILE	(~(BB_FILE_A | BB_FILE_B))
+#define NOT_H_FILE	(~(BB_FILE_H))
+#define NOT_GH_FILE	(~(BB_FILE_G | BB_FILE_H))
+
+/* Major Diagonals */
+#define DIAG_A1_H8	0x0102040810204080ULL
+#define DIAG_A8_H1	0x8040201008040201ULL
+
+/* Top Half of Bitboard belonging to Black's territory, and
+ * Bottom Half of Bitboard belonging to White's territory */
+#define TOP_HALF	(BB_RANK_8 | BB_RANK_7 | BB_RANK_6 | BB_RANK_5)
+#define BOTTOM_HALF	(BB_RANK_4 | BB_RANK_3 | BB_RANK_2 | BB_RANK_1)
+
+/* Bit Manipulation functions for Bitboard */
+#define BIT(sq)			(1ULL << (sq))
+#define BITS(bb)		(__builtin_popcountll(bb))
+#define SET_BIT(bb, sq)         ((bb) |= BIT(sq))
+#define GET_BIT(bb, sq)         ((bb) & BIT(sq))
+#define POP_BIT(bb, sq)         ((bb) &= ~BIT(sq))
+#define FLIP_BIT(bb, sq)        ((bb) ^= BIT(sq))
+#define FLIP_BITS(bb, sq1, sq2)	((bb) ^= BIT(sq1) ^ BIT(sq2))
+#define POP_LSB(bb)             ((bb) &= (bb) -1)
+#define LSB(bb)			(__builtin_ctzll(bb))
+#define MSB(bb)			(63 ^ __builtin_clzll(bb))
+#define SUBSET(a, b)		(((a) & (b)) == (a))
+
+/* Shift Bitboard to a particular direction:
+ * N - North, E - East, W - West, S - South */
+#define SHIFT_N(bb)		((bb) >> 8)
+#define SHIFT_S(bb)		((bb) << 8)
+#define SHIFT_NN(bb)		((bb) >> 16)
+#define SHIFT_SS(bb)		((bb) << 16)
+#define SHIFT_W(bb)		(((bb) & ~A_FILE) >> 1)
+#define SHIFT_E(bb)		(((bb) & ~H_FILE) << 1)
+#define SHIFT_NE(bb)		(((bb) & ~H_FILE) >> 7)
+#define SHIFT_SW(bb)		(((bb) & ~A_FILE) << 7)
+#define SHIFT_NW(bb)		(((bb) & ~A_FILE) >> 9)
+#define SHIFT_SE(bb)		(((bb) & ~H_FILE) << 9)
 
 
-// pre-calcuclated pawn attacks lookup table
-uint64_t white_Pawn_attack_lut = {
-
+enum squares {
+	SQ_H1, SQ_G1, SQ_F1, SQ_E1, SQ_D1, SQ_C1, SQ_B1, SQ_A1,	// 0 .. 7
+	SQ_H2, SQ_G2, SQ_F2, SQ_E2, SQ_D2, SQ_C2, SQ_B2, SQ_A2,	// 8 .. 15
+	SQ_H3, SQ_G3, SQ_F3, SQ_E3, SQ_D3, SQ_C3, SQ_B3, SQ_A3,	// 16 .. 23
+	SQ_H4, SQ_G4, SQ_F4, SQ_E4, SQ_D4, SQ_C4, SQ_B4, SQ_A4,	// 24 .. 31
+	SQ_H5, SQ_G5, SQ_F5, SQ_E5, SQ_D5, SQ_C5, SQ_B5, SQ_A5,	// 32 .. 39
+	SQ_H6, SQ_G6, SQ_F6, SQ_E6, SQ_D6, SQ_C6, SQ_B6, SQ_A6,	// 40 .. 47
+	SQ_H7, SQ_G7, SQ_F7, SQ_E7, SQ_D7, SQ_C7, SQ_B7, SQ_A7,	// 48 .. 55
+	SQ_H8, SQ_G8, SQ_F8, SQ_E8, SQ_D8, SQ_C8, SQ_B8, SQ_A8,	// 56 .. 63
+	SQ_NONE							// 64
 };
+
+
+/* Bitboard related function prototypes */
+uint64_t set_bb_sqr(uint64_t * const bb, const uint8_t index);
