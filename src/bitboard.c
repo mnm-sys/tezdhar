@@ -29,7 +29,7 @@
 /* set bit value from chess board's square index */
 uint64_t set_bb_sqr(uint64_t * const bb, const uint8_t index)
 {
-	dbg_print("\nbb = %016"PRIx64"\tindex = %d\n", *bb, index);
+	dbg_print("bb = %016"PRIx64"\tindex = %d\n", *bb, index);
 	*bb |= (1ULL << (63 - index));
 	dbg_print("After set bit: bb = %016"PRIx64"\n", *bb);
 }

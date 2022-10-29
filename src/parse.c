@@ -1286,8 +1286,42 @@ static bool extra_checks_for_legality(const char * const movetext, struct move *
 	/* The rook can move either in it's own file or in it's own rank */
 }
 
-/* Parse Standard Algebraic Notation (SAN) and Universal Chess Interface (UCI)
- * move format. The user may input both short as well as long algebraic
+/* clean up the move string. This gets rid of any extra
+ * annotations and things like 'x', '+', '=' and so forth. */
+static bool clean_move(char * const movetext, struct move *move)
+{
+
+	/* Step 1: check for null move */
+	if (is_null_move(movetext, move)) {
+		return true;
+	}
+	dbg_print("After is_null_move(): movetext = %s\n", movetext);
+
+	strip_annotations(movetext, move);
+	dbg_print("After strip_annotations(): movetext = %s\n", movetext);
+
+	if (is_special_move(movetext, move)) {
+		if (move->invalid) {
+			return true;
+		}
+	}
+	dbg_print("After is_special_move(): movetext = %s\n", movetext);
+
+	/* Step 5.5: Now, since all annnotations are stripped
+	 * check that move text contains only valid chars */
+	strip_non_essential_symbols(movetext);
+	if (!move_has_valid_chars(movetext, move)) {
+		dbg_print("movetext = %s\n", movetext);
+		return true;
+	}
+	dbg_print("After move_has_valid_chars(): movetext = %s\n", movetext);
+
+	return false;
+}
+
+
+/* Parse Standard Algebraic Notation (SAN) (e4) and Universal Chess Interface (UCI)
+ * (e2e4) move format. The user may input both short as well as long algebraic
  * notation moves. For example, the shorter SAN notation "Nc3" is equivalent
  * to the longer UCI notation "b2c3". The function handles both the short and
  * long notation formats interchangeably.
@@ -1306,32 +1340,9 @@ struct move parse_input_move(char * const movetext)
 		setup_move_struct(movetext, &move);
 	}
 
-	/* Step 1: check for null move */
-	if (is_null_move(movetext, &move)) {
+	if (clean_move(movetext, &move)) {
 		return move;
 	}
-	dbg_print("After is_null_move(): movetext = %s\n", movetext);
-
-	strip_annotations(movetext, &move);
-	dbg_print("After strip_annotations(): movetext = %s\n", movetext);
-
-	if (is_special_move(movetext, &move)) {
-		if (move.invalid) {
-			return move;
-		}
-	}
-
-	dbg_print("After is_special_move(): movetext = %s\n", movetext);
-
-	/* Step 5.5: Now, since all annnotations are stripped
-	 * check that move text contains only valid chars */
-	strip_non_essential_symbols(movetext);
-	if (!move_has_valid_chars(movetext, &move)) {
-		dbg_print("movetext = %s\n", movetext);
-		return move;
-	}
-
-	dbg_print("After move_has_valid_chars(): movetext = %s\n", movetext);
 
 	/* Step 6: check for UCI from/to square move format */
 	if (is_uci_move_format(movetext)) {
