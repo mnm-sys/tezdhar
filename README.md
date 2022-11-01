@@ -1,5 +1,5 @@
 # **Tezdhar**
-A fast and unbeatable chess engine written in C with code commentary [ -- currently under development ]
+A bitboard based educational chess engine written in C with code commentary [ -- currently under development ]
 
 ```
 FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
