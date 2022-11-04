@@ -1227,6 +1227,7 @@ static void strip_annotations(char * const movetext, struct move * const move)
 }
 
 
+/* TODO: Check for UCI castling moves (e1g1) */
 static bool is_castling_move(char * const movetext, struct move * const move)
 {
 	/* Step 3.5: check for castling move */
