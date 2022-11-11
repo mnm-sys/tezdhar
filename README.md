@@ -44,7 +44,12 @@ To make debug build for development, use
 $ ./configure CFLAGS="-g3 -DDEBUG"
 $ make
 ```
-
+To make tags and cscope for code navigation, use
+```
+$ make ctags
+$ make cscope
+$ cscope
+```
 ## Features Implemented till Now:
 - [x] Board display with UTF-8 pieces
 - [x] SAN Parser
