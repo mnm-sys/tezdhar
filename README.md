@@ -61,7 +61,51 @@ $ cscope
 - [ ] Move Evaluation
 - [ ] Best Move Search
 - [ ] ... TBD ...
-
+```
+ *
+ *                                  ^
+ *                             Rank |
+ *                                  -  Little-endian Rank-File Mapping
+ *                                  |  for Bitboard Square Layout
+ *                                  -  Sqr bitIndex = rank * 8 + file
+ *                                  |
+ *                                  -
+ *                                  |
+ *                                8 -  a8  b8  c8  d8  e8  f8   .  h8
+ *                                  |
+ *                                7 -  a7   .  c7   .   .  f7   .  h7
+ *                                  |
+ *                                6 -   .  b6   .   .   .  f6  g6   .
+ *                                  |
+ *                                5 -   .   .   .  d5  e5   .  g5   .
+ *                                  |
+ *                                4 -   .   .   .  d4  e4   .   .   .
+ *                                  |
+ *                                3 -   .   .  c3   .   .  f3   .   . 
+ *                                  |
+ *                                2 -  a2  b2   .   .   .   .  g2  h2
+ *                                  |
+ *                                1 -  a1  b1   .  d1  e1   .  g1  h1
+ *                                  |
+ *  <---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|-->
+ *                                  |   1   2   3   4   5   6   7   8       File
+ *                                  -   a   b   c   d   e   f   g   h
+ *                                  |
+ *                                  -
+ *                                  |
+ *                                  -
+ *                                  |
+ *                                  -
+ *                                  |
+ *                                  -
+ *                                  |
+ *                                  -
+ *                                  |
+ *                                  -
+ *                                  |
+ *                                  v
+ *
+```
 ## Contributors and Collaborators are Welcome
 - [x] Issues: Open, Fix, Resolve, Close, Discuss
 - [x] Code: Develop, Test, Enhance, Review, Fix bugs
