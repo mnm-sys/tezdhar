@@ -2,7 +2,7 @@
  * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/board.c
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
  * @created:	Oct. 2022
- * @copyright:	GPLv3
+ * @license:	GPLv3
  * @desc:	Contains routines to update the board position
  */
 

@@ -2,11 +2,9 @@
  * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/parse.c
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
  * @created:	Oct. 2022
- * @copyright:	GPLv3
- * @desc:
- *
- * Contains routines to parse FEN, SAN, ICCF and PGN
- * formats and update the board position accordingly.
+ * @license:	GPLv3
+ * @desc:	Contains routines to parse FEN, SAN, ICCF and PGN formats
+ * 		and update the board position accordingly.
  */
 
 #include "chess.h"	// for struct board

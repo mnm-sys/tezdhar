@@ -2,12 +2,10 @@
  * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/chess.h
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
  * @created:	Oct. 2022
- * @copyright:	GPLv3
- * @desc:
- *
- * This header file contains various constants and initial values required
- * by the chess engine like FEN string for starting position, declarations
- * for bitboards for various pieces, etc.
+ * @license:	GPLv3
+ * @desc:	This header file contains various constants and initial values
+ * 		required by the chess engine like FEN string for starting
+ * 		position, declarations for bitboards for various pieces, etc.
  */
 
 #ifndef __CHESS_H__
@@ -29,18 +27,7 @@
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define TRICKY_POS "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
-/* This assumes you are using C99 (the variable argument list notation
- * is not supported in earlier versions). The do { ... } while (0) idiom
- * ensures that the code acts like a statement (function call). The 
- * unconditional use of the code ensures that the compiler always checks 
- * that your debug code is valid — but the optimizer will remove the code 
- * when DEBUG is 0. "fmt" is a printf format string. "..." is whatever 
- * extra arguments fmt requires (possibly nothing). GCC allows you to omit
- * the comma that would normally appear after the last 'fixed' argument to 
- * the macro. It also allows you to use ##__VA_ARGS__ in the macro 
- * replacement text, which deletes the comma preceding the notation if, 
- * but only if, the previous token is a comma.
- */
+/* Macro definition for debug print */
 #ifdef DEBUG
 #define debug_print(fmt, ...) do { \
 	fprintf(stderr, "[%s:%d:%s()] -------> " fmt "%s", \
@@ -242,3 +229,4 @@ bool update_bitboards(struct board * const brd);
 void print_all_bitboards(const struct bitboards * const bb);
 
 #endif	/* __CHESS_H__ */
+

@@ -1,11 +1,9 @@
 /* @file:	tezdhar/src/bitboard.h
- * @url:	https://github.com/mnm-sys/tezdhar/blob/src/bitboard.h
+ * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/bitboard.h
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
- * @created:	22 Oct. 2022
- * @copyright:	GPLv3
- * @desc:
- *
- * Contains bitboard lookup tables for sliding and non-sliding pieces.
+ * @created:	Oct. 2022
+ * @license:	GPLv3
+ * @desc:	Contains bitboard lookup tables for sliding and non-sliding pieces.
  *
  *
  *			----------------------------------------
