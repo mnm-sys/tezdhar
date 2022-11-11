@@ -5,19 +5,6 @@
  * @copyright:	GPLv3
  * @desc:	Contains bit manipulation functions for bitboard
  *
- *           ----------------------------------------
- *           Chess board Square mapping to Bit Layout
- *           ----------------------------------------
- *
- * a8 b8 c8 d8 e8 f8 g8 h8              63 62 61 60 59 58 57 56
- * a7 b7 c7 d7 e7 f7 g7 h7              55 54 53 52 51 50 49 48
- * a6 b6 c6 d6 e6 f6 g6 h6              47 46 45 44 43 42 41 40
- * a5 b5 c5 d5 e5 f5 g5 h5              39 38 37 36 35 34 33 32
- * a4 b4 c4 d4 e4 f4 g4 h4    <<==>>    31 30 29 28 27 26 25 24
- * a3 b3 c3 d3 e3 f3 g3 h3              23 22 21 20 19 18 17 16
- * a2 b2 c2 d2 e2 f2 g2 h2              15 14 13 12 11 10 09 08
- * a1 b1 c1 d1 e1 f1 g1 h1              07 06 05 04 03 02 01 00
- *
  */
 
 #include <inttypes.h>	// for uint64_t
@@ -27,11 +14,12 @@
 #include "chess.h"
 
 /* set bit value from chess board's square index */
-uint64_t set_bb_sqr(uint64_t * const bb, const uint8_t index)
+static uint64_t set_bb_sqr(uint64_t * const bb, const uint8_t index)
 {
-	dbg_print("bb = %016"PRIx64"\tindex = %d\n", *bb, index);
-	*bb |= (1ULL << (63 - index));
+	dbg_print("&bb = %p\t*bb = %016"PRIx64"\tindex = %d\n", bb, *bb, index);
+	*bb |= (1ULL << index);
 	dbg_print("After set bit: bb = %016"PRIx64"\n", *bb);
+	return *bb;
 }
 
 
@@ -44,7 +32,7 @@ static bool get_bit(const uint64_t * const bb, const uint8_t index)
 /* clear bit at given index */
 static void clear_bb_sqr(uint64_t * const bb, const uint8_t index)
 {
-	get_bit(bb, index) ? *bb ^= (1ULL << (63 - index)) : 0;
+	get_bit(bb, index) ? *bb ^= (1ULL << index) : 0;
 }
 
 /* get bitboard containing all white pieces only */
@@ -68,11 +56,21 @@ static uint64_t get_all_pieces(const struct bitboards * const bb)
 }
 
 /* print bitboard squares of a particular rank */
-static void print_rank_bits(const uint64_t * const bb, const uint8_t index)
+static void print_rank_bits(const uint64_t * const bb, const int8_t rank)
 {
-	for (uint8_t i=0; i<8; i++) {
-		get_bit(bb, (index - i)) ? printf("1 ") : printf(". ");
+	for (uint8_t file = A_FILE; file <= H_FILE; file++) {
+		get_bit(bb, ((rank * 8) + file)) ? printf("1 ") : printf(". ");
 	}
+}
+
+/* print bitboard */
+static void print_bitboard(const uint64_t * const bb)
+{
+	for (int8_t rank = RANK_8; rank >= RANK_1; rank--) {
+		printf("\n%d ", rank+1);
+		print_rank_bits(bb, rank);
+	}
+	printf("\n  a b c d e f g h\n");
 }
 
 /* print 3 distinct bitboards simultaneously, adjacent to each other.
@@ -82,14 +80,14 @@ static void print_3_bitboards(const uint64_t * const bb1,
 {
 	char file[] = "a b c d e f g h";
 
-	for (uint8_t i=63; ((i>=7) && (i<=63)); i-=8) {
-		printf("%d ", (i/8)+1);
-		print_rank_bits(bb1, i);
+	for (int8_t rank = RANK_8; rank >= RANK_1; rank--) {
+		printf("%d ", rank+1);
+		print_rank_bits(bb1, rank);
 		printf("\t");
-		print_rank_bits(bb2, i);
+		print_rank_bits(bb2, rank);
 		printf("\t");
-		print_rank_bits(bb3, i);
-		printf(" %d\n", (i/8)+1);
+		print_rank_bits(bb3, rank);
+		printf(" %d\n", rank+1);
 	}
 	printf("  %s\t%s\t\t%s\n", file, file, file);
 	printf("  %#016"PRIx64"\t%#016"PRIx64"\t%#016"PRIx64"\n", *bb1, *bb2, *bb3);
@@ -128,10 +126,10 @@ bool update_bitboards(struct board * const brd)
 	uint64_t *bb;
 	bool flag;
 
-	for (uint8_t i=0; i<8; i++) {
-		for (uint8_t j=0; j<8; j++) {
+	for (uint8_t r = RANK_1; r <= RANK_8; r++) {
+		for (uint8_t f = A_FILE; f <= H_FILE; f++) {
 			flag = true;
-			switch(brd->sqr[i][j]) {
+			switch(brd->sqr[r][f]) {
 				case WHITE_KING:	bb = &p->wKing;	break;
 				case BLACK_KING:	bb = &p->bKing;	break;
 				case WHITE_QUEEN:	bb = &p->wQueen; break;
@@ -148,7 +146,7 @@ bool update_bitboards(struct board * const brd)
 				default:		flag = false;
 			}
 			if (flag) {
-				set_bb_sqr(bb, (i*8)+j);
+				set_bb_sqr(bb, (r*8)+f);
 			}
 		}
 	}

@@ -27,6 +27,7 @@
 
 /* Initial Forsyth–Edwards Notation (FEN) of a chess game */
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define TRICKY_POS "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
 /* This assumes you are using C99 (the variable argument list notation
  * is not supported in earlier versions). The do { ... } while (0) idiom
@@ -160,14 +161,14 @@ enum files {
 
 /* Rank numbers on board */
 enum rank {
-	RANK_8		= 0,
-	RANK_7		= 1,
-	RANK_6		= 2,
-	RANK_5		= 3,
-	RANK_4		= 4,
-	RANK_3		= 5,
-	RANK_2		= 6,
-	RANK_1		= 7,
+	RANK_1		= 0,
+	RANK_2		= 1,
+	RANK_3		= 2,
+	RANK_4		= 3,
+	RANK_5		= 4,
+	RANK_6		= 5,
+	RANK_7		= 6,
+	RANK_8		= 7,
 	RANK_MAX	= 8
 };
 

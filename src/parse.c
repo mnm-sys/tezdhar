@@ -96,10 +96,11 @@ static void set_castling_rights(struct board * const board, const char pos)
 
 /* Parse pieces from FEN string and place them on board 
  * at their designated squares according to FEN
+ * TODO: Also, parse FEN id, if provided
  */
 static char *parse_pieces_from_fen(char *fen, struct board * const board)
 {
-	int i = 0, j = 0;
+	int i = RANK_8, j = A_FILE;
 	enum pieces piece;
 	bool valid = fen ? true : false;
 
@@ -118,20 +119,21 @@ static char *parse_pieces_from_fen(char *fen, struct board * const board)
 				piece = get_piece(*fen);
 				break;
 
-			case '/': i++; j = 0; break;
+			case '/': i--; j = A_FILE; break;
 			case '1': break;
 
 			case '2': case '3': case '4':
 			case '5': case '6': case '7':
 				  j += *fen - '1'; break;
 
-			case '8': j = 0; break;
+			case '8': j = A_FILE; break;
 			default:  valid = false;
 		}
 
 		if (*fen != '/') {
 			if(!isdigit(*fen)) {
 				board->sqr[i][j] = piece;
+				dbg_print("brd->sqr[%d][%d] = %c\n", i, j, *fen);
 			}
 			j++;
 		}

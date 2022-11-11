@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 
 	printf("Tezdhar Chess Engine %s by %s\n%s\n", VERSION, AUTHOR, URL);
 	printf("This is free software: you are free to redistribute it.\n");
-	printf("There is NO WARRANTY, to the extent permitted by law.\r\n");
+	printf("There is NO WARRANTY, to the extent permitted by law.\n\n");
 
 	init_board(NULL, &board, HUMAN, AI);
 	start_game(HUMAN, HUMAN, &board);

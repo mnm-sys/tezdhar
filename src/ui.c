@@ -104,10 +104,10 @@ static void draw_utf_board(struct board *board)
 	wchar_t piece;
 	draw_top_border();
 
-	for (int i=0; i<8; i++) {
-		wprintf(L"%d ", (8-i));
-		for (int j=0; j<8; j++) {
-			switch (board->sqr[i][j]) {
+	for (int r = RANK_8; r >= RANK_1; r--) {
+		wprintf(L"%d ", r+1);
+		for (int f = A_FILE; f <= H_FILE; f++) {
+			switch (board->sqr[r][f]) {
 				case EMPTY_SQR:		piece = NBSP; break; 
 				case BLACK_ROOK:	piece = BCR; break;
 				case BLACK_KNIGHT:	piece = BCN; break;
@@ -126,7 +126,7 @@ static void draw_utf_board(struct board *board)
 			draw_sqr_box(piece);
 		}
 		wprintf(L"%lc", VRT);
-		if (i<7) {
+		if (r) {
 			draw_middle_border();
 		}
 	}
@@ -137,11 +137,11 @@ static void draw_utf_board(struct board *board)
 static void draw_ascii_board(struct board *board)
 {
 	printf("\n");
-	for (int i=0; i<8; i++) {
-		printf("   +---+---+---+---+---+---+---+---+\n%d ", 8-i);
-		for (int j=0; j<8; j++) {
+	for (int rank = RANK_8; rank >= RANK_1; rank--) {
+		printf("   +---+---+---+---+---+---+---+---+\n%d ", rank+1);
+		for (int file = A_FILE; file <= H_FILE; file++) {
 			printf(" | ");
-			switch(board->sqr[i][j]) {
+			switch(board->sqr[rank][file]) {
 				case EMPTY_SQR: printf(" ");break;
 				case BLACK_ROOK: printf("r"); break;
 				case BLACK_KNIGHT: printf("n"); break;
