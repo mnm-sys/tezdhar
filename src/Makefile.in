@@ -101,7 +101,8 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_tezdhar_OBJECTS = tezdhar-bitboard.$(OBJEXT) \
 	tezdhar-board.$(OBJEXT) tezdhar-chess.$(OBJEXT) \
-	tezdhar-parse.$(OBJEXT) tezdhar-ui.$(OBJEXT)
+	tezdhar-parse.$(OBJEXT) tezdhar-pawn.$(OBJEXT) \
+	tezdhar-ui.$(OBJEXT)
 tezdhar_OBJECTS = $(am_tezdhar_OBJECTS)
 tezdhar_LDADD = $(LDADD)
 tezdhar_LINK = $(CCLD) $(tezdhar_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -123,7 +124,8 @@ depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/tezdhar-bitboard.Po \
 	./$(DEPDIR)/tezdhar-board.Po ./$(DEPDIR)/tezdhar-chess.Po \
-	./$(DEPDIR)/tezdhar-parse.Po ./$(DEPDIR)/tezdhar-ui.Po
+	./$(DEPDIR)/tezdhar-parse.Po ./$(DEPDIR)/tezdhar-pawn.Po \
+	./$(DEPDIR)/tezdhar-ui.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -273,6 +275,7 @@ tezdhar_SOURCES = bitboard.h	\
 		  chess.h	\
 		  chess.c	\
 		  parse.c	\
+		  pawn.c	\
 		  ui.c
 
 tezdhar_CFLAGS = -fdata-sections			\
@@ -470,6 +473,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-board.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-chess.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-parse.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-pawn.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-ui.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -547,6 +551,20 @@ tezdhar-parse.obj: parse.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='parse.c' object='tezdhar-parse.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-parse.obj `if test -f 'parse.c'; then $(CYGPATH_W) 'parse.c'; else $(CYGPATH_W) '$(srcdir)/parse.c'; fi`
+
+tezdhar-pawn.o: pawn.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-pawn.o -MD -MP -MF $(DEPDIR)/tezdhar-pawn.Tpo -c -o tezdhar-pawn.o `test -f 'pawn.c' || echo '$(srcdir)/'`pawn.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-pawn.Tpo $(DEPDIR)/tezdhar-pawn.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pawn.c' object='tezdhar-pawn.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-pawn.o `test -f 'pawn.c' || echo '$(srcdir)/'`pawn.c
+
+tezdhar-pawn.obj: pawn.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-pawn.obj -MD -MP -MF $(DEPDIR)/tezdhar-pawn.Tpo -c -o tezdhar-pawn.obj `if test -f 'pawn.c'; then $(CYGPATH_W) 'pawn.c'; else $(CYGPATH_W) '$(srcdir)/pawn.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-pawn.Tpo $(DEPDIR)/tezdhar-pawn.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pawn.c' object='tezdhar-pawn.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-pawn.obj `if test -f 'pawn.c'; then $(CYGPATH_W) 'pawn.c'; else $(CYGPATH_W) '$(srcdir)/pawn.c'; fi`
 
 tezdhar-ui.o: ui.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-ui.o -MD -MP -MF $(DEPDIR)/tezdhar-ui.Tpo -c -o tezdhar-ui.o `test -f 'ui.c' || echo '$(srcdir)/'`ui.c
@@ -692,6 +710,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/tezdhar-board.Po
 	-rm -f ./$(DEPDIR)/tezdhar-chess.Po
 	-rm -f ./$(DEPDIR)/tezdhar-parse.Po
+	-rm -f ./$(DEPDIR)/tezdhar-pawn.Po
 	-rm -f ./$(DEPDIR)/tezdhar-ui.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -742,6 +761,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/tezdhar-board.Po
 	-rm -f ./$(DEPDIR)/tezdhar-chess.Po
 	-rm -f ./$(DEPDIR)/tezdhar-parse.Po
+	-rm -f ./$(DEPDIR)/tezdhar-pawn.Po
 	-rm -f ./$(DEPDIR)/tezdhar-ui.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

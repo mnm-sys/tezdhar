@@ -129,13 +129,13 @@
 
 /* Bitboard Files */
 #define BB_FILE_A	0x101010101010101ULL
-#define BB_FILE_B	(BB_FILE_A >> 1)
-#define BB_FILE_C	(BB_FILE_A >> 2)
-#define BB_FILE_D	(BB_FILE_A >> 3)
-#define BB_FILE_E	(BB_FILE_A >> 4)
-#define BB_FILE_F	(BB_FILE_A >> 5)
-#define BB_FILE_G	(BB_FILE_A >> 6)
-#define BB_FILE_H	(BB_FILE_A >> 7)
+#define BB_FILE_B	(BB_FILE_A << 1)
+#define BB_FILE_C	(BB_FILE_A << 2)
+#define BB_FILE_D	(BB_FILE_A << 3)
+#define BB_FILE_E	(BB_FILE_A << 4)
+#define BB_FILE_F	(BB_FILE_A << 5)
+#define BB_FILE_G	(BB_FILE_A << 6)
+#define BB_FILE_H	(BB_FILE_A << 7)
 
 /* Bitboard Ranks */
 #define BB_RANK_1	0xffULL
@@ -189,32 +189,47 @@
 #define MSB(bb)			(63 ^ __builtin_clzll(bb))
 #define SUBSET(a, b)		(((a) & (b)) == (a))
 
-/* Shift Bitboard to a particular direction:
- * N - North, E - East, W - West, S - South */
+/* Shift Bitboard to a particular direction, N:North, E:East, W:West, S:South
+ * Bitboard bits are stored in Little-endian rank-file mapping format viz.
+ * MSB 63 62 61 60 59 58 57 56 55 54 53 ... 10 09 08 07 06 05 04 03 02 01 00 LSB
+ * MSB h8 g8 f8 e8 d8 c8 b8 a8 h7 g7 f7 ... c2 b2 a2 h1 g1 f1 e1 d1 c1 b1 a1 LSB
+ */
 #define SHIFT_N(bb)		((bb) >> 8)
 #define SHIFT_S(bb)		((bb) << 8)
 #define SHIFT_NN(bb)		((bb) >> 16)
 #define SHIFT_SS(bb)		((bb) << 16)
-#define SHIFT_W(bb)		(((bb) & ~A_FILE) >> 1)
-#define SHIFT_E(bb)		(((bb) & ~H_FILE) << 1)
-#define SHIFT_NE(bb)		(((bb) & ~H_FILE) >> 7)
-#define SHIFT_SW(bb)		(((bb) & ~A_FILE) << 7)
-#define SHIFT_NW(bb)		(((bb) & ~A_FILE) >> 9)
-#define SHIFT_SE(bb)		(((bb) & ~H_FILE) << 9)
+#define SHIFT_W(bb)		(((bb) & NOT_A_FILE) >> 1)
+#define SHIFT_E(bb)		(((bb) & NOT_H_FILE) << 1)
+#define SHIFT_NE(bb)		(((bb) << 9) & NOT_A_FILE)
+#define SHIFT_SW(bb)		(((bb) >> 9) & NOT_H_FILE)
+#define SHIFT_NW(bb)		(((bb) << 7) & NOT_H_FILE)
+#define SHIFT_SE(bb)		(((bb) >> 7) & NOT_A_FILE)
 
-/* Chess board's file/rank based square mapping to bitboard's bit position.
- * Bit 0 starts from H1 square, with A1 square being bit 7, and goes upto
- * A8 square which is bit 63 on the bitboard representation */
+/* Chess board's rank-file based square mapping to bitboard's bit index.
+ * Bit 0 starts from A1 square, with H1 square being bit 7, and goes upto
+ * H8 square which is bit 63 on the bitboard representation */
 enum squares {
-	SQ_A1, SQ_B1, SQ_C1, SQ_D1, SQ_E1, SQ_F1, SQ_G1, SQ_H1, //  0 ..  7
-	SQ_A2, SQ_B2, SQ_C2, SQ_D2, SQ_E2, SQ_F2, SQ_G2, SQ_H2, //  8 .. 15
-	SQ_A3, SQ_B3, SQ_C3, SQ_D3, SQ_E3, SQ_F3, SQ_G3, SQ_H3, // 16 .. 23
-	SQ_A4, SQ_B4, SQ_C4, SQ_D4, SQ_E4, SQ_F4, SQ_G4, SQ_H4, // 24 .. 31
-	SQ_A5, SQ_B5, SQ_C5, SQ_D5, SQ_E5, SQ_F5, SQ_G5, SQ_H5, // 32 .. 39
-	SQ_A6, SQ_B6, SQ_C6, SQ_D6, SQ_E6, SQ_F6, SQ_G6, SQ_H6, // 40 .. 47
-	SQ_A7, SQ_B7, SQ_C7, SQ_D7, SQ_E7, SQ_F7, SQ_G7, SQ_H7, // 48 .. 55
-	SQ_A8, SQ_B8, SQ_C8, SQ_D8, SQ_E8, SQ_F8, SQ_G8, SQ_H8, // 56 .. 63
-	SQ_NB							// 64
+	A1, B1, C1, D1, E1, F1, G1, H1, //  0 ..  7
+	A2, B2, C2, D2, E2, F2, G2, H2, //  8 .. 15
+	A3, B3, C3, D3, E3, F3, G3, H3, // 16 .. 23
+	A4, B4, C4, D4, E4, F4, G4, H4, // 24 .. 31
+	A5, B5, C5, D5, E5, F5, G5, H5, // 32 .. 39
+	A6, B6, C6, D6, E6, F6, G6, H6, // 40 .. 47
+	A7, B7, C7, D7, E7, F7, G7, H7, // 48 .. 55
+	A8, B8, C8, D8, E8, F8, G8, H8, // 56 .. 63
+	SQ_NB				// 64
+};
+
+/* square to co-ordinates */
+static const char sqr_to_coords[64][3] = {
+	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+	"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+	"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+	"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+	"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
 };
 
 #endif	/* __BITBOARD_H__ */

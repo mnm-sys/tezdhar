@@ -8,6 +8,7 @@ tezdhar_SOURCES = bitboard.h	\
 		  chess.h	\
 		  chess.c	\
 		  parse.c	\
+		  pawn.c	\
 		  ui.c
 
 tezdhar_CFLAGS =	-fdata-sections			\

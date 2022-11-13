@@ -216,6 +216,8 @@ struct board
 /* Function prototypes */
 void print_fen_str(struct board *brd);
 bool init_board(char *fen, struct board *brd, enum player w, enum player b);
+void init_leaper_attacks(void);
+void init_pawn_attacks(void);
 void print_board(struct board *brd);
 void print_board_struct_info(struct board *brd);
 void parse_san_input(char *input);
@@ -226,6 +228,7 @@ bool parse_fen_record(char *fen, struct board *brd);
 void clear_castling_rights(struct board *brd);
 void setup_move_struct(const char * const movetext, struct move *move);
 bool update_bitboards(struct board * const brd);
+void print_bitboard(const uint64_t bb);
 void print_all_bitboards(const struct bitboards * const bb);
 
 #endif	/* __CHESS_H__ */

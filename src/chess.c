@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
 	printf("There is NO WARRANTY, to the extent permitted by law.\n\n");
 
 	init_board(NULL, &board, HUMAN, AI);
+	init_leaper_attacks();
 	start_game(HUMAN, HUMAN, &board);
 
 	return 0;
