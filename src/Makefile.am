@@ -2,7 +2,8 @@
 bin_PROGRAMS = tezdhar
 
 # specify which source files get built into an executable
-tezdhar_SOURCES = bitboard.h	\
+tezdhar_SOURCES = bishop.c	\
+		  bitboard.h	\
 		  bitboard.c	\
 		  board.c	\
 		  chess.h	\

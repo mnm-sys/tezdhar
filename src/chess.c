@@ -39,6 +39,9 @@
 #include "chess.h"
 #include <stdio.h>	// for printf
 
+/* Function prototypes */
+void init_leaper_attacks();
+void init_slider_attacks();
 
 static bool is_player_turn(const struct board * const brd)
 {
@@ -98,6 +101,8 @@ int main(int argc, char *argv[])
 
 	init_board(NULL, &board, HUMAN, AI);
 	init_leaper_attacks();
+	init_slider_attacks();
+
 	start_game(HUMAN, HUMAN, &board);
 
 	return 0;

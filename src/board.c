@@ -16,6 +16,7 @@
 void init_pawn_attacks(void);
 void init_knight_attacks(void);
 void init_king_attacks(void);
+void init_bishop_attacks(void);
 
 /* Clear King and Queen side castling rights of both players */
 void clear_castling_rights(struct board *board)
@@ -88,7 +89,7 @@ void setup_move_struct(const char * const movetext, struct move * const move)
 
 
 /* Init leaper pieces (King, Knight and Pawns) attacks lookup table */
-void init_leaper_attacks(void)
+void init_leaper_attacks()
 {
 		/* Init pawn attacks */
 		init_pawn_attacks();
@@ -100,3 +101,8 @@ void init_leaper_attacks(void)
 		init_king_attacks();
 }
 
+/* Init slider pieces (Bishop, Rook and Queen) attacks lookup table */
+void init_slider_attacks()
+{
+	init_bishop_attacks();
+}
