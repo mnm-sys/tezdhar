@@ -217,8 +217,6 @@ struct board
 void print_fen_str(struct board *brd);
 bool init_board(char *fen, struct board *brd, enum player w, enum player b);
 void init_leaper_attacks(void);
-void init_pawn_attacks(void);
-void init_knight_attacks(void);
 void print_board(struct board *brd);
 void print_board_struct_info(struct board *brd);
 void parse_san_input(char *input);

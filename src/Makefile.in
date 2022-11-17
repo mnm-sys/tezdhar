@@ -101,8 +101,9 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_tezdhar_OBJECTS = tezdhar-bitboard.$(OBJEXT) \
 	tezdhar-board.$(OBJEXT) tezdhar-chess.$(OBJEXT) \
-	tezdhar-knight.$(OBJEXT) tezdhar-parse.$(OBJEXT) \
-	tezdhar-pawn.$(OBJEXT) tezdhar-ui.$(OBJEXT)
+	tezdhar-king.$(OBJEXT) tezdhar-knight.$(OBJEXT) \
+	tezdhar-parse.$(OBJEXT) tezdhar-pawn.$(OBJEXT) \
+	tezdhar-ui.$(OBJEXT)
 tezdhar_OBJECTS = $(am_tezdhar_OBJECTS)
 tezdhar_LDADD = $(LDADD)
 tezdhar_LINK = $(CCLD) $(tezdhar_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -124,8 +125,9 @@ depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/tezdhar-bitboard.Po \
 	./$(DEPDIR)/tezdhar-board.Po ./$(DEPDIR)/tezdhar-chess.Po \
-	./$(DEPDIR)/tezdhar-knight.Po ./$(DEPDIR)/tezdhar-parse.Po \
-	./$(DEPDIR)/tezdhar-pawn.Po ./$(DEPDIR)/tezdhar-ui.Po
+	./$(DEPDIR)/tezdhar-king.Po ./$(DEPDIR)/tezdhar-knight.Po \
+	./$(DEPDIR)/tezdhar-parse.Po ./$(DEPDIR)/tezdhar-pawn.Po \
+	./$(DEPDIR)/tezdhar-ui.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -274,6 +276,7 @@ tezdhar_SOURCES = bitboard.h	\
 		  board.c	\
 		  chess.h	\
 		  chess.c	\
+		  king.c	\
 		  knight.c	\
 		  parse.c	\
 		  pawn.c	\
@@ -473,6 +476,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-bitboard.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-board.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-chess.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-king.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-knight.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-parse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-pawn.Po@am__quote@ # am--include-marker
@@ -539,6 +543,20 @@ tezdhar-chess.obj: chess.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='chess.c' object='tezdhar-chess.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-chess.obj `if test -f 'chess.c'; then $(CYGPATH_W) 'chess.c'; else $(CYGPATH_W) '$(srcdir)/chess.c'; fi`
+
+tezdhar-king.o: king.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-king.o -MD -MP -MF $(DEPDIR)/tezdhar-king.Tpo -c -o tezdhar-king.o `test -f 'king.c' || echo '$(srcdir)/'`king.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-king.Tpo $(DEPDIR)/tezdhar-king.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='king.c' object='tezdhar-king.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-king.o `test -f 'king.c' || echo '$(srcdir)/'`king.c
+
+tezdhar-king.obj: king.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-king.obj -MD -MP -MF $(DEPDIR)/tezdhar-king.Tpo -c -o tezdhar-king.obj `if test -f 'king.c'; then $(CYGPATH_W) 'king.c'; else $(CYGPATH_W) '$(srcdir)/king.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-king.Tpo $(DEPDIR)/tezdhar-king.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='king.c' object='tezdhar-king.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-king.obj `if test -f 'king.c'; then $(CYGPATH_W) 'king.c'; else $(CYGPATH_W) '$(srcdir)/king.c'; fi`
 
 tezdhar-knight.o: knight.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-knight.o -MD -MP -MF $(DEPDIR)/tezdhar-knight.Tpo -c -o tezdhar-knight.o `test -f 'knight.c' || echo '$(srcdir)/'`knight.c
@@ -725,6 +743,7 @@ distclean: distclean-am
 		-rm -f ./$(DEPDIR)/tezdhar-bitboard.Po
 	-rm -f ./$(DEPDIR)/tezdhar-board.Po
 	-rm -f ./$(DEPDIR)/tezdhar-chess.Po
+	-rm -f ./$(DEPDIR)/tezdhar-king.Po
 	-rm -f ./$(DEPDIR)/tezdhar-knight.Po
 	-rm -f ./$(DEPDIR)/tezdhar-parse.Po
 	-rm -f ./$(DEPDIR)/tezdhar-pawn.Po
@@ -777,6 +796,7 @@ maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/tezdhar-bitboard.Po
 	-rm -f ./$(DEPDIR)/tezdhar-board.Po
 	-rm -f ./$(DEPDIR)/tezdhar-chess.Po
+	-rm -f ./$(DEPDIR)/tezdhar-king.Po
 	-rm -f ./$(DEPDIR)/tezdhar-knight.Po
 	-rm -f ./$(DEPDIR)/tezdhar-parse.Po
 	-rm -f ./$(DEPDIR)/tezdhar-pawn.Po

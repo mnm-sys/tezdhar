@@ -196,8 +196,8 @@
  */
 #define SHIFT_N(bb)		((bb) >> 8)
 #define SHIFT_S(bb)		((bb) << 8)
-#define SHIFT_E(bb)		(((bb) & NOT_H_FILE) << 1)
-#define SHIFT_W(bb)		(((bb) & NOT_A_FILE) >> 1)
+#define SHIFT_E(bb)		(((bb) << 1) & NOT_A_FILE)
+#define SHIFT_W(bb)		(((bb) >> 1) & NOT_H_FILE)
 
 #define SHIFT_NN(bb)		((bb) >> 16)
 #define SHIFT_SS(bb)		((bb) << 16)

@@ -10,38 +10,34 @@
 #include "bitboard.h"
 #include "chess.h"
 
+/* knight attacks lookup table */
 static uint_fast64_t knight_attacks_lut[64];
 
 
 /* The Knight attacks the target squares independently from other pieces
-   around. The compass rose of all eight attacking directions associated
-   with the to - from square differences from an 8x8 board:
-
-        noNoWe    noNoEa
-            +15  +17
-             |     |
-noWeWe  +6 __|     |__+10  noEaEa
-              \   /
-               >0<
-           __ /   \ __
-soWeWe -10   |     |   -6  soEaEa
-             |     |
-            -17  -15
-        soSoWe    soSoEa
-*/
+ * around. The compass rose of all eight attacking directions associated
+ * with the to - from square differences from an 8x8 board:
+ *
+ *         noNoWe    noNoEa
+ *             +15  +17
+ *              |     |
+ * noWeWe  +6 __|     |__+10  noEaEa
+ *               \   /
+ *                >0<
+ *            __ /   \ __
+ * soWeWe -10   |     |   -6  soEaEa
+ *              |     |
+ *            -17   -15
+ *        soSoWe     soSoEa
+ */
 static uint64_t mask_knight_attacks(uint8_t sq)
 {
 	uint64_t attacks = 0ULL;	// knight attacks bitboard
 	uint64_t bb = 0ULL;		// knight bitboard
 	SET_BIT(bb, sq);		// set knight on board
 
-	attacks |= SHIFT_NNE(bb) | SHIFT_NNW(bb) | SHIFT_NEE(bb) | SHIFT_NWW(bb) |
-		   SHIFT_SSE(bb) | SHIFT_SSW(bb) | SHIFT_SEE(bb) | SHIFT_SWW(bb);
-
-#if DEBUG
-	printf("Attack map for knight at [%s]\n", sqr_to_coords[sq]);
-	print_bitboard(attacks);
-#endif
+	attacks = SHIFT_NNE(bb) | SHIFT_NNW(bb) | SHIFT_NEE(bb) | SHIFT_NWW(bb) |
+		SHIFT_SSE(bb) | SHIFT_SSW(bb) | SHIFT_SEE(bb) | SHIFT_SWW(bb);
 
 	return attacks;
 }
@@ -52,6 +48,10 @@ void init_knight_attacks()
 {
 	for (uint8_t sq = A1; sq <= H8; sq++) {
 		knight_attacks_lut[sq] = mask_knight_attacks(sq);
+#if DEBUG
+		printf("Attack map for knight at [%s]", sqr_to_coords[sq]);
+		print_bitboard(knight_attacks_lut[sq]);
+#endif
 	}
 }
 

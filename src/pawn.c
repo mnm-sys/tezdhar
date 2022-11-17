@@ -10,20 +10,18 @@
 #include "chess.h"
 #include "bitboard.h"
 
+/* pawn attacks lookup table for white and black pawns */
 static uint_fast64_t pawn_attacks_lut[2][64];
 
 static uint64_t mask_pawn_attacks(const enum color turn, const uint8_t sq)
 {
 	uint64_t attacks = 0ULL;	// resultant pawn attacks bitboard
 	uint64_t bb 	 = 0ULL;	// current pawn bitboard
-
 	SET_BIT(bb, sq);		// set pawn position on board
 
-	if (turn == WHITE) {
-		attacks |= SHIFT_NE(bb) | SHIFT_NW(bb);
-	} else {
-		attacks |= SHIFT_SE(bb) | SHIFT_SW(bb);
-	}
+	attacks = (turn == WHITE) ?
+		SHIFT_NE(bb) | SHIFT_NW(bb):
+		SHIFT_SE(bb) | SHIFT_SW(bb);
 
 	return attacks;
 }
@@ -36,9 +34,9 @@ void init_pawn_attacks(void)
 		pawn_attacks_lut[WHITE][sq] = mask_pawn_attacks(WHITE, sq);
 		pawn_attacks_lut[BLACK][sq] = mask_pawn_attacks(BLACK, sq);
 #if DEBUG
-		printf("\nAttack map for white pawn at [%s]\n", sqr_to_coords[sq]);
+		printf("\nAttack map for white pawn at [%s]", sqr_to_coords[sq]);
 		print_bitboard(pawn_attacks_lut[WHITE][sq]);
-		printf("\nAttack map for black pawn at [%s]\n", sqr_to_coords[sq]);
+		printf("\nAttack map for black pawn at [%s]", sqr_to_coords[sq]);
 		print_bitboard(pawn_attacks_lut[BLACK][sq]);
 #endif
 	}

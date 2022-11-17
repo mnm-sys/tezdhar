@@ -7,6 +7,7 @@ tezdhar_SOURCES = bitboard.h	\
 		  board.c	\
 		  chess.h	\
 		  chess.c	\
+		  king.c	\
 		  knight.c	\
 		  parse.c	\
 		  pawn.c	\
