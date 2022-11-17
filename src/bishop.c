@@ -15,31 +15,31 @@ static uint64_t bishop_occ_mask[64];
 
 
 /* mask relevant bishop occupancy bits */
-static uint64_t mask_bishop_occ(uint8_t sq)
+static uint64_t mask_bishop_occ(const uint8_t sq)
 {
-	uint64_t occ = 0ULL;	// bishop occupancy mask bitboard
-	int8_t r, f;		// occupancy rank & file of bishop
-	uint8_t tr = sq / 8;	// target rank
-	uint8_t tf = sq % 8;	// target file
+	uint64_t occ = 0ULL;		// bishop occupancy mask bitboard
+	int8_t r, f;			// occupancy rank & file of bishop
+	const int8_t tr = sq / 8;	// target rank
+	const int8_t tf = sq % 8;	// target file
 
 	/* mask NE occupancy bits */
 	for (r = tr + 1, f = tf + 1; r <= 6 && f <= 6; r++, f++) {
-		occ |= BIT((r*8) + f);
+		occ |= BIT(r * 8 + f);
 	}
 
 	/* mask NW occupancy bits */
 	for (r = tr + 1, f = tf - 1; r <= 6 && f >= 1; r++, f--) {
-		occ |= BIT((r*8) + f);
+		occ |= BIT(r * 8 + f);
 	}
 
 	/* mask SE occupancy bits */
 	for (r = tr - 1, f = tf + 1; r >= 1 && f <= 6; r--, f++) {
-		occ |= BIT((r*8)+ f);
+		occ |= BIT(r * 8 + f);
 	}
 
 	/* mask SW occupancy bits */
 	for (r = tr - 1, f = tf - 1; r >= 1 && f >= 1; r--, f--) {
-		occ |= BIT((r*8) + f);
+		occ |= BIT(r * 8 + f);
 	}
 
 	return occ;
@@ -52,7 +52,7 @@ void init_bishop_attacks()
 	for (uint8_t sq = A1; sq <= H8; sq++) {
 		bishop_occ_mask[sq] = mask_bishop_occ(sq);
 #if DEBUG
-		printf("Attack map for bishop at [%s]", sqr_to_coords[sq]);
+		printf("Occupancy mask for bishop at [%s]", sqr_to_coords[sq]);
 		print_bitboard(bishop_occ_mask[sq]);
 #endif
 	}

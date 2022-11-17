@@ -69,7 +69,6 @@ print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
 		printf(" %d\n", rank+1);
 	}
 	printf("  %s\t%s\t\t%s\n", file, file, file);
-	printf("  %#016"PRIx64"\t%#016"PRIx64"\t%#016"PRIx64"\n", bb1, bb2, bb3);
 }
 
 /* Print all 12 base bitboards and additional 3 bitboards */

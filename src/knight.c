@@ -30,16 +30,12 @@ static uint_fast64_t knight_attacks_lut[64];
  *            -17   -15
  *        soSoWe     soSoEa
  */
-static uint64_t mask_knight_attacks(uint8_t sq)
+static uint64_t mask_knight_attacks(const uint8_t sq)
 {
-	uint64_t attacks = 0ULL;	// knight attacks bitboard
-	uint64_t bb = 0ULL;		// knight bitboard
-	SET_BIT(bb, sq);		// set knight on board
+	const uint64_t bb = (1ULL << sq);	// current knight bitboard
 
-	attacks = SHIFT_NNE(bb) | SHIFT_NNW(bb) | SHIFT_NEE(bb) | SHIFT_NWW(bb) |
+	return SHIFT_NNE(bb) | SHIFT_NNW(bb) | SHIFT_NEE(bb) | SHIFT_NWW(bb) |
 		SHIFT_SSE(bb) | SHIFT_SSW(bb) | SHIFT_SEE(bb) | SHIFT_SWW(bb);
-
-	return attacks;
 }
 
 

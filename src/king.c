@@ -26,16 +26,12 @@ static uint_fast64_t king_attacks_lut[64];
  *         -9    -8    -7
  * soWe         sout         soEa
  */
-static uint64_t mask_king_attacks(uint8_t sq)
+static uint64_t mask_king_attacks(const uint8_t sq)
 {
-	uint64_t attacks = 0ULL;	// king attacks bitboard
-	uint64_t bb = 0ULL;		// king bitboard
-	SET_BIT(bb, sq);		// set king on board
+	const uint64_t bb = (1ULL << sq);	// king bitboard
 
-	attacks = SHIFT_N(bb) | SHIFT_S(bb) | SHIFT_E(bb) | SHIFT_W(bb) |
+	return SHIFT_N(bb) | SHIFT_S(bb) | SHIFT_E(bb) | SHIFT_W(bb) |
 		SHIFT_NE(bb) | SHIFT_NW(bb) | SHIFT_SE(bb) | SHIFT_SW(bb);
-
-	return attacks;
 }
 
 

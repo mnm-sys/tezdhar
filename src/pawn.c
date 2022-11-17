@@ -13,22 +13,19 @@
 /* pawn attacks lookup table for white and black pawns */
 static uint_fast64_t pawn_attacks_lut[2][64];
 
+
 static uint64_t mask_pawn_attacks(const enum color turn, const uint8_t sq)
 {
-	uint64_t attacks = 0ULL;	// resultant pawn attacks bitboard
-	uint64_t bb 	 = 0ULL;	// current pawn bitboard
-	SET_BIT(bb, sq);		// set pawn position on board
+	const uint64_t bb = (1ULL << sq);	// current pawn bitboard
 
-	attacks = (turn == WHITE) ?
+	return (turn == WHITE) ?
 		SHIFT_NE(bb) | SHIFT_NW(bb):
 		SHIFT_SE(bb) | SHIFT_SW(bb);
-
-	return attacks;
 }
 
 
 /* Initialize pawn attacks lookup table */
-void init_pawn_attacks(void)
+void init_pawn_attacks()
 {
 	for (uint8_t sq = A1; sq <= H8; sq++) {
 		pawn_attacks_lut[WHITE][sq] = mask_pawn_attacks(WHITE, sq);
