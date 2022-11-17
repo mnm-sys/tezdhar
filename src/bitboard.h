@@ -196,14 +196,26 @@
  */
 #define SHIFT_N(bb)		((bb) >> 8)
 #define SHIFT_S(bb)		((bb) << 8)
+#define SHIFT_E(bb)		(((bb) & NOT_H_FILE) << 1)
+#define SHIFT_W(bb)		(((bb) & NOT_A_FILE) >> 1)
+
 #define SHIFT_NN(bb)		((bb) >> 16)
 #define SHIFT_SS(bb)		((bb) << 16)
-#define SHIFT_W(bb)		(((bb) & NOT_A_FILE) >> 1)
-#define SHIFT_E(bb)		(((bb) & NOT_H_FILE) << 1)
 #define SHIFT_NE(bb)		(((bb) << 9) & NOT_A_FILE)
 #define SHIFT_SW(bb)		(((bb) >> 9) & NOT_H_FILE)
 #define SHIFT_NW(bb)		(((bb) << 7) & NOT_H_FILE)
 #define SHIFT_SE(bb)		(((bb) >> 7) & NOT_A_FILE)
+
+#define SHIFT_NNE(bb)		(((bb) << 17) & NOT_A_FILE)
+#define SHIFT_NNW(bb)		(((bb) << 15) & NOT_H_FILE)
+#define SHIFT_NEE(bb)		(((bb) << 10) & NOT_AB_FILE)
+#define SHIFT_NWW(bb)		(((bb) << 6) & NOT_GH_FILE)
+
+#define SHIFT_SSW(bb)		(((bb) >> 17) & NOT_H_FILE)
+#define SHIFT_SSE(bb)		(((bb) >> 15) & NOT_A_FILE)
+#define SHIFT_SWW(bb)		(((bb) >> 10) & NOT_GH_FILE)
+#define SHIFT_SEE(bb)		(((bb) >> 6) & NOT_AB_FILE)
+
 
 /* Chess board's rank-file based square mapping to bitboard's bit index.
  * Bit 0 starts from A1 square, with H1 square being bit 7, and goes upto

@@ -86,6 +86,10 @@ void setup_move_struct(const char * const movetext, struct move * const move)
 /* Init leaper pieces (King, Knight and Pawns) attacks lookup table */
 void init_leaper_attacks(void)
 {
-	/* Init pawn attacks */
-	init_pawn_attacks();
+		/* Init pawn attacks */
+		init_pawn_attacks();
+
+		/* Init knight attacks */
+		init_knight_attacks();
 }
+

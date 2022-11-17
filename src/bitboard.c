@@ -122,13 +122,15 @@ bool update_bitboards(struct board * const brd)
 				case WHITE_PAWN:	bb = &p->wPawn;	break;
 				case BLACK_PAWN:	bb = &p->bPawn;	break;
 				case EMPTY_SQR:		flag = false; break;
-				default:		flag = false;
+				default:		dbg_print("Unknown "
+							"piece found on board\n");
+							return false;
 			}
 			if (flag) {
 				SET_BIT(*bb, (r*8)+f);
 			}
 		}
 	}
+	return true;
 }
-
 
