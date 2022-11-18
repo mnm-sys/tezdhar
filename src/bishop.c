@@ -23,26 +23,70 @@ static uint64_t mask_bishop_occ(const uint8_t sq)
 	const int8_t tf = sq % 8;	// target file
 
 	/* mask NE occupancy bits */
-	for (r = tr + 1, f = tf + 1; r <= 6 && f <= 6; r++, f++) {
-		occ |= BIT(r * 8 + f);
+	for (r = tr + 1, f = tf + 1; r <= RANK_7 && f <= G_FILE; r++, f++) {
+		occ |= SQR(r, f);
 	}
 
 	/* mask NW occupancy bits */
-	for (r = tr + 1, f = tf - 1; r <= 6 && f >= 1; r++, f--) {
-		occ |= BIT(r * 8 + f);
+	for (r = tr + 1, f = tf - 1; r <= RANK_7 && f >= B_FILE; r++, f--) {
+		occ |= SQR(r, f);
 	}
 
 	/* mask SE occupancy bits */
-	for (r = tr - 1, f = tf + 1; r >= 1 && f <= 6; r--, f++) {
-		occ |= BIT(r * 8 + f);
+	for (r = tr - 1, f = tf + 1; r >= RANK_2 && f <= G_FILE; r--, f++) {
+		occ |= SQR(r, f);
 	}
 
 	/* mask SW occupancy bits */
-	for (r = tr - 1, f = tf - 1; r >= 1 && f >= 1; r--, f--) {
-		occ |= BIT(r * 8 + f);
+	for (r = tr - 1, f = tf - 1; r >= RANK_2 && f >= B_FILE; r--, f--) {
+		occ |= SQR(r, f);
 	}
 
 	return occ;
+}
+
+
+/* generate bishop attacks on the fly */
+static uint64_t generate_bishop_attacks(const uint8_t sq, const uint64_t blockers)
+{
+	uint64_t attacks = 0ULL;	// bishop attacks bitboard
+	int8_t r, f;			// attacks rank & file
+	const int8_t tr = sq / 8;	// target rank
+	const int8_t tf = sq % 8;	// target file
+
+	/* mask NE attack bits */
+	for (r = tr + 1, f = tf + 1; r <= RANK_8 && f <= H_FILE; r++, f++) {
+		attacks |= SQR(r, f);
+		if (blockers & SQR(r, f)) {
+			break;
+		}
+	}
+
+	/* mask NW attack bits */
+	for (r = tr + 1, f = tf - 1; r <= RANK_8 && f >= A_FILE; r++, f--) {
+		attacks |= SQR(r, f);
+		if (blockers & SQR(r, f)) {
+			break;
+		}
+	}
+
+	/* mask SE attack bits */
+	for (r = tr - 1, f = tf + 1; r >= RANK_1 && f <= H_FILE; r--, f++) {
+		attacks |= SQR(r, f);
+		if (blockers & SQR(r, f)) {
+			break;
+		}
+	}
+
+	/* mask SW attack bits */
+	for (r = tr - 1, f = tf - 1; r >= RANK_1 && f >= A_FILE; r--, f--) {
+		attacks |= SQR(r, f);
+		if (blockers & SQR(r, f)) {
+			break;
+		}
+	}
+
+	return attacks;
 }
 
 
@@ -54,6 +98,8 @@ void init_bishop_attacks()
 #if DEBUG
 		printf("Occupancy mask for bishop at [%s]", sqr_to_coords[sq]);
 		print_bitboard(bishop_occ_mask[sq]);
+		printf("Attack mask for bishop at [%s]", sqr_to_coords[sq]);
+		print_bitboard(generate_bishop_attacks(sq, 0ULL));
 #endif
 	}
 }

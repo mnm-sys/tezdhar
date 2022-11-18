@@ -178,6 +178,7 @@
 
 /* Bit Manipulation functions for Bitboard */
 #define BIT(sq)			(1ULL << (sq))
+#define SQR(r, f)		BIT((r * 8) + f)
 #define BITS(bb)		(__builtin_popcountll(bb))
 #define SET_BIT(bb, sq)         ((bb) |= BIT(sq))
 #define GET_BIT(bb, sq)         ((bb) & BIT(sq))

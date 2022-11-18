@@ -16,7 +16,7 @@ static uint_fast64_t pawn_attacks_lut[2][64];
 
 static uint64_t mask_pawn_attacks(const enum color turn, const uint8_t sq)
 {
-	const uint64_t bb = (1ULL << sq);	// current pawn bitboard
+	const uint64_t bb = BIT(sq);	// current pawn bitboard
 
 	return (turn == WHITE) ?
 		SHIFT_NE(bb) | SHIFT_NW(bb):

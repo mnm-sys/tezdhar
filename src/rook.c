@@ -18,31 +18,79 @@ static uint64_t rook_occ_mask[64];
 static uint64_t mask_rook_occ(const uint8_t sq)
 {
 	uint64_t occ = 0ULL;		// rook occupancy mask bitboard
-	int8_t r, f;			// occupancy rank & file of rook
+	int8_t r, f;			// occupancy rank & file
 	const int8_t tr = sq / 8;	// target rank
 	const int8_t tf = sq % 8;	// target file
 
 	/* mask North occupancy bits */
-	for (r = tr + 1; r <= 6; r++) {
-		occ |= BIT(r * 8 + tf);
+	for (r = tr + 1; r <= RANK_7; r++) {
+		occ |= SQR(r, tf);
 	}
 
 	/* mask South occupancy bits */
-	for (r = tr - 1; r >= 1; r--) {
-		occ |= BIT(r * 8 + tf);
+	for (r = tr - 1; r >= RANK_2; r--) {
+		occ |= SQR(r, tf);
 	}
 
 	/* mask East occupancy bits */
-	for (f = tf + 1; f <= 6; f++) {
-		occ |= BIT(tr * 8 + f);
+	for (f = tf + 1; f <= G_FILE; f++) {
+		occ |= SQR(tr, f);
 	}
 
 	/* mask West occupancy bits */
-	for (f = tf - 1; f >= 1; f--) {
-		occ |= BIT(tr * 8 + f);
+	for (f = tf - 1; f >= B_FILE; f--) {
+		occ |= SQR(tr, f);
 	}
 
 	return occ;
+}
+
+
+/* generate rook attacks on the fly */
+static uint64_t generate_rook_attacks(const uint8_t sq, const uint64_t blockers)
+{
+	uint64_t bb, attacks = 0ULL;	// rook attack mask bitboard
+	int8_t r, f;			// attack mask rank and file
+	const int8_t tr = sq / 8;	// target rank
+	const int8_t tf = sq % 8;	// target file
+
+	/* mask North attack bits */
+	for (r = tr + 1; r <= RANK_8; r++) {
+		bb = SQR(r, tf);
+		attacks |= bb;
+		if (blockers & bb) {
+			break;
+		}
+	}
+
+	/* mask South attack bits */
+	for (r = tr - 1; r >= RANK_1; r--) {
+		bb = SQR(r, tf);
+		attacks |= bb;
+		if (blockers & bb) {
+			break;
+		}
+	}
+
+	/* mask East attack bits */
+	for (f = tf + 1; f <= H_FILE; f++) {
+		bb = SQR(tr, f);
+		attacks |= bb;
+		if (blockers & bb) {
+			break;
+		}
+	}
+
+	/* mask West attack bits */
+	for (f = tf - 1; f >= A_FILE; f--) {
+		bb = SQR(tr, f);
+		attacks |= bb;
+		if (blockers & bb) {
+			break;
+		}
+	}
+
+	return attacks;
 }
 
 
@@ -54,6 +102,8 @@ void init_rook_attacks()
 #if DEBUG
 		printf("Occupancy mask for rook at [%s]", sqr_to_coords[sq]);
 		print_bitboard(rook_occ_mask[sq]);
+		printf("Attack mask for rook at [%s]", sqr_to_coords[sq]);
+		print_bitboard(generate_rook_attacks(sq, 0ULL));
 #endif
 	}
 }

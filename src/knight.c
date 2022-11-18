@@ -32,7 +32,7 @@ static uint_fast64_t knight_attacks_lut[64];
  */
 static uint64_t mask_knight_attacks(const uint8_t sq)
 {
-	const uint64_t bb = (1ULL << sq);	// current knight bitboard
+	const uint64_t bb = BIT(sq);	// current knight bitboard
 
 	return SHIFT_NNE(bb) | SHIFT_NNW(bb) | SHIFT_NEE(bb) | SHIFT_NWW(bb) |
 		SHIFT_SSE(bb) | SHIFT_SSW(bb) | SHIFT_SEE(bb) | SHIFT_SWW(bb);
