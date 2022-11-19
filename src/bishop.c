@@ -49,41 +49,33 @@ static uint64_t mask_bishop_occ(const uint8_t sq)
 /* generate bishop attacks on the fly */
 static uint64_t generate_bishop_attacks(const uint8_t sq, const uint64_t blockers)
 {
-	uint64_t attacks = 0ULL;	// bishop attacks bitboard
+	uint64_t bb, attacks = 0ULL;	// bishop attacks bitboard
 	int8_t r, f;			// attacks rank & file
 	const int8_t tr = sq / 8;	// target rank
 	const int8_t tf = sq % 8;	// target file
 
 	/* mask NE attack bits */
 	for (r = tr + 1, f = tf + 1; r <= RANK_8 && f <= H_FILE; r++, f++) {
-		attacks |= SQR(r, f);
-		if (blockers & SQR(r, f)) {
-			break;
-		}
+		bb = SQR(r, f);
+		BREAK_IF_BLOCKED(bb);
 	}
 
 	/* mask NW attack bits */
 	for (r = tr + 1, f = tf - 1; r <= RANK_8 && f >= A_FILE; r++, f--) {
-		attacks |= SQR(r, f);
-		if (blockers & SQR(r, f)) {
-			break;
-		}
+		bb = SQR(r, f);
+		BREAK_IF_BLOCKED(bb);
 	}
 
 	/* mask SE attack bits */
 	for (r = tr - 1, f = tf + 1; r >= RANK_1 && f <= H_FILE; r--, f++) {
-		attacks |= SQR(r, f);
-		if (blockers & SQR(r, f)) {
-			break;
-		}
+		bb = SQR(r, f);
+		BREAK_IF_BLOCKED(bb);
 	}
 
 	/* mask SW attack bits */
 	for (r = tr - 1, f = tf - 1; r >= RANK_1 && f >= A_FILE; r--, f--) {
-		attacks |= SQR(r, f);
-		if (blockers & SQR(r, f)) {
-			break;
-		}
+		bb = SQR(r, f);
+		BREAK_IF_BLOCKED(bb);
 	}
 
 	return attacks;

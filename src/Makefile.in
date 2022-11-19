@@ -89,7 +89,8 @@ POST_UNINSTALL = :
 bin_PROGRAMS = tezdhar$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/build-aux/m4/ax_gcc_builtin.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
@@ -390,6 +391,7 @@ tezdhar_CFLAGS = -fdata-sections			\
 # removed CFLAGS: -v -Wpadded
 
 #AM_LDFLAGS = --gc-sections --print-gc-sections
+AM_LDFLAGS = -mpopcnt
 ACLOCAL_AMFLAGS = -I ./../build-aux/m4
 all: all-am
 

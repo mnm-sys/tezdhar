@@ -8511,6 +8511,53 @@ fi
 printf "%s\n" "$ac_cv_sys_posix_termios" >&6; }
 
 
+# check for compiler builtins
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_popcountll" >&5
+printf %s "checking for __builtin_popcountll... " >&6; }
+if test ${ax_cv_have___builtin_popcountll+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_popcountll(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_popcountll=yes
+else $as_nop
+  ax_cv_have___builtin_popcountll=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_popcountll" >&5
+printf "%s\n" "$ax_cv_have___builtin_popcountll" >&6; }
+
+    if test yes = $ax_cv_have___builtin_popcountll
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_POPCOUNTLL 1" >>confdefs.h
+
+fi
+
+
+
+
 # The AC_CONFIG_HEADERS([config.h]) invocation causes the configure script
 # to create a config.h file gathering ‘#define’s defined by other macros in
 # configure.ac.

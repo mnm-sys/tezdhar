@@ -57,37 +57,25 @@ static uint64_t generate_rook_attacks(const uint8_t sq, const uint64_t blockers)
 	/* mask North attack bits */
 	for (r = tr + 1; r <= RANK_8; r++) {
 		bb = SQR(r, tf);
-		attacks |= bb;
-		if (blockers & bb) {
-			break;
-		}
+		BREAK_IF_BLOCKED(bb);
 	}
 
 	/* mask South attack bits */
 	for (r = tr - 1; r >= RANK_1; r--) {
 		bb = SQR(r, tf);
-		attacks |= bb;
-		if (blockers & bb) {
-			break;
-		}
+		BREAK_IF_BLOCKED(bb);
 	}
 
 	/* mask East attack bits */
 	for (f = tf + 1; f <= H_FILE; f++) {
 		bb = SQR(tr, f);
-		attacks |= bb;
-		if (blockers & bb) {
-			break;
-		}
+		BREAK_IF_BLOCKED(bb);
 	}
 
 	/* mask West attack bits */
 	for (f = tf - 1; f >= A_FILE; f--) {
 		bb = SQR(tr, f);
-		attacks |= bb;
-		if (blockers & bb) {
-			break;
-		}
+		BREAK_IF_BLOCKED(bb);
 	}
 
 	return attacks;

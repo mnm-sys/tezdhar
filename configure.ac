@@ -116,6 +116,9 @@ AC_SYS_LARGEFILE
 AC_SYS_LONG_FILE_NAMES
 AC_SYS_POSIX_TERMIOS
 
+# check for compiler builtins
+AX_GCC_BUILTIN([__builtin_popcountll])
+
 # The AC_CONFIG_HEADERS([config.h]) invocation causes the configure script
 # to create a config.h file gathering ‘#define’s defined by other macros in
 # configure.ac. 

@@ -7,11 +7,45 @@
  *
  */
 
-#include <inttypes.h>	// for uint64_t
-#include <stdbool.h>	// for bool
-#include <stdio.h>	// for printf
-#include "bitboard.h"
-#include "chess.h"
+#include "config.h"	// for HAVE___BUILTIN_POPCOUNTLL
+#include "bitboard.h"	// for GET_BIT, SET_BIT
+#include "chess.h"	// for struct bitboard
+
+/* count bits within a bitboard
+ * TODO: if builtin macros are used pass appropiate
+ * linker flags to use hardware popcount */
+static uint8_t count_bits(const uint64_t bb)
+{
+#if defined HAVE___BUILTIN_POPCOUNTLL
+	return __builtin_popcountll(bb);
+#else
+	return brain_kernighan_algo(bb);
+#endif
+}
+
+/* Brian Kernighan’s algorithm: We can use Brian Kernighan’s algorithm to
+ * improve the naive bit counting algorithm’s performance. The idea is to only
+ * consider the set bits of an integer by turning off its rightmost set bit
+ * (after counting it), so the next iteration of the loop considers the next
+ * rightmost bit.
+ *
+ * The expression n & (n-1) can be used to turn off the rightmost set bit of
+ * a number n. This works as the expression n-1 flips all the bits after the
+ * rightmost set bit of n, including the rightmost set bit itself. Therefore,
+ * n & (n-1) results in the last bit flipped of n.
+ */
+static uint8_t brain_kernighan_algo(uint64_t bb)
+{
+    uint8_t count = 0;	// bit counter
+
+    /* consecutively reset least significant 1st bit */
+    while (bb) {
+        count++;	// increment count
+        bb &= bb - 1;	// reset least significant 1st bit
+    }
+
+    return count;
+}
 
 
 /* get bitboard containing all white pieces only */
@@ -50,6 +84,7 @@ void print_bitboard(const uint64_t bb)
 		print_rank_bits(bb, rank);
 	}
 	printf("\n  a b c d e f g h\n\n");
+	printf("popcount = %d\n", count_bits(bb));
 }
 
 /* print 3 distinct bitboards simultaneously, adjacent to each other.

@@ -6,6 +6,7 @@
 *.ko
 *.obj
 *.elf
+*.Po
 
 # Linker output
 *.ilk
@@ -50,3 +51,24 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Cscope and Ctags files
+cscope.files
+cscope.in.out
+cscope.po.out
+cscope.out
+tags
+
+# Autoconf and Automake files
+aclocal.m4
+autom4te.cache/
+configure~
+config.h.in~
+config.status
+config.h
+config.log
+Makefile
+stamp-h1
+src/.deps/
+tezdhar
+

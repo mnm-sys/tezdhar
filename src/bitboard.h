@@ -69,7 +69,8 @@
  * if (sqr >= d2 && sqr < d5) { ... }
  * So, finally we adopt Layout 3 (LERF) i.e. Little Endian Rank-File mapping for
  * this project for the reasons mentioned above.
- *
+*/
+/*
  * a8 b8 c8 d8 e8 f8 g8 h8			56 57 58 59 60 61 62 63
  * a7 b7 c7 d7 e7 f7 g7 h7			48 49 50 51 52 53 54 55
  * a6 b6 c6 d6 e6 f6 g6 h6			40 41 42 43 44 45 46 47
@@ -216,6 +217,15 @@
 #define SHIFT_SSE(bb)		(((bb) >> 15) & NOT_A_FILE)
 #define SHIFT_SWW(bb)		(((bb) >> 10) & NOT_GH_FILE)
 #define SHIFT_SEE(bb)		(((bb) >> 6) & NOT_AB_FILE)
+
+/* Break from loop based generated attack mask bits if a
+ * blocker piece is found on the loop indexed square */
+#define BREAK_IF_BLOCKED(bb)	do {	\
+	attacks |= bb;			\
+	if (blockers & bb) {		\
+		break;			\
+	}				\
+} while(0)
 
 
 /* Chess board's rank-file based square mapping to bitboard's bit index.
