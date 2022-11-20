@@ -7,7 +7,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"	// for HAVE___BUILTIN_POPCOUNTLL
+#endif
+
 #include "bitboard.h"	// for GET_BIT, SET_BIT
 #include "chess.h"	// for struct bitboard
 

@@ -118,7 +118,6 @@ tezdhar_CFLAGS =	-fdata-sections			\
 # removed CFLAGS: -v -Wpadded
 
 #AM_LDFLAGS = --gc-sections --print-gc-sections
-AM_LDFLAGS = -mpopcnt
 
 ACLOCAL_AMFLAGS = -I ./../build-aux/m4
 

@@ -118,6 +118,9 @@ AC_SYS_POSIX_TERMIOS
 
 # check for compiler builtins
 AX_GCC_BUILTIN([__builtin_popcountll])
+if test "ax_cv_have___builtin_popcountll" != "xno"; then
+	LDFLAGS="$LDFLAGS -mpopcnt"
+fi
 
 # The AC_CONFIG_HEADERS([config.h]) invocation causes the configure script
 # to create a config.h file gathering ‘#define’s defined by other macros in
