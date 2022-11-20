@@ -106,6 +106,7 @@ AC_PROG_GCC_TRADITIONAL
 # checks for library functions
 AC_CHECK_FUNCS([nl_langinfo])
 AC_CHECK_FUNCS([setlocale])
+AC_CHECK_FUNCS([ffsll])
 
 # checks for system services
 AC_PATH_X

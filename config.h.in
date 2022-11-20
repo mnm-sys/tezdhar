@@ -19,6 +19,9 @@
    */
 #undef HAVE_DECL_TZNAME
 
+/* Define to 1 if you have the `ffsll' function. */
+#undef HAVE_FFSLL
+
 /* Define to 1 if the system has the type `intmax_t'. */
 #undef HAVE_INTMAX_T
 

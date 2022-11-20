@@ -7400,6 +7400,13 @@ then :
 
 fi
 
+ac_fn_c_check_func "$LINENO" "ffsll" "ac_cv_func_ffsll"
+if test "x$ac_cv_func_ffsll" = xyes
+then :
+  printf "%s\n" "#define HAVE_FFSLL 1" >>confdefs.h
+
+fi
+
 
 # checks for system services
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for X" >&5

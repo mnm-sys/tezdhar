@@ -8,23 +8,12 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"	// for HAVE___BUILTIN_POPCOUNTLL
+#include "config.h"	// for HAVE___BUILTIN_POPCOUNTLL, HAVE___BUILTIN_FFSLL
 #endif
 
 #include "bitboard.h"	// for GET_BIT, SET_BIT
 #include "chess.h"	// for struct bitboard
 
-/* count bits within a bitboard
- * TODO: if builtin macros are used pass appropiate
- * linker flags to use hardware popcount */
-static uint8_t count_bits(const uint64_t bb)
-{
-#if defined HAVE___BUILTIN_POPCOUNTLL
-	return __builtin_popcountll(bb);
-#else
-	return brain_kernighan_algo(bb);
-#endif
-}
 
 /* Brian Kernighan’s algorithm: We can use Brian Kernighan’s algorithm to
  * improve the naive bit counting algorithm’s performance. The idea is to only
@@ -39,15 +28,48 @@ static uint8_t count_bits(const uint64_t bb)
  */
 static uint8_t brain_kernighan_algo(uint64_t bb)
 {
-    uint8_t count = 0;	// bit counter
+	uint8_t count = 0;	// bit counter
 
-    /* consecutively reset least significant 1st bit */
-    while (bb) {
-        count++;	// increment count
-        bb &= bb - 1;	// reset least significant 1st bit
-    }
+	/* consecutively reset least significant 1st bit */
+	while (bb) {
+		count++;	// increment count
+		bb &= bb - 1;	// reset least significant 1st bit
+	}
 
-    return count;
+	return count;
+}
+
+
+/* count bits within a bitboard
+ * TODO: if builtin macros are used pass appropiate
+ * linker flags to use hardware popcount */
+static uint8_t count_bits(const uint64_t bb)
+{
+#if defined HAVE___BUILTIN_POPCOUNTLL
+	return __builtin_popcountll(bb);
+#else
+	return brain_kernighan_algo(bb);
+#endif
+}
+
+
+/* find first set (ffs) least significant 1st bit index */
+static uint8_t get_ls1b(const uint64_t bb)
+{
+#if defined HAVE___BUILTIN_FFSLL
+	return __builtin_ffsll(bb);
+#elif defined HAVE_FFSLL
+#include <string.h>
+	return ffsll(bb);
+#else
+	/* make sure bitboard is not 0 */
+	if (bb) {
+		/* count trailing bits before LS1B */
+		return count_bits((bb & -bb) - 1);
+	} else {
+		return 0;
+	}
+#endif
 }
 
 
@@ -58,6 +80,7 @@ static uint64_t get_white_pieces(const struct bitboards * const bb)
 			bb->wKnight | bb->wRook | bb->wPawn);
 }
 
+
 /* get bitboard containing all black pieces only */
 static uint64_t get_black_pieces(const struct bitboards * const bb)
 {
@@ -65,11 +88,13 @@ static uint64_t get_black_pieces(const struct bitboards * const bb)
 			bb->bKnight | bb->bRook | bb->bPawn);
 }
 
+
 /* get bitboard containing all black pieces present on chessboard */
 static uint64_t get_all_pieces(const struct bitboards * const bb)
 {
 	return (get_white_pieces(bb) | get_black_pieces(bb));
 }
+
 
 /* print bitboard squares of a particular rank */
 static void print_rank_bits(const uint64_t bb, const int8_t rank)
@@ -79,6 +104,7 @@ static void print_rank_bits(const uint64_t bb, const int8_t rank)
 	}
 }
 
+
 /* print bitboard */
 void print_bitboard(const uint64_t bb)
 {
@@ -86,9 +112,11 @@ void print_bitboard(const uint64_t bb)
 		printf("\n%d ", rank+1);
 		print_rank_bits(bb, rank);
 	}
-	printf("\n  a b c d e f g h\n\n");
+	printf("\n  a b c d e f g h\n");
 	printf("popcount = %d\n", count_bits(bb));
+	printf("ls1b idx = %d\n", get_ls1b(bb));
 }
+
 
 /* print 3 distinct bitboards simultaneously, adjacent to each other.
  * We print max 3 bitboards only to honor the 80 coloum terminal width */
@@ -108,6 +136,7 @@ print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
 	}
 	printf("  %s\t%s\t\t%s\n", file, file, file);
 }
+
 
 /* Print all 12 base bitboards and additional 3 bitboards */
 void print_all_bitboards(const struct bitboards * const bb)
@@ -134,6 +163,7 @@ void print_all_bitboards(const struct bitboards * const bb)
 	printf("\n    White Pieces\t  Black Pieces\t\t   All Pieces\n");
 	print_3_bitboards(wp, bp, ap);
 }
+
 
 /* Update struct bitboard with the pieces from current board position */
 bool update_bitboards(struct board * const brd)
