@@ -5164,92 +5164,8 @@ then :
 
 fi
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for tgetent in -lcurses" >&5
-printf %s "checking for tgetent in -lcurses... " >&6; }
-if test ${ac_cv_lib_curses_tgetent+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcurses  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char tgetent ();
-int
-main (void)
-{
-return tgetent ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_lib_curses_tgetent=yes
-else $as_nop
-  ac_cv_lib_curses_tgetent=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_curses_tgetent" >&5
-printf "%s\n" "$ac_cv_lib_curses_tgetent" >&6; }
-if test "x$ac_cv_lib_curses_tgetent" = xyes
-then :
-  printf "%s\n" "#define HAVE_LIBCURSES 1" >>confdefs.h
-
-  LIBS="-lcurses $LIBS"
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for tgetent in -lncurses" >&5
-printf %s "checking for tgetent in -lncurses... " >&6; }
-if test ${ac_cv_lib_ncurses_tgetent+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lncurses  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char tgetent ();
-int
-main (void)
-{
-return tgetent ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_lib_ncurses_tgetent=yes
-else $as_nop
-  ac_cv_lib_ncurses_tgetent=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ncurses_tgetent" >&5
-printf "%s\n" "$ac_cv_lib_ncurses_tgetent" >&6; }
-if test "x$ac_cv_lib_ncurses_tgetent" = xyes
-then :
-  printf "%s\n" "#define HAVE_LIBNCURSES 1" >>confdefs.h
-
-  LIBS="-lncurses $LIBS"
-
-fi
-
+#AC_CHECK_LIB([curses],[tgetent])
+#AC_CHECK_LIB([ncurses],[tgetent])
 
 
 # checks for header files
@@ -6502,7 +6418,6 @@ printf "%s\n" "$ac_cv_type_unsigned_long_long_int" >&6; }
 printf "%s\n" "#define HAVE_UNSIGNED_LONG_LONG_INT 1" >>confdefs.h
 
   fi
-
 
 
 # checks for structures
@@ -8511,7 +8426,959 @@ fi
 printf "%s\n" "$ac_cv_sys_posix_termios" >&6; }
 
 
+
 # check for compiler builtins
+
+# You may use __builtin_expect to provide the compiler with branch prediction
+# information. In general, you should prefer to use actual profile feedback for
+# this (-fprofile-arcs). For the purposes of branch prediction optimizations,
+# the probability that a __builtin_expect expression is true is controlled by
+# GCC’s builtin-expect-probability parameter, which defaults to 90%. You can
+# also use __builtin_expect_with_probability to explicitly assign a probability
+# value to individual expressions. If the built-in is used in a loop construct,
+# the provided probability will influence the expected number of iterations made
+# by loop optimizations.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_expect" >&5
+printf %s "checking for __builtin_expect... " >&6; }
+if test ${ax_cv_have___builtin_expect+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_expect(0, 0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_expect=yes
+else $as_nop
+  ax_cv_have___builtin_expect=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_expect" >&5
+printf "%s\n" "$ax_cv_have___builtin_expect" >&6; }
+
+    if test yes = $ax_cv_have___builtin_expect
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_EXPECT 1" >>confdefs.h
+
+fi
+
+
+
+
+# This function has the same semantics as __builtin_expect, but the caller
+# provides the expected probability that exp == c. The last argument,
+# probability, is a floating-point value in the range 0.0 to 1.0, inclusive.
+# The probability argument must be constant floating-point expression.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_expect_with_probability" >&5
+printf %s "checking for __builtin_expect_with_probability... " >&6; }
+if test ${ax_cv_have___builtin_expect_with_probability+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+
+                 __builtin_expect_with_probability()
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_expect_with_probability=yes
+else $as_nop
+  ax_cv_have___builtin_expect_with_probability=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_expect_with_probability" >&5
+printf "%s\n" "$ax_cv_have___builtin_expect_with_probability" >&6; }
+
+    if test yes = $ax_cv_have___builtin_expect_with_probability
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_EXPECT_WITH_PROBABILITY 1" >>confdefs.h
+
+fi
+
+
+
+
+# This function causes the program to exit abnormally. GCC implements this
+# function by using a target-dependent mechanism (such as intentionally
+# executing an illegal instruction) or by calling abort. The mechanism
+# used may vary from release to release so you should not rely on any
+# particular implementation.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_trap" >&5
+printf %s "checking for __builtin_trap... " >&6; }
+if test ${ax_cv_have___builtin_trap+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_trap()
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_trap=yes
+else $as_nop
+  ax_cv_have___builtin_trap=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_trap" >&5
+printf "%s\n" "$ax_cv_have___builtin_trap" >&6; }
+
+    if test yes = $ax_cv_have___builtin_trap
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_TRAP 1" >>confdefs.h
+
+fi
+
+
+
+
+# If control flow reaches the point of the __builtin_unreachable, the program
+# is undefined. It is useful in situations where the compiler cannot deduce
+# the unreachability of the code.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_unreachable" >&5
+printf %s "checking for __builtin_unreachable... " >&6; }
+if test ${ax_cv_have___builtin_unreachable+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_unreachable()
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_unreachable=yes
+else $as_nop
+  ax_cv_have___builtin_unreachable=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_unreachable" >&5
+printf "%s\n" "$ax_cv_have___builtin_unreachable" >&6; }
+
+    if test yes = $ax_cv_have___builtin_unreachable
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_UNREACHABLE 1" >>confdefs.h
+
+fi
+
+
+
+
+# This function is used to minimize cache-miss latency by moving data into
+# a cache before it is accessed. You can insert calls to __builtin_prefetch
+# into code for which you know addresses of data in memory that is likely to
+# be accessed soon. If the target supports them, data prefetch instructions
+# are generated. If the prefetch is done early enough before the access
+# then the data will be in the cache by the time it is accessed.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_prefetch" >&5
+printf %s "checking for __builtin_prefetch... " >&6; }
+if test ${ax_cv_have___builtin_prefetch+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_prefetch("")
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_prefetch=yes
+else $as_nop
+  ax_cv_have___builtin_prefetch=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_prefetch" >&5
+printf "%s\n" "$ax_cv_have___builtin_prefetch" >&6; }
+
+    if test yes = $ax_cv_have___builtin_prefetch
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_PREFETCH 1" >>confdefs.h
+
+fi
+
+
+
+
+# Returns the size of an object pointed to by ptr.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_object_size" >&5
+printf %s "checking for __builtin_object_size... " >&6; }
+if test ${ax_cv_have___builtin_object_size+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_object_size("", 0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_object_size=yes
+else $as_nop
+  ax_cv_have___builtin_object_size=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_object_size" >&5
+printf "%s\n" "$ax_cv_have___builtin_object_size" >&6; }
+
+    if test yes = $ax_cv_have___builtin_object_size
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_OBJECT_SIZE 1" >>confdefs.h
+
+fi
+
+
+
+
+# Returns one plus the index of the least significant 1-bit of x,
+# or if x is zero, returns zero.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_ffs" >&5
+printf %s "checking for __builtin_ffs... " >&6; }
+if test ${ax_cv_have___builtin_ffs+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_ffs(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_ffs=yes
+else $as_nop
+  ax_cv_have___builtin_ffs=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_ffs" >&5
+printf "%s\n" "$ax_cv_have___builtin_ffs" >&6; }
+
+    if test yes = $ax_cv_have___builtin_ffs
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_FFS 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_ffsl" >&5
+printf %s "checking for __builtin_ffsl... " >&6; }
+if test ${ax_cv_have___builtin_ffsl+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_ffsl(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_ffsl=yes
+else $as_nop
+  ax_cv_have___builtin_ffsl=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_ffsl" >&5
+printf "%s\n" "$ax_cv_have___builtin_ffsl" >&6; }
+
+    if test yes = $ax_cv_have___builtin_ffsl
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_FFSL 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_ffsll" >&5
+printf %s "checking for __builtin_ffsll... " >&6; }
+if test ${ax_cv_have___builtin_ffsll+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_ffsll(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_ffsll=yes
+else $as_nop
+  ax_cv_have___builtin_ffsll=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_ffsll" >&5
+printf "%s\n" "$ax_cv_have___builtin_ffsll" >&6; }
+
+    if test yes = $ax_cv_have___builtin_ffsll
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_FFSLL 1" >>confdefs.h
+
+fi
+
+
+
+
+# Returns the number of leading 0-bits in x, starting at the most
+# significant bit position. If x is 0, the result is undefined.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_clz" >&5
+printf %s "checking for __builtin_clz... " >&6; }
+if test ${ax_cv_have___builtin_clz+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_clz(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_clz=yes
+else $as_nop
+  ax_cv_have___builtin_clz=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_clz" >&5
+printf "%s\n" "$ax_cv_have___builtin_clz" >&6; }
+
+    if test yes = $ax_cv_have___builtin_clz
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CLZ 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_clzl" >&5
+printf %s "checking for __builtin_clzl... " >&6; }
+if test ${ax_cv_have___builtin_clzl+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_clzl(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_clzl=yes
+else $as_nop
+  ax_cv_have___builtin_clzl=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_clzl" >&5
+printf "%s\n" "$ax_cv_have___builtin_clzl" >&6; }
+
+    if test yes = $ax_cv_have___builtin_clzl
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CLZL 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_ctzll" >&5
+printf %s "checking for __builtin_ctzll... " >&6; }
+if test ${ax_cv_have___builtin_ctzll+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_ctzll(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_ctzll=yes
+else $as_nop
+  ax_cv_have___builtin_ctzll=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_ctzll" >&5
+printf "%s\n" "$ax_cv_have___builtin_ctzll" >&6; }
+
+    if test yes = $ax_cv_have___builtin_ctzll
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CTZLL 1" >>confdefs.h
+
+fi
+
+
+
+
+# Returns the number of trailing 0-bits in x, starting at the least
+# significant bit position. If x is 0, the result is undefined.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_ctz" >&5
+printf %s "checking for __builtin_ctz... " >&6; }
+if test ${ax_cv_have___builtin_ctz+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_ctz(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_ctz=yes
+else $as_nop
+  ax_cv_have___builtin_ctz=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_ctz" >&5
+printf "%s\n" "$ax_cv_have___builtin_ctz" >&6; }
+
+    if test yes = $ax_cv_have___builtin_ctz
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CTZ 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_ctzl" >&5
+printf %s "checking for __builtin_ctzl... " >&6; }
+if test ${ax_cv_have___builtin_ctzl+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_ctzl(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_ctzl=yes
+else $as_nop
+  ax_cv_have___builtin_ctzl=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_ctzl" >&5
+printf "%s\n" "$ax_cv_have___builtin_ctzl" >&6; }
+
+    if test yes = $ax_cv_have___builtin_ctzl
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CTZL 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_ctzll" >&5
+printf %s "checking for __builtin_ctzll... " >&6; }
+if test ${ax_cv_have___builtin_ctzll+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_ctzll(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_ctzll=yes
+else $as_nop
+  ax_cv_have___builtin_ctzll=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_ctzll" >&5
+printf "%s\n" "$ax_cv_have___builtin_ctzll" >&6; }
+
+    if test yes = $ax_cv_have___builtin_ctzll
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CTZLL 1" >>confdefs.h
+
+fi
+
+
+
+
+# Returns the number of leading redundant sign bits in x, i.e. the
+# number of bits following the most significant bit that are identical
+# to it. There are no special cases for 0 or other values.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_clrsb" >&5
+printf %s "checking for __builtin_clrsb... " >&6; }
+if test ${ax_cv_have___builtin_clrsb+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_clrsb(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_clrsb=yes
+else $as_nop
+  ax_cv_have___builtin_clrsb=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_clrsb" >&5
+printf "%s\n" "$ax_cv_have___builtin_clrsb" >&6; }
+
+    if test yes = $ax_cv_have___builtin_clrsb
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CLRSB 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_clrsbl" >&5
+printf %s "checking for __builtin_clrsbl... " >&6; }
+if test ${ax_cv_have___builtin_clrsbl+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_clrsbl(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_clrsbl=yes
+else $as_nop
+  ax_cv_have___builtin_clrsbl=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_clrsbl" >&5
+printf "%s\n" "$ax_cv_have___builtin_clrsbl" >&6; }
+
+    if test yes = $ax_cv_have___builtin_clrsbl
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CLRSBL 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_clrsbll" >&5
+printf %s "checking for __builtin_clrsbll... " >&6; }
+if test ${ax_cv_have___builtin_clrsbll+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_clrsbll(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_clrsbll=yes
+else $as_nop
+  ax_cv_have___builtin_clrsbll=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_clrsbll" >&5
+printf "%s\n" "$ax_cv_have___builtin_clrsbll" >&6; }
+
+    if test yes = $ax_cv_have___builtin_clrsbll
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_CLRSBLL 1" >>confdefs.h
+
+fi
+
+
+
+
+# Returns the number of 1-bits in x.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_popcount" >&5
+printf %s "checking for __builtin_popcount... " >&6; }
+if test ${ax_cv_have___builtin_popcount+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_popcount(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_popcount=yes
+else $as_nop
+  ax_cv_have___builtin_popcount=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_popcount" >&5
+printf "%s\n" "$ax_cv_have___builtin_popcount" >&6; }
+
+    if test yes = $ax_cv_have___builtin_popcount
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_POPCOUNT 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_popcountl" >&5
+printf %s "checking for __builtin_popcountl... " >&6; }
+if test ${ax_cv_have___builtin_popcountl+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_popcountl(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_popcountl=yes
+else $as_nop
+  ax_cv_have___builtin_popcountl=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_popcountl" >&5
+printf "%s\n" "$ax_cv_have___builtin_popcountl" >&6; }
+
+    if test yes = $ax_cv_have___builtin_popcountl
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_POPCOUNTL 1" >>confdefs.h
+
+fi
+
+
+
 
 
 
@@ -8560,6 +9427,519 @@ fi
 if test "ax_cv_have___builtin_popcountll" != "xno"; then
 	LDFLAGS="$LDFLAGS -mpopcnt"
 fi
+
+# Returns the parity of x, i.e. the number of 1-bits in x modulo 2.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_parity" >&5
+printf %s "checking for __builtin_parity... " >&6; }
+if test ${ax_cv_have___builtin_parity+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_parity(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_parity=yes
+else $as_nop
+  ax_cv_have___builtin_parity=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_parity" >&5
+printf "%s\n" "$ax_cv_have___builtin_parity" >&6; }
+
+    if test yes = $ax_cv_have___builtin_parity
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_PARITY 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_parityl" >&5
+printf %s "checking for __builtin_parityl... " >&6; }
+if test ${ax_cv_have___builtin_parityl+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_parityl(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_parityl=yes
+else $as_nop
+  ax_cv_have___builtin_parityl=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_parityl" >&5
+printf "%s\n" "$ax_cv_have___builtin_parityl" >&6; }
+
+    if test yes = $ax_cv_have___builtin_parityl
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_PARITYL 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_parityll" >&5
+printf %s "checking for __builtin_parityll... " >&6; }
+if test ${ax_cv_have___builtin_parityll+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_parityll(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_parityll=yes
+else $as_nop
+  ax_cv_have___builtin_parityll=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_parityll" >&5
+printf "%s\n" "$ax_cv_have___builtin_parityll" >&6; }
+
+    if test yes = $ax_cv_have___builtin_parityll
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_PARITYLL 1" >>confdefs.h
+
+fi
+
+
+
+
+# Returns the first argument raised to the power of the second. Unlike
+# the pow function no guarantees about precision and rounding are made.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_powi" >&5
+printf %s "checking for __builtin_powi... " >&6; }
+if test ${ax_cv_have___builtin_powi+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_powi(0, 0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_powi=yes
+else $as_nop
+  ax_cv_have___builtin_powi=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_powi" >&5
+printf "%s\n" "$ax_cv_have___builtin_powi" >&6; }
+
+    if test yes = $ax_cv_have___builtin_powi
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_POWI 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_powif" >&5
+printf %s "checking for __builtin_powif... " >&6; }
+if test ${ax_cv_have___builtin_powif+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_powif(0, 0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_powif=yes
+else $as_nop
+  ax_cv_have___builtin_powif=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_powif" >&5
+printf "%s\n" "$ax_cv_have___builtin_powif" >&6; }
+
+    if test yes = $ax_cv_have___builtin_powif
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_POWIF 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_powil" >&5
+printf %s "checking for __builtin_powil... " >&6; }
+if test ${ax_cv_have___builtin_powil+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_powil(0, 0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_powil=yes
+else $as_nop
+  ax_cv_have___builtin_powil=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_powil" >&5
+printf "%s\n" "$ax_cv_have___builtin_powil" >&6; }
+
+    if test yes = $ax_cv_have___builtin_powil
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_POWIL 1" >>confdefs.h
+
+fi
+
+
+
+
+# Returns x with the order of the bytes reversed; for example,
+# 0xaabb becomes 0xbbaa. Byte here always means exactly 8 bits.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_bswap16" >&5
+printf %s "checking for __builtin_bswap16... " >&6; }
+if test ${ax_cv_have___builtin_bswap16+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_bswap16(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_bswap16=yes
+else $as_nop
+  ax_cv_have___builtin_bswap16=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_bswap16" >&5
+printf "%s\n" "$ax_cv_have___builtin_bswap16" >&6; }
+
+    if test yes = $ax_cv_have___builtin_bswap16
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_BSWAP16 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_bswap32" >&5
+printf %s "checking for __builtin_bswap32... " >&6; }
+if test ${ax_cv_have___builtin_bswap32+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_bswap32(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_bswap32=yes
+else $as_nop
+  ax_cv_have___builtin_bswap32=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_bswap32" >&5
+printf "%s\n" "$ax_cv_have___builtin_bswap32" >&6; }
+
+    if test yes = $ax_cv_have___builtin_bswap32
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_BSWAP32 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_bswap64" >&5
+printf %s "checking for __builtin_bswap64... " >&6; }
+if test ${ax_cv_have___builtin_bswap64+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+            __builtin_bswap64(0)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_bswap64=yes
+else $as_nop
+  ax_cv_have___builtin_bswap64=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_bswap64" >&5
+printf "%s\n" "$ax_cv_have___builtin_bswap64" >&6; }
+
+    if test yes = $ax_cv_have___builtin_bswap64
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_BSWAP64 1" >>confdefs.h
+
+fi
+
+
+
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_bswap128" >&5
+printf %s "checking for __builtin_bswap128... " >&6; }
+if test ${ax_cv_have___builtin_bswap128+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+
+                 __builtin_bswap128()
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_bswap128=yes
+else $as_nop
+  ax_cv_have___builtin_bswap128=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_bswap128" >&5
+printf "%s\n" "$ax_cv_have___builtin_bswap128" >&6; }
+
+    if test yes = $ax_cv_have___builtin_bswap128
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_BSWAP128 1" >>confdefs.h
+
+fi
+
+
+
+
+# On targets where the user visible pointer size is smaller than the size
+# of an actual hardware address this function returns the extended user
+# pointer. Targets where this is true included ILP32 mode on x86_64 or
+# Aarch64. This function is mainly useful when writing inline assembly code.
+
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __builtin_extend_pointer" >&5
+printf %s "checking for __builtin_extend_pointer... " >&6; }
+if test ${ax_cv_have___builtin_extend_pointer+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+
+                 __builtin_extend_pointer()
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ax_cv_have___builtin_extend_pointer=yes
+else $as_nop
+  ax_cv_have___builtin_extend_pointer=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_have___builtin_extend_pointer" >&5
+printf "%s\n" "$ax_cv_have___builtin_extend_pointer" >&6; }
+
+    if test yes = $ax_cv_have___builtin_extend_pointer
+then :
+
+printf "%s\n" "#define HAVE___BUILTIN_EXTEND_POINTER 1" >>confdefs.h
+
+fi
+
+
+
+
 
 # The AC_CONFIG_HEADERS([config.h]) invocation causes the configure script
 # to create a config.h file gathering ‘#define’s defined by other macros in
@@ -10044,7 +11424,6 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 printf "%s\n" "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
-
 
 
 

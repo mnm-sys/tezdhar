@@ -49,8 +49,8 @@ AC_PROG_LN_S
 
 # checks for libraries
 AC_CHECK_LIB([c],[printf])
-AC_CHECK_LIB([curses],[tgetent])
-AC_CHECK_LIB([ncurses],[tgetent])
+#AC_CHECK_LIB([curses],[tgetent])
+#AC_CHECK_LIB([ncurses],[tgetent])
 
 
 # checks for header files
@@ -84,7 +84,6 @@ AC_TYPE_UINTMAX_T
 AC_TYPE_UINTPTR_T
 AC_TYPE_UNSIGNED_LONG_LONG_INT
 
-
 # checks for structures
 AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
@@ -116,11 +115,106 @@ AC_SYS_LARGEFILE
 AC_SYS_LONG_FILE_NAMES
 AC_SYS_POSIX_TERMIOS
 
+
 # check for compiler builtins
+
+# You may use __builtin_expect to provide the compiler with branch prediction
+# information. In general, you should prefer to use actual profile feedback for
+# this (-fprofile-arcs). For the purposes of branch prediction optimizations,
+# the probability that a __builtin_expect expression is true is controlled by
+# GCC’s builtin-expect-probability parameter, which defaults to 90%. You can
+# also use __builtin_expect_with_probability to explicitly assign a probability
+# value to individual expressions. If the built-in is used in a loop construct,
+# the provided probability will influence the expected number of iterations made
+# by loop optimizations.
+AX_GCC_BUILTIN([__builtin_expect])
+
+# This function has the same semantics as __builtin_expect, but the caller
+# provides the expected probability that exp == c. The last argument,
+# probability, is a floating-point value in the range 0.0 to 1.0, inclusive.
+# The probability argument must be constant floating-point expression.
+AX_GCC_BUILTIN([__builtin_expect_with_probability])
+
+# This function causes the program to exit abnormally. GCC implements this
+# function by using a target-dependent mechanism (such as intentionally
+# executing an illegal instruction) or by calling abort. The mechanism
+# used may vary from release to release so you should not rely on any
+# particular implementation.
+AX_GCC_BUILTIN([__builtin_trap])
+
+# If control flow reaches the point of the __builtin_unreachable, the program
+# is undefined. It is useful in situations where the compiler cannot deduce
+# the unreachability of the code.
+AX_GCC_BUILTIN([__builtin_unreachable])
+
+# This function is used to minimize cache-miss latency by moving data into
+# a cache before it is accessed. You can insert calls to __builtin_prefetch
+# into code for which you know addresses of data in memory that is likely to
+# be accessed soon. If the target supports them, data prefetch instructions
+# are generated. If the prefetch is done early enough before the access
+# then the data will be in the cache by the time it is accessed.
+AX_GCC_BUILTIN([__builtin_prefetch])
+
+# Returns the size of an object pointed to by ptr.
+AX_GCC_BUILTIN([__builtin_object_size])
+
+# Returns one plus the index of the least significant 1-bit of x,
+# or if x is zero, returns zero.
+AX_GCC_BUILTIN([__builtin_ffs])
+AX_GCC_BUILTIN([__builtin_ffsl])
+AX_GCC_BUILTIN([__builtin_ffsll])
+
+# Returns the number of leading 0-bits in x, starting at the most
+# significant bit position. If x is 0, the result is undefined.
+AX_GCC_BUILTIN([__builtin_clz])
+AX_GCC_BUILTIN([__builtin_clzl])
+AX_GCC_BUILTIN([__builtin_ctzll])
+
+# Returns the number of trailing 0-bits in x, starting at the least
+# significant bit position. If x is 0, the result is undefined.
+AX_GCC_BUILTIN([__builtin_ctz])
+AX_GCC_BUILTIN([__builtin_ctzl])
+AX_GCC_BUILTIN([__builtin_ctzll])
+
+# Returns the number of leading redundant sign bits in x, i.e. the
+# number of bits following the most significant bit that are identical
+# to it. There are no special cases for 0 or other values.
+AX_GCC_BUILTIN([__builtin_clrsb])
+AX_GCC_BUILTIN([__builtin_clrsbl])
+AX_GCC_BUILTIN([__builtin_clrsbll])
+
+# Returns the number of 1-bits in x.
+AX_GCC_BUILTIN([__builtin_popcount])
+AX_GCC_BUILTIN([__builtin_popcountl])
 AX_GCC_BUILTIN([__builtin_popcountll])
 if test "ax_cv_have___builtin_popcountll" != "xno"; then
 	LDFLAGS="$LDFLAGS -mpopcnt"
 fi
+
+# Returns the parity of x, i.e. the number of 1-bits in x modulo 2.
+AX_GCC_BUILTIN([__builtin_parity])
+AX_GCC_BUILTIN([__builtin_parityl])
+AX_GCC_BUILTIN([__builtin_parityll])
+
+# Returns the first argument raised to the power of the second. Unlike
+# the pow function no guarantees about precision and rounding are made.
+AX_GCC_BUILTIN([__builtin_powi])
+AX_GCC_BUILTIN([__builtin_powif])
+AX_GCC_BUILTIN([__builtin_powil])
+
+# Returns x with the order of the bytes reversed; for example,
+# 0xaabb becomes 0xbbaa. Byte here always means exactly 8 bits.
+AX_GCC_BUILTIN([__builtin_bswap16])
+AX_GCC_BUILTIN([__builtin_bswap32])
+AX_GCC_BUILTIN([__builtin_bswap64])
+AX_GCC_BUILTIN([__builtin_bswap128])
+
+# On targets where the user visible pointer size is smaller than the size
+# of an actual hardware address this function returns the extended user
+# pointer. Targets where this is true included ILP32 mode on x86_64 or
+# Aarch64. This function is mainly useful when writing inline assembly code.
+AX_GCC_BUILTIN([__builtin_extend_pointer])
+
 
 # The AC_CONFIG_HEADERS([config.h]) invocation causes the configure script
 # to create a config.h file gathering ‘#define’s defined by other macros in
@@ -153,5 +247,4 @@ AC_CONFIG_FILES([
 # and AC_CONFIG_FILES. This macro generates config.status and launches it. Call
 # this macro once, at the end of configure.ac.
 AC_OUTPUT
-
 
