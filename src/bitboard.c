@@ -1,4 +1,5 @@
 /* @file:	tezdhar/src/bitboard.c
+ * @project:	TEZDHAR Chess Engine
  * @url:	https://github.com/mnm-sys/tezdhar/blob/main/src/bitboard.c
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
  * @created:	Oct. 2022
@@ -15,6 +16,33 @@
 #include "chess.h"	// for struct bitboard
 
 
+static const uint8_t index64[64] = {
+    0, 47,  1, 56, 48, 27,  2, 60,
+   57, 49, 41, 37, 28, 16,  3, 61,
+   54, 58, 35, 52, 50, 42, 21, 44,
+   38, 32, 29, 23, 17, 11,  4, 62,
+   46, 55, 26, 59, 40, 36, 15, 53,
+   34, 51, 20, 43, 31, 22, 10, 45,
+   25, 39, 14, 33, 19, 30,  9, 24,
+   13, 18,  8, 12,  7,  6,  5, 63
+};
+
+
+/**
+ * bitScanForward
+ * https://www.chessprogramming.org/index.php?title=BitScan
+ * @author Kim Walisch (2012)
+ * @param bb bitboard to scan
+ * @precondition bb != 0
+ * @return index (0..63) of least significant one bit
+ */
+uint8_t bitScanForward(uint64_t bb) {
+   static const uint64_t debruijn64 = 0x03f79d71b4cb0a89ULL;
+   //assert (bb != 0);
+   return index64[((bb ^ (bb-1)) * debruijn64) >> 58];
+}
+
+
 /* Brian Kernighan’s algorithm: We can use Brian Kernighan’s algorithm to
  * improve the naive bit counting algorithm’s performance. The idea is to only
  * consider the set bits of an integer by turning off its rightmost set bit
@@ -26,7 +54,7 @@
  * rightmost set bit of n, including the rightmost set bit itself. Therefore,
  * n & (n-1) results in the last bit flipped of n.
  */
-static uint8_t brain_kernighan_algo(uint64_t bb)
+static inline uint8_t brain_kernighan_algo(uint64_t bb)
 {
 	uint8_t count = 0;	// bit counter
 
@@ -35,7 +63,6 @@ static uint8_t brain_kernighan_algo(uint64_t bb)
 		count++;	// increment count
 		bb &= bb - 1;	// reset least significant 1st bit
 	}
-
 	return count;
 }
 
@@ -43,7 +70,7 @@ static uint8_t brain_kernighan_algo(uint64_t bb)
 /* count bits within a bitboard
  * TODO: if builtin macros are used pass appropiate
  * linker flags to use hardware popcount */
-static uint8_t count_bits(const uint64_t bb)
+static inline uint8_t count_bits(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_POPCOUNTLL
 	return __builtin_popcountll(bb);
@@ -54,21 +81,23 @@ static uint8_t count_bits(const uint64_t bb)
 
 
 /* find first set (ffs) least significant 1st bit index */
-static uint8_t get_ls1b(const uint64_t bb)
+static inline uint8_t get_ls1b(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_FFSLL
 	return __builtin_ffsll(bb);
+
+#elif defined HAVE___BUILTIN_CTZLL
+	return bb ? __builtin_ctzll(bb) : 0;
+
+#elif defined HAVE___BUILTIN_POPCOUNTLL
+	return bb ? __builtin_popcountll((bb & -bb) -1) : 0;
+
 #elif defined HAVE_FFSLL
 #include <string.h>
 	return ffsll(bb);
+
 #else
-	/* make sure bitboard is not 0 */
-	if (bb) {
-		/* count trailing bits before LS1B */
-		return count_bits((bb & -bb) - 1);
-	} else {
-		return 0;
-	}
+	return bb ? bitScanForward(bb) : 0;
 #endif
 }
 
