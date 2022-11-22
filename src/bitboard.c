@@ -12,6 +12,16 @@
 #include "config.h"	// for HAVE___BUILTIN_POPCOUNTLL, HAVE___BUILTIN_FFSLL
 #endif
 
+#ifndef HAVE___BUILTIN_FFSLL
+#ifndef HAVE___BUILTIN_CTZLL
+#ifndef HAVE___BUILTIN_POPCOUNTLL
+#ifdef HAVE_FFSLL
+#include <string.h>	// for ffsll library function
+#endif
+#endif
+#endif
+#endif
+
 #include "bitboard.h"	// for GET_BIT, SET_BIT
 #include "chess.h"	// for struct bitboard
 
@@ -36,7 +46,8 @@ static const uint8_t index64[64] = {
  * @precondition bb != 0
  * @return index (0..63) of least significant one bit
  */
-uint8_t bitScanForward(uint64_t bb) {
+static inline uint8_t __attribute((hot)) bitScanForward(uint64_t bb)
+{
    static const uint64_t debruijn64 = 0x03f79d71b4cb0a89ULL;
    //assert (bb != 0);
    return index64[((bb ^ (bb-1)) * debruijn64) >> 58];
@@ -54,7 +65,7 @@ uint8_t bitScanForward(uint64_t bb) {
  * rightmost set bit of n, including the rightmost set bit itself. Therefore,
  * n & (n-1) results in the last bit flipped of n.
  */
-static inline uint8_t brain_kernighan_algo(uint64_t bb)
+static inline uint8_t __attribute((hot)) brain_kernighan_algo(uint64_t bb)
 {
 	uint8_t count = 0;	// bit counter
 
@@ -70,7 +81,7 @@ static inline uint8_t brain_kernighan_algo(uint64_t bb)
 /* count bits within a bitboard
  * TODO: if builtin macros are used pass appropiate
  * linker flags to use hardware popcount */
-static inline uint8_t count_bits(const uint64_t bb)
+static inline uint8_t __attribute((hot)) count_bits(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_POPCOUNTLL
 	return __builtin_popcountll(bb);
@@ -81,7 +92,7 @@ static inline uint8_t count_bits(const uint64_t bb)
 
 
 /* find first set (ffs) least significant 1st bit index */
-static inline uint8_t get_ls1b(const uint64_t bb)
+static inline uint8_t __attribute((hot)) get_ls1b(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_FFSLL
 	return __builtin_ffsll(bb);
@@ -93,9 +104,7 @@ static inline uint8_t get_ls1b(const uint64_t bb)
 	return bb ? __builtin_popcountll((bb & -bb) -1) : 0;
 
 #elif defined HAVE_FFSLL
-#include <string.h>
 	return ffsll(bb);
-
 #else
 	return bb ? bitScanForward(bb) : 0;
 #endif
