@@ -111,6 +111,32 @@ static inline uint8_t __attribute((hot)) get_ls1b(const uint64_t bb)
 }
 
 
+/* populating occupancy sets to multiply them later by magic numbers */
+uint64_t set_occupancy(const uint8_t index, const uint8_t bits_in_mask, uint64_t attack_mask)
+{
+    /* occupancy map */
+    uint64_t occupancy = 0ULL;
+
+    /* loop over the range of bits within attack mask */
+    for (uint8_t count = 0; count < bits_in_mask; count++)
+    {
+        /* get LS1B index of attacks mask */
+        uint8_t square = get_ls1b(attack_mask);
+
+        /* pop LS1B in attack map */
+        POP_BIT(attack_mask, square);
+
+        /* make sure occupancy is on board */
+        if (index & (1 << count)) {
+            /* populate occupancy map */
+            occupancy |= (1ULL << square);
+	}
+    }
+
+    return occupancy;
+}
+
+
 /* get bitboard containing all white pieces only */
 static uint64_t get_white_pieces(const struct bitboards * const bb)
 {

@@ -128,6 +128,8 @@
 #ifndef __BITBOARD_H__
 #define __BITBOARD_H__	1
 
+#include <stdint.h>	// for uint64_t
+
 /* Bitboard Files */
 #define BB_FILE_A	0x101010101010101ULL
 #define BB_FILE_B	(BB_FILE_A << 1)
@@ -254,6 +256,9 @@ static const char sqr_to_coords[64][3] = {
 	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
 };
+
+/* Function Prototypes */
+uint64_t set_occupancy(const uint8_t index, const uint8_t bits_in_mask, uint64_t attack_mask);
 
 #endif	/* __BITBOARD_H__ */
 

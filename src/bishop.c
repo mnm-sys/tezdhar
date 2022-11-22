@@ -13,6 +13,18 @@
 /* bishop occupancy mask */
 static uint64_t bishop_occ_mask[64];
 
+/* bishop relevant occupancy bit count lookup table */
+const uint8_t bishop_relevant_occu_bits_lut[64] = {
+	6, 5, 5, 5, 5, 5, 5, 6,
+	5, 5, 5, 5, 5, 5, 5, 5,
+	5, 5, 7, 7, 7, 7, 5, 5,
+	5, 5, 7, 9, 9, 7, 5, 5,
+	5, 5, 7, 9, 9, 7, 5, 5,
+	5, 5, 7, 7, 7, 7, 5, 5,
+	5, 5, 5, 5, 5, 5, 5, 5,
+	6, 5, 5, 5, 5, 5, 5, 6
+};
+
 
 /* mask relevant bishop occupancy bits */
 static uint64_t mask_bishop_occ(const uint8_t sq)

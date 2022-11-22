@@ -4,7 +4,7 @@
  * @author:	Manavendra Nath Manav (mnm.kernel@gmail.com)
  * @created:	Nov. 2022
  * @license:	GPLv3
- * @desc:	King moves routines and rook-attacks lookup table
+ * @desc:	Rook moves routines and rook-attacks lookup table
  */
 
 #include "bitboard.h"
@@ -12,6 +12,19 @@
 
 /* rook occupancy mask */
 static uint64_t rook_occ_mask[64];
+
+/* rook relevant occupancy bit count lookup table. For example if you had a
+ * rook on a1, the relevant occupancy bits will be from a2-a7 and b1-g1. */
+const uint8_t rook_relevant_occu_bits_lut[64] = {
+	12, 11, 11, 11, 11, 11, 11, 12,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	11, 10, 10, 10, 10, 10, 10, 11,
+	12, 11, 11, 11, 11, 11, 11, 12
+};
 
 
 /* mask relevant rook occupancy bits */
