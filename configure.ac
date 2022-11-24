@@ -43,32 +43,55 @@ AM_PROG_CC_C_O
 AC_USE_SYSTEM_EXTENSIONS
 
 # checks for programs
+#AC_PROG_CXX
+AM_PROG_AR
+AC_PROG_RANLIB
 AC_PROG_INSTALL
-AC_PROG_MKDIR_P
+AC_PROG_AWK
 AC_PROG_LN_S
+AC_STRUCT_TM
+#AM_PROG_LEX
+AC_PROG_MKDIR_P
 
 # checks for libraries
 AC_CHECK_LIB([c],[printf])
+#ACX_PTHREAD()
 #AC_CHECK_LIB([curses],[tgetent])
 #AC_CHECK_LIB([ncurses],[tgetent])
 
-
 # checks for header files
 AC_INCLUDES_DEFAULT
-AC_CHECK_HEADERS([langinfo.h])
-AC_CHECK_HEADER_STDBOOL
+#AC_HEADER_STDC
 AC_HEADER_STDBOOL
+AC_HEADER_ASSERT
+#AC_HEADER_TIME
+AC_CHECK_HEADER_STDBOOL
+AC_CHECK_HEADERS(stdio.h stdlib.h stdint.h stdbool.h string.h ctype.h)
+AC_CHECK_HEADERS(inttypes.h langinfo.h locale.h wchar.h errno.h)
+AC_CHECK_HEADERS(time.h sys/time.h unistd.h fcntl.h)
 
 # checks for types
+AC_CHECK_SIZEOF([size_t])
+AC_CHECK_SIZEOF([time_t])
+
 AC_TYPE_INT8_T
+AC_TYPE_UINT8_T
 AC_TYPE_INT16_T
+AC_TYPE_UINT16_T
 AC_TYPE_INT32_T
+AC_TYPE_UINT32_T
 AC_TYPE_INT64_T
+AC_TYPE_UINT64_T
 AC_TYPE_INTMAX_T
+AC_TYPE_UINTMAX_T
 AC_TYPE_INTPTR_T
+AC_TYPE_UINTPTR_T
+
+AC_TYPE_LONG_LONG_INT
+AC_TYPE_UNSIGNED_LONG_LONG_INT
 AC_TYPE_LONG_DOUBLE
 AC_TYPE_LONG_DOUBLE_WIDER
-AC_TYPE_LONG_LONG_INT
+
 AC_TYPE_MBSTATE_T
 AC_TYPE_MODE_T
 AC_TYPE_OFF_T
@@ -76,13 +99,6 @@ AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
 AC_TYPE_UID_T
-AC_TYPE_UINT8_T
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT64_T
-AC_TYPE_UINTMAX_T
-AC_TYPE_UINTPTR_T
-AC_TYPE_UNSIGNED_LONG_LONG_INT
 
 # checks for structures
 AC_STRUCT_TM
@@ -104,9 +120,13 @@ AC_C_PROTOTYPES
 AC_PROG_GCC_TRADITIONAL
 
 # checks for library functions
-AC_CHECK_FUNCS([nl_langinfo])
-AC_CHECK_FUNCS([setlocale])
-AC_CHECK_FUNCS([ffsll])
+#AC_TYPE_SIGNAL
+AC_FUNC_ALLOCA
+AC_FUNC_MALLOC
+AC_FUNC_MEMCMP
+AC_CHECK_FUNCS(nl_langinfo setlocale ffsll srandomdev random)
+AC_CHECK_FUNCS(strdup strndup strpbrk strchr strrchr strspn strcspn)
+AC_CHECK_FUNCS(gettimeofday memmove memset strstr strerror strtol)
 
 # checks for system services
 AC_PATH_X

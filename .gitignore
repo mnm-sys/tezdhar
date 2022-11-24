@@ -62,7 +62,10 @@ tags
 # Autoconf and Automake files
 aclocal.m4
 autom4te.cache/
+autoscan.log
+build-aux/
 configure~
+configure.scan
 config.h.in~
 config.status
 config.h
