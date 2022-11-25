@@ -63,7 +63,6 @@ tags
 aclocal.m4
 autom4te.cache/
 autoscan.log
-build-aux/
 configure~
 configure.scan
 config.h.in~
