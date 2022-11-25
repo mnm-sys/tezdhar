@@ -124,7 +124,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_ALLOCA
 AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
-AC_CHECK_FUNCS(nl_langinfo setlocale ffsll srandomdev random)
+AC_CHECK_FUNCS(nl_langinfo setlocale ffsll rand random arc4random srandomdev)
 AC_CHECK_FUNCS(strdup strndup strpbrk strchr strrchr strspn strcspn)
 AC_CHECK_FUNCS(gettimeofday memmove memset strstr strerror strtol)
 
