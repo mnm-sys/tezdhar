@@ -222,11 +222,11 @@
 
 /* Break from loop based generated attack mask bits if a
  * blocker piece is found on the loop indexed square */
-#define BREAK_IF_BLOCKED(bb)	do {	\
-	attacks |= bb;			\
-	if (blockers & bb) {		\
-		break;			\
-	}				\
+#define BREAK_IF_BLOCKED(bb, attacks, blockers)	do {	\
+	attacks |= bb;					\
+	if (blockers & bb) {				\
+		break;					\
+	}						\
 } while(0)
 
 

@@ -43,6 +43,7 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-Wdiv-by-zero			\
 			-Wdouble-promotion 		\
 			-Wendif-labels			\
+			-Werror=implicit		\
 			-Wextra 			\
 			-Wfloat-equal			\
 			-Wformat-extra-args		\

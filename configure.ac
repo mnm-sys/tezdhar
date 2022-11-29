@@ -66,7 +66,7 @@ AC_HEADER_STDBOOL
 AC_HEADER_ASSERT
 #AC_HEADER_TIME
 AC_CHECK_HEADER_STDBOOL
-AC_CHECK_HEADERS(stdio.h stdlib.h stdint.h stdbool.h string.h ctype.h)
+AC_CHECK_HEADERS(stdio.h stdlib.h stdint.h stdbool.h string.h strings.h ctype.h)
 AC_CHECK_HEADERS(inttypes.h langinfo.h locale.h wchar.h errno.h)
 AC_CHECK_HEADERS(time.h sys/time.h unistd.h fcntl.h)
 
@@ -124,9 +124,9 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_ALLOCA
 AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
-AC_CHECK_FUNCS(nl_langinfo setlocale ffsll rand random arc4random srandomdev)
-AC_CHECK_FUNCS(strdup strndup strpbrk strchr strrchr strspn strcspn)
-AC_CHECK_FUNCS(gettimeofday memmove memset strstr strerror strtol)
+AC_CHECK_FUNCS(mrand48 rand random arc4random srand srand48 sranddev srandomdev getpid)
+AC_CHECK_FUNCS(strdup strndup strpbrk strchr strrchr strspn strcspn strstr strtol strerror)
+AC_CHECK_FUNCS(nl_langinfo setlocale ffsll clock time gettimeofday memmove memset bzero)
 
 # checks for system services
 AC_PATH_X

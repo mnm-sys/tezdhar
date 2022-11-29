@@ -12,12 +12,6 @@
 #include "chess.h"
 #include "bitboard.h"
 
-/* Prototypes: forward declaration of functions used */
-void init_pawn_attacks();
-void init_knight_attacks();
-void init_king_attacks();
-void init_bishop_attacks();
-void init_rook_attacks();
 
 /* Clear King and Queen side castling rights of both players */
 void clear_castling_rights(struct board *board)
@@ -105,6 +99,7 @@ void init_leaper_attacks()
 /* Init slider pieces (Bishop, Rook and Queen) attacks lookup table */
 void init_slider_attacks()
 {
+	init_random_seed();
 	init_bishop_attacks();
 	init_rook_attacks();
 }

@@ -39,9 +39,6 @@
 #include "chess.h"
 #include <stdio.h>	// for printf
 
-/* Function prototypes */
-void init_leaper_attacks();
-void init_slider_attacks();
 
 static bool is_player_turn(const struct board * const brd)
 {

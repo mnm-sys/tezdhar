@@ -5895,6 +5895,12 @@ then :
   printf "%s\n" "#define HAVE_STRING_H 1" >>confdefs.h
 
 fi
+ac_fn_c_check_header_compile "$LINENO" "strings.h" "ac_cv_header_strings_h" "$ac_includes_default"
+if test "x$ac_cv_header_strings_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRINGS_H 1" >>confdefs.h
+
+fi
 ac_fn_c_check_header_compile "$LINENO" "ctype.h" "ac_cv_header_ctype_h" "$ac_includes_default"
 if test "x$ac_cv_header_ctype_h" = xyes
 then :
@@ -8313,22 +8319,10 @@ test $ac_cv_func_memcmp_working = no && case " $LIBOBJS " in
 esac
 
 
-ac_fn_c_check_func "$LINENO" "nl_langinfo" "ac_cv_func_nl_langinfo"
-if test "x$ac_cv_func_nl_langinfo" = xyes
+ac_fn_c_check_func "$LINENO" "mrand48" "ac_cv_func_mrand48"
+if test "x$ac_cv_func_mrand48" = xyes
 then :
-  printf "%s\n" "#define HAVE_NL_LANGINFO 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "setlocale" "ac_cv_func_setlocale"
-if test "x$ac_cv_func_setlocale" = xyes
-then :
-  printf "%s\n" "#define HAVE_SETLOCALE 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "ffsll" "ac_cv_func_ffsll"
-if test "x$ac_cv_func_ffsll" = xyes
-then :
-  printf "%s\n" "#define HAVE_FFSLL 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_MRAND48 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "rand" "ac_cv_func_rand"
@@ -8349,10 +8343,34 @@ then :
   printf "%s\n" "#define HAVE_ARC4RANDOM 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "srand" "ac_cv_func_srand"
+if test "x$ac_cv_func_srand" = xyes
+then :
+  printf "%s\n" "#define HAVE_SRAND 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "srand48" "ac_cv_func_srand48"
+if test "x$ac_cv_func_srand48" = xyes
+then :
+  printf "%s\n" "#define HAVE_SRAND48 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "sranddev" "ac_cv_func_sranddev"
+if test "x$ac_cv_func_sranddev" = xyes
+then :
+  printf "%s\n" "#define HAVE_SRANDDEV 1" >>confdefs.h
+
+fi
 ac_fn_c_check_func "$LINENO" "srandomdev" "ac_cv_func_srandomdev"
 if test "x$ac_cv_func_srandomdev" = xyes
 then :
   printf "%s\n" "#define HAVE_SRANDOMDEV 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "getpid" "ac_cv_func_getpid"
+if test "x$ac_cv_func_getpid" = xyes
+then :
+  printf "%s\n" "#define HAVE_GETPID 1" >>confdefs.h
 
 fi
 
@@ -8398,7 +8416,55 @@ then :
   printf "%s\n" "#define HAVE_STRCSPN 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "strstr" "ac_cv_func_strstr"
+if test "x$ac_cv_func_strstr" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRSTR 1" >>confdefs.h
 
+fi
+ac_fn_c_check_func "$LINENO" "strtol" "ac_cv_func_strtol"
+if test "x$ac_cv_func_strtol" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRTOL 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strerror" "ac_cv_func_strerror"
+if test "x$ac_cv_func_strerror" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRERROR 1" >>confdefs.h
+
+fi
+
+ac_fn_c_check_func "$LINENO" "nl_langinfo" "ac_cv_func_nl_langinfo"
+if test "x$ac_cv_func_nl_langinfo" = xyes
+then :
+  printf "%s\n" "#define HAVE_NL_LANGINFO 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "setlocale" "ac_cv_func_setlocale"
+if test "x$ac_cv_func_setlocale" = xyes
+then :
+  printf "%s\n" "#define HAVE_SETLOCALE 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "ffsll" "ac_cv_func_ffsll"
+if test "x$ac_cv_func_ffsll" = xyes
+then :
+  printf "%s\n" "#define HAVE_FFSLL 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "clock" "ac_cv_func_clock"
+if test "x$ac_cv_func_clock" = xyes
+then :
+  printf "%s\n" "#define HAVE_CLOCK 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "time" "ac_cv_func_time"
+if test "x$ac_cv_func_time" = xyes
+then :
+  printf "%s\n" "#define HAVE_TIME 1" >>confdefs.h
+
+fi
 ac_fn_c_check_func "$LINENO" "gettimeofday" "ac_cv_func_gettimeofday"
 if test "x$ac_cv_func_gettimeofday" = xyes
 then :
@@ -8417,22 +8483,10 @@ then :
   printf "%s\n" "#define HAVE_MEMSET 1" >>confdefs.h
 
 fi
-ac_fn_c_check_func "$LINENO" "strstr" "ac_cv_func_strstr"
-if test "x$ac_cv_func_strstr" = xyes
+ac_fn_c_check_func "$LINENO" "bzero" "ac_cv_func_bzero"
+if test "x$ac_cv_func_bzero" = xyes
 then :
-  printf "%s\n" "#define HAVE_STRSTR 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "strerror" "ac_cv_func_strerror"
-if test "x$ac_cv_func_strerror" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRERROR 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "strtol" "ac_cv_func_strtol"
-if test "x$ac_cv_func_strtol" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRTOL 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_BZERO 1" >>confdefs.h
 
 fi
 

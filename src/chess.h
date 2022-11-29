@@ -11,9 +11,28 @@
 #ifndef __CHESS_H__
 #define __CHESS_H__	1
 
-#include <stdbool.h>	// for bool
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef HAVE_STDINT_H
 #include <stdint.h>	// for uint8_t
+#endif
+
+#ifdef HAVE_STDIO_H
 #include <stdio.h>	// for fprintf
+#endif
+
+#ifdef TIME_WITH_SYS_TIME
+#include <sys/time.h>
+#include <time.h>
+#else
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#else
+#include <time.h>
+#endif
+#endif
 
 #define VERSION "0.1"
 #define AUTHOR "Manavendra Nath Manav"
@@ -40,6 +59,36 @@
 #define dbg_print(...) debug_print(__VA_ARGS__, "")
 #endif
 
+
+/* typedef for boolean variables */
+#ifdef HAVE_STDBOOL_H
+#include <stdbool.h>
+#else
+#ifndef HAVE__BOOL
+#ifdef __cplusplus
+typedef bool _Bool;
+#else
+#define _Bool signed char
+#endif
+#endif
+#define bool _Bool
+#define false 0
+#define true 1
+#define __bool_true_false_are_defined 1
+#endif
+
+
+/* typedef for unsigned 64-bit bitboards */
+#ifdef HAVE_STDINT_H
+typedef uint64_t U64;
+typedef uint32_t U32;
+typedef uint16_t U16;
+typedef uint8_t  U8;
+#elif defined HAVE_UNSIGNED_LONG_LONG_INT
+typedef unsigned long long U64;
+typedef unsigned int	   U32;
+typedef unsigned char	   U8;
+#endif
 
 /* color of chess pieces */
 enum color {
@@ -228,6 +277,20 @@ void setup_move_struct(const char * const movetext, struct move *move);
 bool update_bitboards(struct board * const brd);
 void print_bitboard(const uint64_t bb);
 void print_all_bitboards(const struct bitboards * const bb);
+uint64_t bishop_attacks_on_the_fly(const uint8_t sq, const uint64_t blockers);
+uint64_t rook_attacks_on_the_fly(const uint8_t sq, const uint64_t blockers);
+uint64_t bishop_occu_mask(const uint8_t sq);
+uint64_t rook_occu_mask(const uint8_t sq);
+uint32_t init_random_seed(void);
+uint64_t find_magic_number(int sq, int relevant_bits, enum chessmen piece);
+void init_pawn_attacks(void);
+void init_knight_attacks(void);
+void init_king_attacks(void);
+void init_bishop_attacks(void);
+void init_rook_attacks(void);
+void init_leaper_attacks(void);
+void init_slider_attacks(void);
+
 
 #endif	/* __CHESS_H__ */
 
