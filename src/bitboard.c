@@ -164,8 +164,8 @@ void print_bitboard(const uint64_t bb)
 
 /* print 3 distinct bitboards simultaneously, adjacent to each other.
  * We print max 3 bitboards only to honor the 80 coloum terminal width */
-	static void
-static print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
+static void
+print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
 {
 	char file[] = "a b c d e f g h";
 
