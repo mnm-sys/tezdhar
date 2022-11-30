@@ -42,7 +42,7 @@ static uint64_t mask_knight_attacks(const uint8_t sq)
 /* Initialize knight attacks lookup table */
 void init_knight_attacks()
 {
-	for (uint8_t sq = A1; sq <= H8; sq++) {
+	for (enum square sq = A1; sq <= H8; sq++) {
 		knight_attacks_lut[sq] = mask_knight_attacks(sq);
 #if DEBUG
 		printf("Attack map for knight at [%s]", sqr_to_coords[sq]);

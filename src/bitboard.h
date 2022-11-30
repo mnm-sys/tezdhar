@@ -128,8 +128,6 @@
 #ifndef __BITBOARD_H__
 #define __BITBOARD_H__	1
 
-#include <stdint.h>	// for uint64_t
-
 /* Bitboard Files */
 #define BB_FILE_A	0x101010101010101ULL
 #define BB_FILE_B	(BB_FILE_A << 1)
@@ -233,7 +231,7 @@
 /* Chess board's rank-file based square mapping to bitboard's bit index.
  * Bit 0 starts from A1 square, with H1 square being bit 7, and goes upto
  * H8 square which is bit 63 on the bitboard representation */
-enum squares {
+enum square {
 	A1, B1, C1, D1, E1, F1, G1, H1, //  0 ..  7
 	A2, B2, C2, D2, E2, F2, G2, H2, //  8 .. 15
 	A3, B3, C3, D3, E3, F3, G3, H3, // 16 .. 23
@@ -256,9 +254,6 @@ static const char sqr_to_coords[64][3] = {
 	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
 };
-
-/* Function Prototypes */
-uint64_t set_occupancy(const uint8_t index, const uint8_t bits_in_mask, uint64_t attack_mask);
 
 #endif	/* __BITBOARD_H__ */
 

@@ -27,7 +27,7 @@ static uint64_t mask_pawn_attacks(const enum color turn, const uint8_t sq)
 /* Initialize pawn attacks lookup table */
 void init_pawn_attacks()
 {
-	for (uint8_t sq = A1; sq <= H8; sq++) {
+	for (enum square sq = A1; sq <= H8; sq++) {
 		pawn_attacks_lut[WHITE][sq] = mask_pawn_attacks(WHITE, sq);
 		pawn_attacks_lut[BLACK][sq] = mask_pawn_attacks(BLACK, sq);
 #if DEBUG

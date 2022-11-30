@@ -97,7 +97,7 @@ uint64_t bishop_attacks_on_the_fly(const uint8_t sq, const uint64_t blockers)
 /* Initialize bishop attacks lookup table */
 void init_bishop_attacks()
 {
-	for (uint8_t sq = A1; sq <= H8; sq++) {
+	for (enum square sq = A1; sq <= H8; sq++) {
 		Bmagic[sq] = find_magic_number(sq, bishop_rel_occu_bits[sq], BISHOP);
 #if DEBUG
 		//printf("Occupancy mask for bishop at [%s]", sqr_to_coords[sq]);

@@ -38,7 +38,7 @@ static uint64_t mask_king_attacks(const uint8_t sq)
 /* Initialize king attacks lookup table */
 void init_king_attacks()
 {
-	for (uint8_t sq = A1; sq <= H8; sq++) {
+	for (enum square sq = A1; sq <= H8; sq++) {
 		king_attacks_lut[sq] = mask_king_attacks(sq);
 #if DEBUG
 		printf("Attack map for king at [%s]", sqr_to_coords[sq]);

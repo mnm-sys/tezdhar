@@ -98,7 +98,7 @@ uint64_t rook_attacks_on_the_fly(const uint8_t sq, const uint64_t blockers)
 /* Initialize rook attacks lookup table */
 void init_rook_attacks()
 {
-	for (uint8_t sq = A1; sq <= H8; sq++) {
+	for (enum square sq = A1; sq <= H8; sq++) {
 		Rmagic[sq] = find_magic_number(sq, rook_rel_occu_bits[sq], ROOK);
 #if DEBUG
 		//printf("Occupancy mask for rook at [%s]", sqr_to_coords[sq]);

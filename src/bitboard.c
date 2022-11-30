@@ -5,7 +5,6 @@
  * @created:	Oct. 2022
  * @license:	GPLv3
  * @desc:	Contains bit manipulation functions for bitboard
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -87,9 +86,7 @@ static inline uint8_t __attribute((hot)) brain_kernighan_algo(uint64_t bb)
 }
 
 
-/* count bits within a bitboard
- * TODO: if builtin macros are used pass appropiate
- * linker flags to use hardware popcount */
+/* count bits within a bitboard */
 static inline uint8_t __attribute((hot)) count_bits(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_POPCOUNTLL
@@ -168,7 +165,7 @@ void print_bitboard(const uint64_t bb)
 /* print 3 distinct bitboards simultaneously, adjacent to each other.
  * We print max 3 bitboards only to honor the 80 coloum terminal width */
 	static void
-print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
+static print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
 {
 	char file[] = "a b c d e f g h";
 
@@ -248,82 +245,74 @@ bool update_bitboards(struct board * const brd)
 }
 
 
-/* Calculate every possible blocker board variation for each square/piece combo.
- *
- * blocker mask: A bitboard containing all squares that can block a piece, for a
- * given piece type and the square the piece is on. It excludes terminating edge
- * squares because they always block. The blocker mask is always the same for a
- * given square and piece type.
- *
- * blocker board: A bitboard containing occupied squares. It only has squares
- * which are also in the blocker mask. Blocker boards include friendly & enemy
- * pieces, and it is a subset of the blocker mask.
- *
- * move board: A bitboard containing all squares a piece can move to, given a
- * piece type, a square, and a blocker board. It includes terminating edge
- * squares if the piece can move there. The resulting move board may include
- * moves that capture your own pieces, however these moves are easily removed
- * afterward: moveboard &= ~friendly_pieces;
- *
- * Example for a rook on the e4 square, and there are some random pieces on e2,
- * e5, e7, b4, and c4.
- *
- *      The blocker mask        A blocker board         The move board
- *   8  0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  8
- *   7  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0  7
- *   6  0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  6
- *   5  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0  5
- *   4  0 1 1 1 0 1 1 0         0 1 1 0 0 0 0 0         0 0 1 1 0 1 1 1  4
- *   3  0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 1 0 0 0  3
- *   2  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0  2
- *   1  0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  1
- *      a b c d e f g h         a b c d e f g h         a b c d e f g h
- *
- * There are 2^bits blocker boards, where bits is the number of 1's in the
- * blocker mask, which are the only relevant bits. Also, each integer from 0 to
- * 2^bits has a unique sequence of 1's and 0's of length bits. So this function
- * just corresponds each bit in the given integer to a relevant bit in the
- * blocker mask, and turns it off/on accordingly to generate a unique blocker
- * board.
+/* Function hash32() uses a combination of bit shifts and integer
+ * multiplication to hash the input key. On most machines a bit shift
+ * of 3 bits or less, following by an addition can be performed in one
+ * cycle. For example, Pentium's 'lea' instruction can be used to good
+ * effect to compute a 'shift & add' in one cycle. [http://web.archive.org
+ * /web/20070111091013/http://www.concentric.net/~Ttwang/tech/inthash.htm]
  */
-uint64_t set_occupancy(const uint8_t index, const uint8_t bits_in_mask, uint64_t attack_mask)
+static inline int hash32(int key)
 {
-	/* occupancy map */
-	uint64_t occupancy = 0ULL;
+	key = ~key + (key << 15); // key = (key << 15) - key - 1;
+	key = key ^ (key >> 12);
+	key = key + (key << 2);
+	key = key ^ (key >> 4);
+	key = key * 2057; // key = (key + (key << 3)) + (key << 11);
+	key = key ^ (key >> 16);
 
-	/* loop over the range of bits within attack mask */
-	for (uint8_t count = 0; count < bits_in_mask; count++)
-	{
-		/* get LS1B index of attacks mask */
-		uint8_t square = get_ls1b(attack_mask);
-
-		/* pop LS1B in attack map */
-		POP_BIT(attack_mask, square);
-
-		/* make sure occupancy is on board */
-		if (index & (1 << count)) {
-			/* populate occupancy map */
-			occupancy |= (1ULL << square);
-		}
-	}
-	return occupancy;
+	key = (key ^ 61) ^ (key >> 16);
+	key = key + (key << 3);
+	key = key ^ (key >> 4);
+	key = key * 0x27d4eb2d; // multiply by a prime or an odd constant
+	key = key ^ (key >> 15);
+	return key;
 }
 
 
-/* Robert Jenkins' 96 bit Mix function to generate random seed */
-unsigned long mix(unsigned long a, unsigned long b, unsigned long c)
+/* Robert Jenkins' 96 bit Mix function to generate random hash seed
+ * [[[<<<... http://burtleburtle.net/bob/hash/doobs.html ...>>>]]]
+ *
+ * Variable 'c' contains the input key. When the mixing is complete, variable
+ * 'c' also contains the hash result. Variable 'a', and 'b' contain initialized
+ * random bits. Notice the total number of internal state is 96 bits, much
+ * larger than the final output of 32 bits. Also notice the sequence of
+ * subtractions rolls through variable 'a' to variable 'c' three times. Each row
+ * will act on one variable, mixing in information from the other two variables,
+ * followed by a shift operation.
+ *
+ * Subtraction is similar to multiplication in that changes in upper bits of the
+ * key do not influence lower bits of the addition. The 9 bit shift operations
+ * in Robert Jenkins' mixing algorithm shifts the key to the right 61 bits in
+ * total, and shifts the key to the left 34 bits in total. As the calculation is
+ * chained, each exclusive-or doubles the number of states. There are at least
+ * 2^9 different combined versions of the original key, shifted by various
+ * amounts. That is why a single bit change in the key can influence widely
+ * apart bits in the hash result.
+ *
+ * The uniform distribution of the hash function can be determined from the
+ * nature of the subtraction operation. Look at a single bit subtraction
+ * operation between a key, and a random bit. If the random bit is 0, then the
+ * key remains unchanged. If the random bit is 1, then the key will be flipped.
+ * A carry will occur in the case where both the key bit and the random bit are
+ * 1. Subtracting the random bits will cause about half of the key bits to be
+ * flipped. So even if the key is not uniform, subtracting the random bits will
+ * result in uniform distribution.
+ */
+static inline unsigned long mix(unsigned long a, unsigned long b, unsigned long c)
 {
-    a=a-b;  a=a-c;  a=a^(c >> 13);
-    b=b-c;  b=b-a;  b=b^(a << 8);
-    c=c-a;  c=c-b;  c=c^(b >> 13);
-    a=a-b;  a=a-c;  a=a^(c >> 12);
-    b=b-c;  b=b-a;  b=b^(a << 16);
-    c=c-a;  c=c-b;  c=c^(b >> 5);
-    a=a-b;  a=a-c;  a=a^(c >> 3);
-    b=b-c;  b=b-a;  b=b^(a << 10);
-    c=c-a;  c=c-b;  c=c^(b >> 15);
-    return c;
+	a=a-b;  a=a-c;  a=a^(c >> 13);
+	b=b-c;  b=b-a;  b=b^(a << 8);
+	c=c-a;  c=c-b;  c=c^(b >> 13);
+	a=a-b;  a=a-c;  a=a^(c >> 12);
+	b=b-c;  b=b-a;  b=b^(a << 16);
+	c=c-a;  c=c-b;  c=c^(b >> 5);
+	a=a-b;  a=a-c;  a=a^(c >> 3);
+	b=b-c;  b=b-a;  b=b^(a << 10);
+	c=c-a;  c=c-b;  c=c^(b >> 15);
+	return c;
 }
+
 
 /* Init random number generator seed */
 uint32_t init_random_seed()
@@ -350,7 +339,7 @@ uint32_t init_random_seed()
 	 * sequence of pseudo-random numbers to be returned by rand(). These
 	 * sequences are repeatable by calling srand() with the same seed value.
 	 */
-	srand(mix(clock(), time(NULL), getpid()));
+	srand(hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid())));
 #  endif
 
 #elif defined HAVE_MRAND48
@@ -360,26 +349,28 @@ uint32_t init_random_seed()
 	 * the upper 32 bits of r(n), with the lower 16 bits of r(n) arbitrarily
 	 * being set to 0x330e.
 	 */
-	srand48(mix(clock(), time(NULL), getpid()));
+	srand48(hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid())));
 #  endif
-
 #else
-	random_seed = mix(clock(), time(NULL), getpid());
+	random_seed = hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid())));
 #endif
 }
 
 /* generate 32-bit pseudo random numbers */
-uint32_t pseudo_random_u32()
+static uint32_t pseudo_random_u32()
 {
-    /* get random seed */
-    unsigned int n = random_seed;
+	/* get random seed */
+	unsigned int n = hash32(mix(random_seed, hash32(random_seed), hash32(n)));
 
-    /* XOR shift algorithm */
-    n ^= n << 13;
-    n ^= n >> 17;
-    n ^= n << 5;
+	/* XOR shift algorithm */
+	n ^= n << 13;
+	n ^= n >> 17;
+	n ^= n << 5;
 
-    return n;
+	/* Re-seed */
+	random_seed = hash32(mix(random_seed, hash32(random_seed), hash32(n)));
+
+	return hash32(mix(random_seed, hash32(random_seed), hash32(n)));
 }
 
 
@@ -438,10 +429,11 @@ static uint64_t random_u64()
 
 
 /* generate 64-bit sparse random number */
-static uint64_t random_u64_fewbits()
+static inline uint64_t random_u64_fewbits()
 {
 	return random_u64() & random_u64() & random_u64();
 }
+
 
 /* The 64-bit magic hashing function. The bits in 'key' will get shifted up by
  * multiplication according to a pattern in the magic constant. The result will
@@ -457,6 +449,137 @@ magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_id
 }
 
 
+/* Calculate every possible blocker board variation for each square/piece combo.
+ *
+ * blocker mask: A bitboard containing all squares that can block a piece, for a
+ * given piece type and the square the piece is on. It excludes terminating edge
+ * squares because they always block. The blocker mask is always the same for a
+ * given square and piece type.
+ *
+ * blocker board: A bitboard containing occupied squares. It only has squares
+ * which are also in the blocker mask. Blocker boards include friendly & enemy
+ * pieces, and it is a subset of the blocker mask.
+ *
+ * move board: A bitboard containing all squares a piece can move to, given a
+ * piece type, a square, and a blocker board. It includes terminating edge
+ * squares if the piece can move there. The resulting move board may include
+ * moves that capture your own pieces, however these moves are easily removed
+ * afterward: moveboard &= ~friendly_pieces;
+ *
+ * Example for a rook on the e4 square, and there are some random pieces on e2,
+ * e5, e7, b4, and c4.
+ *
+ *      The blocker mask        A blocker board         The move board
+ *   8  0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  8
+ *   7  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0  7
+ *   6  0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  6
+ *   5  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0  5
+ *   4  0 1 1 1 0 1 1 0         0 1 1 0 0 0 0 0         0 0 1 1 0 1 1 1  4
+ *   3  0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 1 0 0 0  3
+ *   2  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0  2
+ *   1  0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  1
+ *      a b c d e f g h         a b c d e f g h         a b c d e f g h
+ *
+ * There are 2^bits blocker boards, where bits is the number of 1's in the
+ * blocker mask, which are the only relevant bits. Also, each integer from 0 to
+ * 2^bits has a unique sequence of 1's and 0's of length bits. So this function
+ * just corresponds each bit in the given integer to a relevant bit in the
+ * blocker mask, and turns it off/on accordingly to generate a unique blocker
+ * board.
+ */
+static uint64_t set_occupancy(const uint8_t index, const uint8_t bits_in_mask, uint64_t attack_mask)
+{
+	/* occupancy map */
+	uint64_t occupancy = 0ULL;
+
+	/* loop over the range of bits within attack mask */
+	for (uint8_t count = 0; count < bits_in_mask; count++)
+	{
+		/* get LS1B index of attacks mask */
+		uint8_t square = get_ls1b(attack_mask);
+
+		/* pop LS1B in attack map */
+		POP_BIT(attack_mask, square);
+
+		/* make sure occupancy is on board */
+		if (index & (1 << count)) {
+			/* populate occupancy map */
+			occupancy |= (1ULL << square);
+		}
+	}
+	return occupancy;
+}
+
+
+static bool init_occupancy_indicies(const int sq, const int relv_bits, const enum chessmen piece,
+		const uint64_t attack_mask, uint64_t occupancies[], uint64_t attacks[])
+{
+	// loop over occupancy indicies
+	for (int idx = 0; idx < (1 << relv_bits); idx++)
+	{
+		// init occupancies
+		occupancies[idx] = set_occupancy(idx, relv_bits, attack_mask);
+
+		// init attacks
+		if (piece == BISHOP) {
+			attacks[idx] = bishop_attacks_on_the_fly(sq, occupancies[idx]);
+		} else if (piece == ROOK) {
+			attacks[idx] = rook_attacks_on_the_fly(sq, occupancies[idx]);
+		} else {
+			/* unreachable code for valid piece */
+			dbg_print("Invalid piece for Slider magic generation\n");
+			return false;
+		}
+	}
+	return true;
+}
+
+
+static void init_used_attacks(uint64_t used_attacks[])
+{
+#ifdef HAVE_MEMSET
+	memset(used_attacks, 0ULL, 4096);
+#elif defined HAVE_BZERO
+	bzero(used_attacks, 4096);
+#else
+	for (int idx = 0; idx < 4096; idx++) {
+		used_attacks[i] = 0ULL;
+	}
+#endif
+}
+
+/* skip inappropriate magic numbers */
+static inline bool skip_magic(const uint64_t attack_mask, const uint64_t magic)
+{
+	if (count_bits((attack_mask * magic) & BB_RANK_8) < 6) {
+		//dbg_print("Skipping inappropiate magic number: %llx\n", magic);
+		return true;
+	}
+	return false;
+}
+
+static bool test_magic(const int relv_bits, const uint64_t magic,
+		const uint64_t occupancies[], const uint64_t attacks[], uint64_t used_attacks[])
+{
+	// test magic index loop
+	for (int idx = 0; (idx < (1 << relv_bits)); idx++) {
+		// get magic index
+		int magic_idx = magic_hashing(occupancies[idx], magic, relv_bits);
+
+		// check if magic index works
+		if (used_attacks[magic_idx] == 0ULL) {
+			used_attacks[magic_idx] = attacks[idx];
+		} else {
+			if (used_attacks[magic_idx] != attacks[idx]) {
+				//dbg_print("Hash collision for magic index: %d\n", magic_idx);
+				return false; // magic index doesn't work
+			}
+		}
+	}
+	return true;
+}
+
+
 /* The goal of the magic numbers method is to very quickly look up
  * a pre-calculated move board for a given blocker board. Otherwise
  * you'd have to (slowly) calculate the move board every time. This
@@ -467,91 +590,42 @@ magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_id
  * To do this, you have to calculate every possible blocker board
  * variation for each square/piece combo.
  *
- * @sq:			source square of the piece
- * @relevant_bits:	relevant occupancy bit count (e.g. m=12
- * 			for Rook on a1 and m=6 for Bishop on a1
- * @piece:		switch for slider piece type (rook or bishop)
+ * @sq:		source square of the piece
+ * @relv_bits:	relevant occupancy bit count (e.g. m=12
+ * 		for Rook on a1 and m=6 for Bishop on a1
+ * @piece:	switch for slider piece type (rook or bishop)
  */
-U64 find_magic_number(int sq, int relevant_bits, enum chessmen piece)
+uint64_t find_magic_number(int sq, int relv_bits, enum chessmen piece)
 {
-	U64 occupancies[4096];	// blockers occupancies mask
-	U64 attacks[4096];	// attack tables for given blockers
-	U64 used_attacks[4096];	// already used/occupied attacks
+	uint64_t occupancies[4096];	// blockers occupancies mask
+	uint64_t attacks[4096];		// attack tables for given blockers
+	uint64_t used_attacks[4096];	// already used/occupied attacks
+	uint64_t attack_mask;		// attack mask for a current piece
+	uint64_t magic;			// random magic number candidate
 
-	// attack mask for a current piece
-	U64 attack_mask = piece == ROOK ? rook_occu_mask(sq) : bishop_occu_mask(sq);
+	attack_mask = (piece == ROOK) ? rook_occu_mask(sq) : bishop_occu_mask(sq);
 
-	// init occupancy indicies
-	int occupancy_indicies = 1 << relevant_bits;
-
-	// loop over occupancy indicies
-	for (int index = 0; index < occupancy_indicies; index++)
-	{
-		// init occupancies
-		occupancies[index] = set_occupancy(index, relevant_bits, attack_mask);
-
-		// init attacks
-		if (piece == BISHOP) {
-			attacks[index] = bishop_attacks_on_the_fly(sq, occupancies[index]);
-		} else if (piece == ROOK) {
-			attacks[index] = rook_attacks_on_the_fly(sq, occupancies[index]);
-		} else {
-			/* unreachable code */
-			return 0ULL;
-		}
+	if (!init_occupancy_indicies(sq, relv_bits, piece, attack_mask, occupancies, attacks)) {
+		return 0ULL;
 	}
 
-	// test magic numbers loop
 	for (int try = 1; try; try++)
 	{
-		// generate magic number candidate
-		U64 magic_number = random_u64_fewbits();
+		magic = random_u64_fewbits();
+		//dbg_print("sq: %u\ttry: %u\tmagic: 0x%llx\n", sq, try, magic);
 
-		//dbg_print("sq: %u\ttry: %u\tmagic: 0x%llx\n", sq, try, magic_number);
-
-		// skip inappropriate magic numbers
-		if (count_bits((attack_mask * magic_number) & 0xFF00000000000000) < 6) continue;
-
-#ifdef HAVE_MEMSET
-		// init used attacks
-		memset(used_attacks, 0ULL, sizeof(used_attacks));
-#elif defined HAVE_BZERO
-		bzero(used_attacks, sizeof(used_attacks));
-#else
-		for (int i = 0; i < 4096; i++) {
-			used_attacks[i] = 0ULL;
-		}
-#endif
-
-		// init index & fail flag
-		int index, fail;
-
-		// test magic index loop
-		for (index = 0, fail = 0; !fail && index < occupancy_indicies; index++)
-		{
-			// init magic index
-			int magic_index = magic_hashing(occupancies[index], magic_number, relevant_bits);
-
-			// if magic index works
-			if (used_attacks[magic_index] == 0ULL)
-				// init used attacks
-				used_attacks[magic_index] = attacks[index];
-
-			// otherwise
-			else if (used_attacks[magic_index] != attacks[index])
-				// magic index doesn't work
-				fail = 1;
+		if (skip_magic(attack_mask, magic)) {
+			continue;
 		}
 
-		// if magic number works
-		if (!fail)
-			// return it
-			return magic_number;
+		init_used_attacks(used_attacks);
+
+		if (test_magic(relv_bits, magic, occupancies, attacks, used_attacks)) {
+			return magic;
+		}
 	}
 
-	// if magic number doesn't work
-	printf("  Magic number fails!\n");
+	dbg_print("Magic number generation failed!\n");
 	return 0ULL;
 }
-
 
