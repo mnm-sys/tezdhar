@@ -84,7 +84,7 @@ void setup_move_struct(const char * const movetext, struct move * const move)
 
 
 /* Init leaper pieces (King, Knight and Pawns) attacks lookup table */
-void init_leaper_attacks()
+void init_leaper_attacks(void)
 {
 		/* Init pawn attacks */
 		init_pawn_attacks();
@@ -97,7 +97,7 @@ void init_leaper_attacks()
 }
 
 /* Init slider pieces (Bishop, Rook and Queen) attacks lookup table */
-void init_slider_attacks()
+void init_slider_attacks(void)
 {
 	init_random_seed();
 	init_bishop_attacks();

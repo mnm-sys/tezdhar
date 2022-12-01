@@ -124,9 +124,13 @@ AC_PROG_GCC_TRADITIONAL
 AC_FUNC_ALLOCA
 AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
-AC_CHECK_FUNCS(mrand48 rand random arc4random srand srand48 sranddev srandomdev getpid)
-AC_CHECK_FUNCS(strdup strndup strpbrk strchr strrchr strspn strcspn strstr strtol strerror)
-AC_CHECK_FUNCS(nl_langinfo setlocale ffsll clock time gettimeofday memmove memset bzero)
+AC_CHECK_FUNCS(calloc realloc free getpid getppid)
+AC_CHECK_FUNCS(mrand48 rand random arc4random)
+AC_CHECK_FUNCS(srand srandom srand48 sranddev srandomdev)
+AC_CHECK_FUNCS(strdup strndup strpbrk strchr strrchr strspn strcspn)
+AC_CHECK_FUNCS(strstr strcasestr strcasecmp strtol strerror atoi)
+AC_CHECK_FUNCS(nl_langinfo setlocale ffsll clock)
+AC_CHECK_FUNCS(time gettimeofday memmove memset bzero)
 
 # checks for system services
 AC_PATH_X

@@ -40,7 +40,7 @@ static uint64_t mask_knight_attacks(const uint8_t sq)
 
 
 /* Initialize knight attacks lookup table */
-void init_knight_attacks()
+void init_knight_attacks(void)
 {
 	for (enum square sq = A1; sq <= H8; sq++) {
 		knight_attacks_lut[sq] = mask_knight_attacks(sq);

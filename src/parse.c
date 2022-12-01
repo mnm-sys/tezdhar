@@ -7,6 +7,10 @@
  * 		and update the board position accordingly.
  */
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include "chess.h"	// for struct board
 #include <stdio.h>	// for printf, fprintf
 #include <ctype.h>	// for isdigit, isspace
@@ -149,7 +153,7 @@ static char *parse_pieces_from_fen(char *fen, struct board * const board)
  */
 static char *parse_fen_flags(char *fen, struct board *board)
 {
-	char rank = -1, file = -1, field = 0;
+	int8_t rank = -1, file = -1, field = 0;
 	bool turn = true;
 	bool valid = fen ? true : false;
 
@@ -201,7 +205,7 @@ static char *parse_fen_flags(char *fen, struct board *board)
 	}
 
 	if ((file > -1) && (rank > -1)) {
-		board->enpassant = (rank * 8) + file;
+		board->enpassant = (int8_t)(rank * 8) + file;
 	}
 
 	return valid ? fen : NULL;
@@ -230,7 +234,7 @@ static bool str_has_digits_only(char *fen)
 static bool parse_move_cnt(char *fen, struct board *b)
 {
 	if (str_has_digits_only(fen)) {
-		sscanf(fen, "%hd%hd", &(b->halfMoves), &(b->fullMoves));
+		sscanf(fen, "%hu%hu", &(b->halfMoves), &(b->fullMoves));
 		dbg_print("hm = %d, fm = %d\n", b->halfMoves, b->fullMoves);
 		return true;
 	} else {
@@ -265,7 +269,11 @@ static bool strip_text(char * const str, const char * const delim[], int len)
 	}
 
 	for (int i = 0; i < len; i++) {
+#ifdef HAVE_STRCASESTR
 		match = strcasestr(str, delim[i]);
+#else
+		match = strstr(str, delim[i]);
+#endif
 		len_delim = strlen(delim[i]);
 		if (match && len_delim) {
 			len_match = strlen(match);
@@ -512,7 +520,7 @@ static bool is_qs_castling_seq(char * const movetext, struct move * const move)
  * formulations used in chess literature include parentheses (e.g. e8(Q)) and
  * a forward slash (e.g. e8/Q).
  */
-static bool is_pawn_promotion(char * const movetext, struct move *move)
+static bool is_pawn_promotion(char * const movetext, struct move * const move)
 {
 	char *p = NULL;
 	bool flag = false;
@@ -585,7 +593,7 @@ static bool is_pawn_promotion(char * const movetext, struct move *move)
 }
 
 
-static bool is_pawn_move(char * const movetext, struct move *move)
+static bool is_pawn_move(const char * const movetext, struct move * const move)
 {
 	const char delim[] = "KQBNR";
 
@@ -603,7 +611,7 @@ static bool is_pawn_move(char * const movetext, struct move *move)
 }
 
 
-static bool strip_ep_suffix(char * const movetext, struct move *move)
+static bool strip_ep_suffix(char * const movetext, struct move * const move)
 {
 	const char * const suffix[] = {"e.p.","ep.", "ep"};
 	int len = sizeof(suffix)/sizeof(suffix[0]);
@@ -691,11 +699,13 @@ static bool move_has_valid_chars(const char * const movetext, struct move *move)
 
 static bool strip_char_from_string(char * const movetext, const char ch)
 {
+	char *match = NULL;
+
 	if (!movetext) {
 		return false;
 	}
 
-	char *match = strchr(movetext, ch);
+	match = strchr(movetext, ch);
 	if (match) {
 		size_t len = strlen(match);
 		if (!len) {
@@ -1125,6 +1135,8 @@ static bool parse_1_sym_to_sqr_tok(char * const tok, struct move * const m)
 /* Parse double length to-square token of SAN capture move */
 static bool parse_2_sym_to_sqr_tok(char * const tok, struct move * const m)
 {
+	char *sym = NULL;
+
 	if ((!tok) || (!m)) {
 		return false;
 	} else {
@@ -1133,7 +1145,18 @@ static bool parse_2_sym_to_sqr_tok(char * const tok, struct move * const m)
 		}
 	}
 
-	char *sym = strndup(tok, 1);
+#ifdef HAVE_STRNDUP
+	sym = strndup(tok, 1);
+#elif defined HAVE_STRDUP
+	sym = strdup(tok);
+#endif
+
+	if (sym) {
+		sym[1] = '\0';
+	} else {
+		perror("str[n]dup failed");
+		return false;
+	}
 
 	if (parse_1_sym_to_sqr_tok(sym, m)) {
 		if (isdigit(tok[1])) {
@@ -1153,6 +1176,8 @@ static bool parse_2_sym_to_sqr_tok(char * const tok, struct move * const m)
 
 static bool parse_san_capture_move(char * const movetext, struct move *move)
 {
+	char *saveptr, *token;
+
 	/* Step 1: find if it's a capture move, if yes, then seperate the
 	 * move into from-square and to-square tokens, then process each
 	 * token seperately */
@@ -1160,7 +1185,7 @@ static bool parse_san_capture_move(char * const movetext, struct move *move)
 		return false;
 	}
 
-	char *saveptr, *token = strtok_r(movetext, "x", &saveptr);
+	token = strtok_r(movetext, "x", &saveptr);
 
 	if (!token) {
 		return false;
@@ -1285,6 +1310,7 @@ static bool extra_checks_for_legality(const char * const movetext, struct move *
 	 * squares present on the same rank. */
 
 	/* The rook can move either in it's own file or in it's own rank */
+	return true;
 }
 
 /* clean up the move string. This gets rid of any extra

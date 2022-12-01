@@ -14,7 +14,7 @@
 static uint_fast64_t pawn_attacks_lut[2][64];
 
 
-static uint64_t mask_pawn_attacks(const enum color turn, const uint8_t sq)
+static uint64_t mask_pawn_attacks(const enum color turn, const enum square sq)
 {
 	const uint64_t bb = BIT(sq);	// current pawn bitboard
 
@@ -25,7 +25,7 @@ static uint64_t mask_pawn_attacks(const enum color turn, const uint8_t sq)
 
 
 /* Initialize pawn attacks lookup table */
-void init_pawn_attacks()
+void init_pawn_attacks(void)
 {
 	for (enum square sq = A1; sq <= H8; sq++) {
 		pawn_attacks_lut[WHITE][sq] = mask_pawn_attacks(WHITE, sq);

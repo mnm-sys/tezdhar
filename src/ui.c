@@ -6,7 +6,14 @@
  * @desc:	User Interface Routines to draw UTF-8 or ASCII chessboards
  */
 
-#include <langinfo.h>	// for nl_langinfo
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
+#ifdef HAVE_LANGINFO_H
+#  include <langinfo.h>	// for nl_langinfo
+#endif
+
 #include <locale.h>	// for setlocale
 #include <stdio.h>	// for printf
 #include <stdbool.h>	// for bool
@@ -54,7 +61,7 @@ enum box_drawing_utf {
 	VRT_HRZ	= 0x254B	// ╋ vertical and horizontal
 };
 
-static void draw_top_border()
+static void draw_top_border(void)
 {
 	wprintf(L"\n%lc%lc%lc%lc%lc%lc", NBSP, NBSP, DW_RHT, HRZ, HRZ, HRZ);
 
@@ -65,7 +72,7 @@ static void draw_top_border()
 	wprintf(L"%lc\n", DW_LFT);
 }
 
-static void draw_middle_border()
+static void draw_middle_border(void)
 {
 	wprintf(L"\n%lc%lc%lc%lc%lc%lc", NBSP, NBSP, VRT_RHT, HRZ, HRZ, HRZ);
 
@@ -76,7 +83,7 @@ static void draw_middle_border()
 	wprintf(L"%lc\n", VRT_LFT);
 }
 
-static void draw_bottom_border()
+static void draw_bottom_border(void)
 {
 	wprintf(L"\n  %lc%lc%lc%lc", UP_RHT, HRZ, HRZ, HRZ);
 
@@ -165,7 +172,7 @@ static void draw_ascii_board(struct board *board)
 	printf("     a   b   c   d   e   f   g   h\n\n");
 }
 
-static bool term_has_unicode()
+static bool term_has_unicode(void)
 {
 	/* Set a locale for the ctype and multibyte functions.
 	 * This controls recognition of upper and lower case,
@@ -175,12 +182,16 @@ static bool term_has_unicode()
 		dbg_print("Failed to set locale as UTF-8\n");
 	}
 
+#ifdef HAVE_NL_LANGINFO
 	/* The nl_langinfo() function shall return a pointer to a 
 	 * string containing information relevant to the particular
 	 * language or cultural area defined in the current locale.
 	 */
 	dbg_print("Current locale is: %s\n", nl_langinfo(CODESET));
 	return (strcmp(nl_langinfo(CODESET), "UTF-8") == 0) ? true : false; 
+#else
+	return false;
+#endif
 }
 
 void print_board(struct board *board)

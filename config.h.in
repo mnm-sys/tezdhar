@@ -24,8 +24,14 @@
 /* Define to 1 if you have the `arc4random' function. */
 #undef HAVE_ARC4RANDOM
 
+/* Define to 1 if you have the `atoi' function. */
+#undef HAVE_ATOI
+
 /* Define to 1 if you have the `bzero' function. */
 #undef HAVE_BZERO
+
+/* Define to 1 if you have the `calloc' function. */
+#undef HAVE_CALLOC
 
 /* Define to 1 if you have the `clock' function. */
 #undef HAVE_CLOCK
@@ -49,8 +55,14 @@
 /* Define to 1 if you have the `ffsll' function. */
 #undef HAVE_FFSLL
 
+/* Define to 1 if you have the `free' function. */
+#undef HAVE_FREE
+
 /* Define to 1 if you have the `getpid' function. */
 #undef HAVE_GETPID
+
+/* Define to 1 if you have the `getppid' function. */
+#undef HAVE_GETPPID
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
@@ -114,6 +126,9 @@
 /* Define to 1 if you have the `random' function. */
 #undef HAVE_RANDOM
 
+/* Define to 1 if you have the `realloc' function. */
+#undef HAVE_REALLOC
+
 /* Define to 1 if you have the `setlocale' function. */
 #undef HAVE_SETLOCALE
 
@@ -125,6 +140,9 @@
 
 /* Define to 1 if you have the `sranddev' function. */
 #undef HAVE_SRANDDEV
+
+/* Define to 1 if you have the `srandom' function. */
+#undef HAVE_SRANDOM
 
 /* Define to 1 if you have the `srandomdev' function. */
 #undef HAVE_SRANDOMDEV
@@ -140,6 +158,12 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strcasecmp' function. */
+#undef HAVE_STRCASECMP
+
+/* Define to 1 if you have the `strcasestr' function. */
+#undef HAVE_STRCASESTR
 
 /* Define to 1 if you have the `strchr' function. */
 #undef HAVE_STRCHR

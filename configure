@@ -8319,6 +8319,37 @@ test $ac_cv_func_memcmp_working = no && case " $LIBOBJS " in
 esac
 
 
+ac_fn_c_check_func "$LINENO" "calloc" "ac_cv_func_calloc"
+if test "x$ac_cv_func_calloc" = xyes
+then :
+  printf "%s\n" "#define HAVE_CALLOC 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "realloc" "ac_cv_func_realloc"
+if test "x$ac_cv_func_realloc" = xyes
+then :
+  printf "%s\n" "#define HAVE_REALLOC 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "free" "ac_cv_func_free"
+if test "x$ac_cv_func_free" = xyes
+then :
+  printf "%s\n" "#define HAVE_FREE 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "getpid" "ac_cv_func_getpid"
+if test "x$ac_cv_func_getpid" = xyes
+then :
+  printf "%s\n" "#define HAVE_GETPID 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "getppid" "ac_cv_func_getppid"
+if test "x$ac_cv_func_getppid" = xyes
+then :
+  printf "%s\n" "#define HAVE_GETPPID 1" >>confdefs.h
+
+fi
+
 ac_fn_c_check_func "$LINENO" "mrand48" "ac_cv_func_mrand48"
 if test "x$ac_cv_func_mrand48" = xyes
 then :
@@ -8343,10 +8374,17 @@ then :
   printf "%s\n" "#define HAVE_ARC4RANDOM 1" >>confdefs.h
 
 fi
+
 ac_fn_c_check_func "$LINENO" "srand" "ac_cv_func_srand"
 if test "x$ac_cv_func_srand" = xyes
 then :
   printf "%s\n" "#define HAVE_SRAND 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "srandom" "ac_cv_func_srandom"
+if test "x$ac_cv_func_srandom" = xyes
+then :
+  printf "%s\n" "#define HAVE_SRANDOM 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "srand48" "ac_cv_func_srand48"
@@ -8365,12 +8403,6 @@ ac_fn_c_check_func "$LINENO" "srandomdev" "ac_cv_func_srandomdev"
 if test "x$ac_cv_func_srandomdev" = xyes
 then :
   printf "%s\n" "#define HAVE_SRANDOMDEV 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "getpid" "ac_cv_func_getpid"
-if test "x$ac_cv_func_getpid" = xyes
-then :
-  printf "%s\n" "#define HAVE_GETPID 1" >>confdefs.h
 
 fi
 
@@ -8416,10 +8448,23 @@ then :
   printf "%s\n" "#define HAVE_STRCSPN 1" >>confdefs.h
 
 fi
+
 ac_fn_c_check_func "$LINENO" "strstr" "ac_cv_func_strstr"
 if test "x$ac_cv_func_strstr" = xyes
 then :
   printf "%s\n" "#define HAVE_STRSTR 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strcasestr" "ac_cv_func_strcasestr"
+if test "x$ac_cv_func_strcasestr" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRCASESTR 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strcasecmp" "ac_cv_func_strcasecmp"
+if test "x$ac_cv_func_strcasecmp" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRCASECMP 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "strtol" "ac_cv_func_strtol"
@@ -8432,6 +8477,12 @@ ac_fn_c_check_func "$LINENO" "strerror" "ac_cv_func_strerror"
 if test "x$ac_cv_func_strerror" = xyes
 then :
   printf "%s\n" "#define HAVE_STRERROR 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "atoi" "ac_cv_func_atoi"
+if test "x$ac_cv_func_atoi" = xyes
+then :
+  printf "%s\n" "#define HAVE_ATOI 1" >>confdefs.h
 
 fi
 
@@ -8459,6 +8510,7 @@ then :
   printf "%s\n" "#define HAVE_CLOCK 1" >>confdefs.h
 
 fi
+
 ac_fn_c_check_func "$LINENO" "time" "ac_cv_func_time"
 if test "x$ac_cv_func_time" = xyes
 then :

@@ -10,8 +10,8 @@
 #include "bitboard.h"
 #include "chess.h"
 
-/* rook magic numbers */
-static uint64_t Rmagic[64];
+static uint64_t Rmask[64];	// rook occupancy masks
+static uint64_t Rmagic[64];	// rook magic numbers
 
 /* rook relevant occupancy bit count lookup table. For example if you had a
  * rook on a1, the relevant occupancy bits will be from a2-a7 and b1-g1. */
@@ -31,9 +31,9 @@ static const uint8_t rook_rel_occu_bits[64] = {
 uint64_t rook_occu_mask(const uint8_t sq)
 {
 	uint64_t mask = 0ULL;		// rook occupancy mask bitboard
-	int8_t r, f;			// occupancy rank & file
-	const int8_t tr = sq / 8;	// target rank
-	const int8_t tf = sq % 8;	// target file
+	int8_t r, f;			// occupancy rank & file of rook
+	const uint8_t tr = sq / 8;	// target rank
+	const uint8_t tf = sq % 8;	// target file
 
 	/* mask North occupancy bits */
 	for (r = tr + 1; r <= RANK_7; r++) {
@@ -60,12 +60,12 @@ uint64_t rook_occu_mask(const uint8_t sq)
 
 
 /* generate rook attacks on the fly */
-uint64_t rook_attacks_on_the_fly(const uint8_t sq, const uint64_t blockers)
+uint64_t rook_attacks_on_the_fly(const int8_t sq, const uint64_t blockers)
 {
-	uint64_t bb, attacks = 0ULL;	// rook attack mask bitboard
-	int8_t r, f;			// attack mask rank and file
-	const int8_t tr = sq / 8;	// target rank
-	const int8_t tf = sq % 8;	// target file
+	uint64_t bb, attacks = 0ULL;	// rook attacks bitboard
+	int8_t r, f;			// attacks rank and file
+	const uint8_t tr = sq / 8;	// target rank
+	const uint8_t tf = sq % 8;	// target file
 
 	/* mask North attack bits */
 	for (r = tr + 1; r <= RANK_8; r++) {
@@ -96,13 +96,14 @@ uint64_t rook_attacks_on_the_fly(const uint8_t sq, const uint64_t blockers)
 
 
 /* Initialize rook attacks lookup table */
-void init_rook_attacks()
+void init_rook_attacks(void)
 {
-	for (enum square sq = A1; sq <= H8; sq++) {
+	for (uint8_t sq = A1; sq <= H8; sq++) {
+		Rmask[sq] = rook_occu_mask(sq);
 		Rmagic[sq] = find_magic_number(sq, rook_rel_occu_bits[sq], ROOK);
 #if DEBUG
-		//printf("Occupancy mask for rook at [%s]", sqr_to_coords[sq]);
-		//print_bitboard(rook_occu_mask(sq));
+		printf("Occupancy mask for rook at [%s]", sqr_to_coords[sq]);
+		print_bitboard(Rmask[sq]);
 		//printf("Attack mask for rook at [%s]", sqr_to_coords[sq]);
 		//print_bitboard(rook_attacks_on_the_fly(sq, 0ULL));
 		printf("Rook magic number[%s] = 0x%llx\n", sqr_to_coords[sq], Rmagic[sq]);

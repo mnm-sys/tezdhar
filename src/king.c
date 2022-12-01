@@ -26,7 +26,7 @@ static uint_fast64_t king_attacks_lut[64];
  *         -9    -8    -7
  * soWe         sout         soEa
  */
-static uint64_t mask_king_attacks(const uint8_t sq)
+static uint64_t mask_king_attacks(const enum square sq)
 {
 	const uint64_t bb = BIT(sq);	// king bitboard
 
@@ -36,7 +36,7 @@ static uint64_t mask_king_attacks(const uint8_t sq)
 
 
 /* Initialize king attacks lookup table */
-void init_king_attacks()
+void init_king_attacks(void)
 {
 	for (enum square sq = A1; sq <= H8; sq++) {
 		king_attacks_lut[sq] = mask_king_attacks(sq);

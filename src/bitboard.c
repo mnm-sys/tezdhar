@@ -29,9 +29,13 @@
 #include "bitboard.h"		// for GET_BIT, SET_BIT
 #include "chess.h"		// for struct bitboard
 
+
 /* arbitrary global random number seed which can
  * be updated by the init_random_seed() function */
-static unsigned int random_seed = 1804289383;
+#if !defined HAVE_ARC4RANDOM && !defined HAVE_RANDOM && !defined HAVE_RAND && !defined HAVE_MRAND48
+	static unsigned int random_seed = 1804289383;
+#endif
+
 
 /* Bit scan index for de Bruijn sequence for 64-bit bitboard */
 static const uint8_t index64[64] = {
@@ -87,7 +91,7 @@ static inline uint8_t __attribute((hot)) brain_kernighan_algo(uint64_t bb)
 
 
 /* count bits within a bitboard */
-static inline uint8_t __attribute((hot)) count_bits(const uint64_t bb)
+static inline int __attribute((hot)) count_bits(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_POPCOUNTLL
 	return __builtin_popcountll(bb);
@@ -98,10 +102,10 @@ static inline uint8_t __attribute((hot)) count_bits(const uint64_t bb)
 
 
 /* find first set (ffs) least significant 1st bit index */
-static inline uint8_t __attribute((hot)) get_ls1b(const uint64_t bb)
+static inline int __attribute((hot)) get_ls1b(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_FFSLL
-	return __builtin_ffsll(bb);
+	return __builtin_ffsll((int64_t)bb);
 
 #elif defined HAVE___BUILTIN_CTZLL
 	return bb ? __builtin_ctzll(bb) : 0;
@@ -164,7 +168,7 @@ void print_bitboard(const uint64_t bb)
 
 /* print 3 distinct bitboards simultaneously, adjacent to each other.
  * We print max 3 bitboards only to honor the 80 coloum terminal width */
-static void
+	static void
 print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
 {
 	char file[] = "a b c d e f g h";
@@ -185,14 +189,16 @@ print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
 /* Print all 12 base bitboards and additional 3 bitboards */
 void print_all_bitboards(const struct bitboards * const bb)
 {
+	uint64_t wp, bp, ap;
+
 	if (!bb) {
 		dbg_print("NULL pointer\n");
 		return;
 	}
 
-	uint64_t wp = get_white_pieces(bb);
-	uint64_t bp = get_black_pieces(bb);
-	uint64_t ap = get_all_pieces(bb);
+	wp = get_white_pieces(bb);
+	bp = get_black_pieces(bb);
+	ap = get_all_pieces(bb);
 
 	printf("\n\twKing\t\t     wQueen\t\t     wBishop\n");
 	print_3_bitboards(bb->wKing, bb->wQueen, bb->wBishop);
@@ -252,7 +258,7 @@ bool update_bitboards(struct board * const brd)
  * effect to compute a 'shift & add' in one cycle. [http://web.archive.org
  * /web/20070111091013/http://www.concentric.net/~Ttwang/tech/inthash.htm]
  */
-static inline int hash32(int key)
+static inline uint32_t hash32(int32_t key)
 {
 	key = ~key + (key << 15); // key = (key << 15) - key - 1;
 	key = key ^ (key >> 12);
@@ -266,7 +272,38 @@ static inline int hash32(int key)
 	key = key ^ (key >> 4);
 	key = key * 0x27d4eb2d; // multiply by a prime or an odd constant
 	key = key ^ (key >> 15);
+	return (uint32_t)key;
+}
+
+
+/* 64-bit Mix Functions */
+static inline uint64_t hash64(uint64_t key)
+{
+	key = (~key) + (key << 21); // key = (key << 21) - key - 1;
+	key = key ^ (key >> 24);
+	key = (key + (key << 3)) + (key << 8); // key * 265
+	key = key ^ (key >> 14);
+	key = (key + (key << 2)) + (key << 4); // key * 21
+	key = key ^ (key >> 28);
+	key = key + (key << 31);
 	return key;
+}
+
+
+/* 64-bit to 32-bit Hash Functions. One such use for this kind of hash function
+ * is to hash a 64 bit virtual address to a hash table index. Because the output
+ * of the hash function is narrower than the input, the result is no longer
+ * one-to-one. Another usage is to hash two 32 bit integers into one hash value.
+ */
+static inline uint32_t hash64_to_32(int64_t key)
+{
+	key = (~key) + (key << 18);	// key = (key << 18) - key - 1;
+	key = key ^ (key >> 31);
+	key = key * 21;			// key = (key + (key << 2)) + (key << 4);
+	key = key ^ (key >> 11);
+	key = key + (key << 6);
+	key = key ^ (key >> 22);
+	return (uint32_t) key;
 }
 
 
@@ -299,7 +336,7 @@ static inline int hash32(int key)
  * flipped. So even if the key is not uniform, subtracting the random bits will
  * result in uniform distribution.
  */
-static inline unsigned long mix(unsigned long a, unsigned long b, unsigned long c)
+static inline int32_t mix(uint32_t a, uint32_t b, uint32_t c)
 {
 	a=a-b;  a=a-c;  a=a^(c >> 13);
 	b=b-c;  b=b-a;  b=b^(a << 8);
@@ -310,25 +347,30 @@ static inline unsigned long mix(unsigned long a, unsigned long b, unsigned long 
 	a=a-b;  a=a-c;  a=a^(c >> 3);
 	b=b-c;  b=b-a;  b=b^(a << 10);
 	c=c-a;  c=c-b;  c=c^(b >> 15);
-	return c;
+	return (int32_t)c;
 }
 
 
 /* Init random number generator seed */
-uint32_t init_random_seed()
+void init_random_seed(void)
 {
 #ifdef HAVE_ARC4RANDOM
 	/* Seeding not required for arc4random() */
+	dbg_print("PRNG = arc4random()\n");
 
 #elif defined HAVE_RANDOM
+	dbg_print("PRNG = random()\n");
 #  if defined HAVE_SRANDOMDEV
 	/* The srandomdev() routine initializes a state array, using the random
 	 * number device (/dev/random) which returns good random numbers.
 	 */
 	srandomdev();
+#  elif defined HAVE_SRANDOM
+	srandom(hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid()))));
 #  endif
 
 #elif defined HAVE_RAND
+	dbg_print("PRNG = rand()\n");
 #  if defined HAVE_SRANDDEV
 	/* The sranddev() function initializes a seed, using the random() random
 	 * number device which returns good random numbers
@@ -339,28 +381,32 @@ uint32_t init_random_seed()
 	 * sequence of pseudo-random numbers to be returned by rand(). These
 	 * sequences are repeatable by calling srand() with the same seed value.
 	 */
-	srand(hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid())));
+	srand(hash32(mix(hash32(clock()), hash64_to_32(time(NULL)), hash32(getpid()))));
 #  endif
 
 #elif defined HAVE_MRAND48
+	dbg_print("PRNG = mrand48()\n");
 #  if defined HAVE_SRAND48 && defined HAVE_CLOCK && defined HAVE_TIME && defined HAVE_GETPID
 	/* The srand48() function is used to initialize the internal buffer r(n)
 	 * of mrand48(), such that the 32 bits of the seed value are copied into
 	 * the upper 32 bits of r(n), with the lower 16 bits of r(n) arbitrarily
 	 * being set to 0x330e.
 	 */
-	srand48(hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid())));
+	srand48(hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid()))));
 #  endif
 #else
+	dbg_print("PRNG = pseudo_random_u32()\n");
 	random_seed = hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid())));
 #endif
 }
 
+
 /* generate 32-bit pseudo random numbers */
-static uint32_t pseudo_random_u32()
+#if !defined HAVE_ARC4RANDOM && !defined HAVE_RANDOM && !defined HAVE_RAND && !defined HAVE_MRAND48
+static uint32_t pseudo_random_u32(void)
 {
 	/* get random seed */
-	unsigned int n = hash32(mix(random_seed, hash32(random_seed), hash32(n)));
+	uint32_t n = hash32(mix(random_seed, hash32((int)random_seed), hash32((int)n)));
 
 	/* XOR shift algorithm */
 	n ^= n << 13;
@@ -368,14 +414,15 @@ static uint32_t pseudo_random_u32()
 	n ^= n << 5;
 
 	/* Re-seed */
-	random_seed = hash32(mix(random_seed, hash32(random_seed), hash32(n)));
+	random_seed = hash32(mix(random_seed, hash32((int)random_seed), hash32((int)n)));
 
-	return hash32(mix(random_seed, hash32(random_seed), hash32(n)));
+	return hash32(mix(random_seed, hash32((int)random_seed), hash32((int)n)));
 }
+#endif
 
 
 /* generate 64-bit random number */
-static uint64_t random_u64()
+static uint64_t random_u64(void)
 {
 	uint64_t u1, u2, u3, u4;	// four different pseudo random numbers
 
@@ -429,7 +476,7 @@ static uint64_t random_u64()
 
 
 /* generate 64-bit sparse random number */
-static inline uint64_t random_u64_fewbits()
+static inline uint64_t random_u64_fewbits(void)
 {
 	return random_u64() & random_u64() & random_u64();
 }
@@ -442,7 +489,7 @@ static inline uint64_t random_u64_fewbits()
  * @magic:	 a magic constant used to hash the key
  * @bits_in_idx: the number of bits in the index
  */
-static inline uint64_t
+	static inline uint64_t
 magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_idx)
 {
 	return ((key * magic) >> (64 - bits_in_idx));
@@ -487,7 +534,7 @@ magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_id
  * blocker mask, and turns it off/on accordingly to generate a unique blocker
  * board.
  */
-static uint64_t set_occupancy(const uint8_t index, const uint8_t bits_in_mask, uint64_t attack_mask)
+static uint64_t set_occupancy(const int index, const uint8_t bits_in_mask, uint64_t attack_mask)
 {
 	/* occupancy map */
 	uint64_t occupancy = 0ULL;
@@ -496,22 +543,22 @@ static uint64_t set_occupancy(const uint8_t index, const uint8_t bits_in_mask, u
 	for (uint8_t count = 0; count < bits_in_mask; count++)
 	{
 		/* get LS1B index of attacks mask */
-		uint8_t square = get_ls1b(attack_mask);
+		enum square sq = get_ls1b(attack_mask);
 
 		/* pop LS1B in attack map */
-		POP_BIT(attack_mask, square);
+		POP_BIT(attack_mask, sq);
 
 		/* make sure occupancy is on board */
 		if (index & (1 << count)) {
 			/* populate occupancy map */
-			occupancy |= (1ULL << square);
+			occupancy |= (1ULL << sq);
 		}
 	}
 	return occupancy;
 }
 
 
-static bool init_occupancy_indicies(const int sq, const int relv_bits, const enum chessmen piece,
+static bool init_occupancy_indicies(const enum square sq, const uint8_t relv_bits, const enum chessmen piece,
 		const uint64_t attack_mask, uint64_t occupancies[], uint64_t attacks[])
 {
 	// loop over occupancy indicies
@@ -548,6 +595,7 @@ static void init_used_attacks(uint64_t used_attacks[])
 #endif
 }
 
+
 /* skip inappropriate magic numbers */
 static inline bool skip_magic(const uint64_t attack_mask, const uint64_t magic)
 {
@@ -558,20 +606,22 @@ static inline bool skip_magic(const uint64_t attack_mask, const uint64_t magic)
 	return false;
 }
 
-static bool test_magic(const int relv_bits, const uint64_t magic,
+
+/* test magic number for hash collisions */
+static bool test_magic(const uint8_t relv_bits, const uint64_t magic,
 		const uint64_t occupancies[], const uint64_t attacks[], uint64_t used_attacks[])
 {
 	// test magic index loop
 	for (int idx = 0; (idx < (1 << relv_bits)); idx++) {
 		// get magic index
-		int magic_idx = magic_hashing(occupancies[idx], magic, relv_bits);
+		uint64_t magic_idx = magic_hashing(occupancies[idx], magic, relv_bits);
 
 		// check if magic index works
 		if (used_attacks[magic_idx] == 0ULL) {
 			used_attacks[magic_idx] = attacks[idx];
 		} else {
 			if (used_attacks[magic_idx] != attacks[idx]) {
-				//dbg_print("Hash collision for magic index: %d\n", magic_idx);
+				dbg_print("Hash collision for magic index: %d\n", magic_idx);
 				return false; // magic index doesn't work
 			}
 		}
@@ -595,7 +645,7 @@ static bool test_magic(const int relv_bits, const uint64_t magic,
  * 		for Rook on a1 and m=6 for Bishop on a1
  * @piece:	switch for slider piece type (rook or bishop)
  */
-uint64_t find_magic_number(int sq, int relv_bits, enum chessmen piece)
+uint64_t find_magic_number(const enum square sq, uint8_t relv_bits, enum chessmen piece)
 {
 	uint64_t occupancies[4096];	// blockers occupancies mask
 	uint64_t attacks[4096];		// attack tables for given blockers

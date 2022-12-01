@@ -20,16 +20,21 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-fexceptions			\
 			-ffunction-sections		\
 			-fno-common			\
-			-fstack-protector		\
+			-fno-omit-frame-pointer		\
+			-fPIE				\
+			-fsanitize=address		\
+			-fsanitize-recover=address	\
+			-fsanitize-address-use-after-scope	\
+			-fsanitize-memory-track-origins	\
+			-fsanitize=undefined		\
+			-fstack-protector-all		\
 			-fstack-usage 			\
-			-Waggregate-return		\
+			-pie				\
 			-Wall 				\
 			-Walloca			\
 			-Wattributes			\
 			-Wbad-function-cast		\
 			-Wbuiltin-macro-redefined	\
-			-Wc++-compat			\
-			-Wc++0x-compat			\
 			-Wcast-qual 			\
 			-Wchar-subscripts		\
 			-Wconversion			\
@@ -96,7 +101,9 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-Wvla				\
 			-Wwrite-strings
 
-# removed CFLAGS: -v -Wpadded
+#removed CFLAGS: -v -Wpadded
+#-fsanitize=hwaddress
+#-fsanitize=memory
 
 #AM_LDFLAGS = --gc-sections --print-gc-sections
 
