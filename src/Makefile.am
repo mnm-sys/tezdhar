@@ -25,7 +25,6 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-fsanitize=address		\
 			-fsanitize-recover=address	\
 			-fsanitize-address-use-after-scope	\
-			-fsanitize-memory-track-origins	\
 			-fsanitize=undefined		\
 			-fstack-protector-all		\
 			-fstack-usage 			\
@@ -104,6 +103,7 @@ tezdhar_CFLAGS =	-fdata-sections			\
 #removed CFLAGS: -v -Wpadded
 #-fsanitize=hwaddress
 #-fsanitize=memory
+#-fsanitize-memory-track-origins
 
 #AM_LDFLAGS = --gc-sections --print-gc-sections
 
