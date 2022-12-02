@@ -31,8 +31,8 @@ uint64_t bishop_occu_mask(const uint8_t sq)
 {
 	uint64_t mask = 0ULL;		// bishop occupancy mask bitboard
 	int8_t r, f;			// occupancy rank & file of bishop
-	const uint8_t tr = sq / 8;	// target rank
-	const uint8_t tf = sq % 8;	// target file
+	const int8_t tr = sq / 8;	// target rank
+	const int8_t tf = sq % 8;	// target file
 
 	/* mask NE occupancy bits */
 	for (r = tr + 1, f = tf + 1; r <= RANK_7 && f <= G_FILE; r++, f++) {
@@ -63,8 +63,8 @@ uint64_t bishop_attacks_on_the_fly(const int8_t sq, const uint64_t blockers)
 {
 	uint64_t bb, attacks = 0ULL;	// bishop attacks bitboard
 	int8_t r, f;			// attacks rank and file
-	const uint8_t tr = sq / 8;	// target rank
-	const uint8_t tf = sq % 8;	// target file
+	const int8_t tr = sq / 8;	// target rank
+	const int8_t tf = sq % 8;	// target file
 
 	/* mask NE attack bits */
 	for (r = tr + 1, f = tf + 1; r <= RANK_8 && f <= H_FILE; r++, f++) {
