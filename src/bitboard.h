@@ -128,6 +128,8 @@
 #ifndef __BITBOARD_H__
 #define __BITBOARD_H__	1
 
+#include <stdint.h>	// for uint8_t, uint64_t
+
 /* Bitboard Files */
 #define BB_FILE_A	0x101010101010101ULL
 #define BB_FILE_B	(BB_FILE_A << 1)
@@ -227,6 +229,12 @@
 	}						\
 } while(0)
 
+/* Piece lookup table */
+struct piece_lut {
+	uint64_t mask;		// occupancy mask of piece excluding edges
+	uint64_t magic;		// magic number for a particular square
+	uint8_t  obits;		// occupancy mask relevant bits
+};
 
 #endif	/* __BITBOARD_H__ */
 

@@ -10,25 +10,11 @@
 #include "bitboard.h"
 #include "chess.h"
 
-static uint64_t Rmask[64];	// rook occupancy masks
-static uint64_t Rmagic[64];	// rook magic numbers
+/* Rook lookup table */
+static struct piece_lut R_lut[64];
 
-/* rook relevant occupancy bit count lookup table. For example if you had a
- * rook on a1, the relevant occupancy bits will be from a2-a7 and b1-g1. */
-static const uint8_t rook_rel_occu_bits[64] = {
-	12, 11, 11, 11, 11, 11, 11, 12,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	11, 10, 10, 10, 10, 10, 10, 11,
-	12, 11, 11, 11, 11, 11, 11, 12
-};
-
-
-/* mask relevant rook occupancy bits */
-uint64_t rook_occu_mask(const uint8_t sq)
+/* mask relevant rook occupancy bits excluding edges */
+static uint64_t rook_occu_mask(const int8_t sq)
 {
 	uint64_t mask = 0ULL;		// rook occupancy mask bitboard
 	int8_t r, f;			// occupancy rank & file of rook
@@ -99,14 +85,14 @@ uint64_t rook_attacks_on_the_fly(const int8_t sq, const uint64_t blockers)
 void init_rook_attacks(void)
 {
 	for (uint8_t sq = A1; sq <= H8; sq++) {
-		Rmask[sq] = rook_occu_mask(sq);
-		Rmagic[sq] = find_magic_number(sq, rook_rel_occu_bits[sq], ROOK);
-#if DEBUG
+		R_lut[sq].mask = rook_occu_mask(sq);
+		R_lut[sq].obits = count_bits(R_lut[sq].mask);
+		R_lut[sq].magic = find_magic_number(ROOK, sq, R_lut[sq].mask, R_lut[sq].obits);
+#ifdef DEBUG
 		printf("Occupancy mask for rook at [%s]", sqr_to_coords[sq]);
-		print_bitboard(Rmask[sq]);
-		//printf("Attack mask for rook at [%s]", sqr_to_coords[sq]);
-		//print_bitboard(rook_attacks_on_the_fly(sq, 0ULL));
-		printf("Rook magic number[%s] = 0x%llx\n", sqr_to_coords[sq], Rmagic[sq]);
+		print_bitboard(R_lut[sq].mask);
+		printf("Rook occupancy mask relevant bits at [%s] = %d\n", sqr_to_coords[sq], R_lut[sq].obits);
+		printf("Rook magic number[%s] = 0x%llx\n", sqr_to_coords[sq], R_lut[sq].magic);
 #endif
 	}
 }

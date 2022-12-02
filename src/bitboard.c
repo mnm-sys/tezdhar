@@ -93,7 +93,7 @@ static inline uint8_t __attribute((hot)) brain_kernighan_algo(uint64_t bb)
 
 
 /* count bits within a bitboard */
-static inline int __attribute((hot)) count_bits(const uint64_t bb)
+inline int __attribute((hot)) count_bits(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_POPCOUNTLL
 	return __builtin_popcountll(bb);
@@ -613,8 +613,9 @@ static inline bool skip_magic(const uint64_t attack_mask, const uint64_t magic)
 	if (count_bits((attack_mask * magic) & BB_RANK_8) < 6) {
 		//dbg_print("Skipping inappropiate magic number: %llx\n", magic);
 		return true;
+	} else {
+		return false;
 	}
-	return false;
 }
 
 
@@ -632,7 +633,7 @@ static bool test_magic(const uint8_t relv_bits, const uint64_t magic,
 			used_attacks[magic_idx] = attacks[idx];
 		} else {
 			if (used_attacks[magic_idx] != attacks[idx]) {
-				dbg_print("Hash collision for magic index: %d\n", magic_idx);
+				dbg_print("Hash collision for magic index: %llx\n", magic_idx);
 				return false; // magic index doesn't work
 			}
 		}
@@ -651,20 +652,18 @@ static bool test_magic(const uint8_t relv_bits, const uint64_t magic,
  * To do this, you have to calculate every possible blocker board
  * variation for each square/piece combo.
  *
- * @sq:		source square of the piece
- * @relv_bits:	relevant occupancy bit count (e.g. m=12
- * 		for Rook on a1 and m=6 for Bishop on a1
- * @piece:	switch for slider piece type (rook or bishop)
+ * @piece:		switch for slider piece type (rook or bishop)
+ * @attack_mask:	attack mask for a current piece
+ * @sq:			source square of the piece
+ * @relv_bits:		relevant occupancy bit count (e.g. m=12
+ *			for Rook on a1 and m=6 for Bishop on a1
  */
-uint64_t find_magic_number(const enum square sq, uint8_t relv_bits, enum chessmen piece)
+uint64_t find_magic_number(const enum chessmen piece, const enum square sq, const uint64_t attack_mask, const uint8_t relv_bits)
 {
 	uint64_t occupancies[4096];	// blockers occupancies mask
 	uint64_t attacks[4096];		// attack tables for given blockers
 	uint64_t used_attacks[4096];	// already used/occupied attacks
-	uint64_t attack_mask;		// attack mask for a current piece
 	uint64_t magic;			// random magic number candidate
-
-	attack_mask = (piece == ROOK) ? rook_occu_mask(sq) : bishop_occu_mask(sq);
 
 	if (!init_occupancy_indicies(sq, relv_bits, piece, attack_mask, occupancies, attacks)) {
 		return 0ULL;

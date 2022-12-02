@@ -44,7 +44,7 @@ void init_knight_attacks(void)
 {
 	for (enum square sq = A1; sq <= H8; sq++) {
 		knight_attacks_lut[sq] = mask_knight_attacks(sq);
-#if DEBUG
+#ifdef DEBUG
 		printf("Attack map for knight at [%s]", sqr_to_coords[sq]);
 		print_bitboard(knight_attacks_lut[sq]);
 #endif

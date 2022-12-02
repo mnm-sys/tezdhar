@@ -10,24 +10,11 @@
 #include "bitboard.h"
 #include "chess.h"
 
-static uint64_t Bmask[64];	// bishop occupancy masks
-static uint64_t Bmagic[64];	// bishop magic numbers
-
-/* bishop relevant occupancy bit count lookup table */
-static const uint8_t bishop_rel_occu_bits[64] = {
-	6, 5, 5, 5, 5, 5, 5, 6,
-	5, 5, 5, 5, 5, 5, 5, 5,
-	5, 5, 7, 7, 7, 7, 5, 5,
-	5, 5, 7, 9, 9, 7, 5, 5,
-	5, 5, 7, 9, 9, 7, 5, 5,
-	5, 5, 7, 7, 7, 7, 5, 5,
-	5, 5, 5, 5, 5, 5, 5, 5,
-	6, 5, 5, 5, 5, 5, 5, 6
-};
-
+/* Bishop lookup table */
+static struct piece_lut B_lut[64];
 
 /* mask relevant bishop occupancy bits excluding edges */
-uint64_t bishop_occu_mask(const uint8_t sq)
+static uint64_t bishop_occu_mask(const int8_t sq)
 {
 	uint64_t mask = 0ULL;		// bishop occupancy mask bitboard
 	int8_t r, f;			// occupancy rank & file of bishop
@@ -98,14 +85,14 @@ uint64_t bishop_attacks_on_the_fly(const int8_t sq, const uint64_t blockers)
 void init_bishop_attacks(void)
 {
 	for (uint8_t sq = A1; sq <= H8; sq++) {
-		Bmask[sq] = bishop_occu_mask(sq);
-		Bmagic[sq] = find_magic_number(sq, bishop_rel_occu_bits[sq], BISHOP);
-#if DEBUG
+		B_lut[sq].mask = bishop_occu_mask(sq);
+		B_lut[sq].obits = count_bits(B_lut[sq].mask);
+		B_lut[sq].magic = find_magic_number(BISHOP, sq, B_lut[sq].mask, B_lut[sq].obits);
+#ifdef DEBUG
 		printf("Occupancy mask for bishop at [%s]", sqr_to_coords[sq]);
-		print_bitboard(Bmask[sq]);
-		//printf("Attack mask for bishop at [%s]", sqr_to_coords[sq]);
-		//print_bitboard(bishop_attacks_on_the_fly(sq, 0ULL));
-		printf("Bishop magic number[%s] = 0x%llx\n", sqr_to_coords[sq], Bmagic[sq]);
+		print_bitboard(B_lut[sq].mask);
+		printf("Bishop occupancy relevant bits on [%d] = %d\n", sqr_to_coords[sq], B_lut[sq].obits);
+		printf("Bishop magic number[%s] = 0x%llx\n", sqr_to_coords[sq], B_lut[sq].magic);
 #endif
 	}
 }
