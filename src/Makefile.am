@@ -22,10 +22,9 @@ tezdhar_CFLAGS =	-fdata-sections			\
 			-fno-common			\
 			-fno-omit-frame-pointer		\
 			-fPIE				\
-			-fsanitize=address		\
 			-fsanitize-recover=address	\
 			-fsanitize-address-use-after-scope	\
-			-fsanitize=undefined		\
+			-fsanitize-undefined-trap-on-error	\
 			-fstack-protector-all		\
 			-fstack-usage 			\
 			-pie				\
@@ -104,6 +103,9 @@ tezdhar_CFLAGS =	-fdata-sections			\
 #-fsanitize=hwaddress
 #-fsanitize=memory
 #-fsanitize-memory-track-origins
+#-fsanitize=leak
+#-fsanitize=address
+#-fsanitize=undefined
 
 #AM_LDFLAGS = --gc-sections --print-gc-sections
 

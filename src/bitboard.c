@@ -21,6 +21,10 @@
 #  include <strings.h>		// for bzero
 #endif
 
+#ifdef HAVE_TIME_H
+#  include <time.h>		// for clock, time
+#endif
+
 #ifdef HAVE_GETPID
 #  include <sys/types.h>	// for pid_t
 #  include <unistd.h>		// for getpid
@@ -32,9 +36,7 @@
 
 /* arbitrary global random number seed which can
  * be updated by the init_random_seed() function */
-#if !defined HAVE_ARC4RANDOM && !defined HAVE_RANDOM && !defined HAVE_RAND && !defined HAVE_MRAND48
-	static unsigned int random_seed = 1804289383;
-#endif
+static unsigned int random_seed = 1804289383;
 
 
 /* Bit scan index for de Bruijn sequence for 64-bit bitboard */
@@ -354,11 +356,19 @@ static inline int32_t mix(uint32_t a, uint32_t b, uint32_t c)
 /* Init random number generator seed */
 void init_random_seed(void)
 {
+	uint32_t seed = random_seed;
+
 #ifdef HAVE_ARC4RANDOM
 	/* Seeding not required for arc4random() */
 	dbg_print("PRNG = arc4random()\n");
+	return;
+#else
+#  if defined HAVE_CLOCK && defined HAVE_TIME && defined HAVE_GETPID
+	seed = hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid())));
+#  endif
+#endif
 
-#elif defined HAVE_RANDOM
+#ifdef HAVE_RANDOM
 	dbg_print("PRNG = random()\n");
 #  if defined HAVE_SRANDOMDEV
 	/* The srandomdev() routine initializes a state array, using the random
@@ -366,7 +376,7 @@ void init_random_seed(void)
 	 */
 	srandomdev();
 #  elif defined HAVE_SRANDOM
-	srandom(hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid()))));
+	srandom(seed);
 #  endif
 
 #elif defined HAVE_RAND
@@ -376,28 +386,29 @@ void init_random_seed(void)
 	 * number device which returns good random numbers
 	 */
 	sranddev();
-#  elif defined HAVE_SRAND && defined HAVE_CLOCK && defined HAVE_TIME && defined HAVE_GETPID
+#  elif defined HAVE_SRAND
 	/* The srand() function sets its argument seed as the seed for a new
 	 * sequence of pseudo-random numbers to be returned by rand(). These
 	 * sequences are repeatable by calling srand() with the same seed value.
 	 */
-	srand(hash32(mix(hash32(clock()), hash64_to_32(time(NULL)), hash32(getpid()))));
+	srand(seed);
 #  endif
 
 #elif defined HAVE_MRAND48
 	dbg_print("PRNG = mrand48()\n");
-#  if defined HAVE_SRAND48 && defined HAVE_CLOCK && defined HAVE_TIME && defined HAVE_GETPID
+#  if defined HAVE_SRAND48
 	/* The srand48() function is used to initialize the internal buffer r(n)
 	 * of mrand48(), such that the 32 bits of the seed value are copied into
 	 * the upper 32 bits of r(n), with the lower 16 bits of r(n) arbitrarily
 	 * being set to 0x330e.
 	 */
-	srand48(hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid()))));
+	srand48(seed);
 #  endif
 #else
 	dbg_print("PRNG = pseudo_random_u32()\n");
-	random_seed = hash32(mix(hash32(clock()), hash32(time(NULL)), hash32(getpid())));
+	random_seed = seed;
 #endif
+	dbg_print("Seed Value = %u\n", seed);
 }
 
 
