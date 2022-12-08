@@ -107,7 +107,7 @@ inline int __attribute((hot)) count_bits(const uint64_t bb)
 static inline int __attribute((hot)) get_ls1b(const uint64_t bb)
 {
 #if defined HAVE___BUILTIN_FFSLL
-	return __builtin_ffsll((int64_t)bb);
+	return bb ? __builtin_ffsll((int64_t)bb) - 1 : 0;
 
 #elif defined HAVE___BUILTIN_CTZLL
 	return bb ? __builtin_ctzll(bb) : 0;
@@ -116,7 +116,7 @@ static inline int __attribute((hot)) get_ls1b(const uint64_t bb)
 	return bb ? __builtin_popcountll((bb & -bb) -1) : 0;
 
 #elif defined HAVE_FFSLL
-	return ffsll(bb);
+	return bb ? ffsll(bb) : 0;
 #else
 	return bb ? bitScanForward(bb) : 0;
 #endif
