@@ -116,7 +116,7 @@ static inline int __attribute((hot)) get_ls1b(const uint64_t bb)
 	return bb ? __builtin_popcountll((bb & -bb) -1) : 0;
 
 #elif defined HAVE_FFSLL
-	return bb ? ffsll(bb) : 0;
+	return bb ? ffsll(bb) - 1 : 0;
 #else
 	return bb ? bitScanForward(bb) : 0;
 #endif
