@@ -31,10 +31,11 @@ void init_pawn_attacks(void)
 		pawn_attacks_lut[WHITE][sq] = mask_pawn_attacks(WHITE, sq);
 		pawn_attacks_lut[BLACK][sq] = mask_pawn_attacks(BLACK, sq);
 #ifdef DEBUG
-		printf("\nAttack map for white pawn at [%s]", sqr_to_coords[sq]);
-		print_bitboard(pawn_attacks_lut[WHITE][sq]);
-		printf("\nAttack map for black pawn at [%s]", sqr_to_coords[sq]);
-		print_bitboard(pawn_attacks_lut[BLACK][sq]);
+		//printf("\nAttack map for white pawn at [%s]", sqr_to_coords[sq]);
+		//print_bitboard(pawn_attacks_lut[WHITE][sq]);
+		//printf("\nAttack map for black pawn at [%s]", sqr_to_coords[sq]);
+		//print_bitboard(pawn_attacks_lut[BLACK][sq]);
 #endif
 	}
 }
+

@@ -8,7 +8,8 @@
 
 #include <stdio.h>	// for perror
 #include <stdlib.h>	// for malloc
-#include <string.h>	// for strcpy
+#include <string.h>	// for strcpy, memset
+
 #include "chess.h"
 #include "bitboard.h"
 
@@ -30,7 +31,7 @@ void clear_castling_rights(struct board *board)
 bool init_board(char *fen, struct board *brd, enum player w, enum player b)
 {
 	memset(brd, 0, sizeof(struct board));
-	brd->enpassant = -1;
+	brd->enpassant = -1;	//TODO: can also set this to SQ_NB
 	brd->whitePlayer = w;
 	brd->blackPlayer = b;
 
@@ -49,7 +50,7 @@ bool init_board(char *fen, struct board *brd, enum player w, enum player b)
 	}
 
 	update_bitboards(brd);
-	print_all_bitboards(&brd->bb);
+	//dbg_print_all_bitboards(&brd->bb);
 	return true;
 }
 
@@ -86,20 +87,32 @@ void setup_move_struct(const char * const movetext, struct move * const move)
 /* Init leaper pieces (King, Knight and Pawns) attacks lookup table */
 void init_leaper_attacks(void)
 {
-		/* Init pawn attacks */
 		init_pawn_attacks();
-
-		/* Init knight attacks */
 		init_knight_attacks();
-
-		/* Init king attacks */
 		init_king_attacks();
+}
+
+void init_magic_numbers(void)
+{
+	init_random_seed();
+
+	if (!init_bishop_magic(false)) {
+		printf("Max bishop magic generation retries %u exhaused.\n", MAX_MAGIC_RETRIES);
+		printf("Falling back to use pre-calculated bishop magic numbers\n");
+		init_bishop_magic(true);
+	}
+
+	if (!init_rook_magic(false)) {
+		printf("Max rook magic generation retries %u exhaused.\n", MAX_MAGIC_RETRIES);
+		printf("Falling back to use pre-calculated rook magic numbers\n");
+		init_rook_magic(true);
+	}
 }
 
 /* Init slider pieces (Bishop, Rook and Queen) attacks lookup table */
 void init_slider_attacks(void)
 {
-	init_random_seed();
 	init_bishop_attacks();
 	init_rook_attacks();
 }
+

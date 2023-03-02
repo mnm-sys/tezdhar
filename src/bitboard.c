@@ -189,8 +189,9 @@ print_3_bitboards(const uint64_t bb1, const uint64_t bb2, const uint64_t bb3)
 
 
 /* Print all 12 base bitboards and additional 3 bitboards */
-void print_all_bitboards(const struct bitboards * const bb)
+void dbg_print_all_bitboards(const struct bitboards * const bb)
 {
+#ifdef DEBUG
 	uint64_t wp, bp, ap;
 
 	if (!bb) {
@@ -214,6 +215,7 @@ void print_all_bitboards(const struct bitboards * const bb)
 
 	printf("\n    White Pieces\t  Black Pieces\t\t   All Pieces\n");
 	print_3_bitboards(wp, bp, ap);
+#endif
 }
 
 
@@ -356,6 +358,7 @@ static inline int32_t mix(uint32_t a, uint32_t b, uint32_t c)
 /* Init random number generator seed */
 void init_random_seed(void)
 {
+#ifndef USE_PRE_CALCULATED_MAGIC
 	uint32_t seed = random_seed;
 
 #ifdef HAVE_ARC4RANDOM
@@ -409,6 +412,7 @@ void init_random_seed(void)
 	random_seed = seed;
 #endif
 	dbg_print("Seed Value = %u\n", seed);
+#endif
 }
 
 
@@ -442,7 +446,6 @@ static uint64_t random_u64(void)
 	 * (also known as ARC4) algorithm.  In OS X 10.12 it was replaced with
 	 * the NIST-approved AES cipher */
 	static uint32_t (*fp)(void) = &arc4random;
-	//dbg_print("arc4random()\n");
 
 #elif defined HAVE_RANDOM
 	/* The random() function uses a non-linear, additive feedback, random
@@ -451,13 +454,11 @@ static uint64_t random_u64(void)
 	 * from 0 to (2^31)−1. The period of this random number generator is
 	 * very large, approximately 16*((2^31)−1). */
 	static long (*fp)(void) = &random;
-	//dbg_print("random()\n");
 
 #elif defined HAVE_RAND
 	/* The rand() function computes a sequence of pseudo-random integers
 	 * in the range of 0 to RAND_MAX */
 	static int (*fp)(void) = &rand;
-	//dbg_print("rand()\n");
 
 #elif defined HAVE_MRAND48
 	/* The rand48() family of functions generates pseudo-random numbers,
@@ -468,11 +469,9 @@ static uint64_t random_u64(void)
 	 * fixed at m = 2 ** 48. r(n) is called the seed of the random number
 	 * generator. */
 	static int (*fp)(void) = &mrand48;
-	//dbg_print("mrand48()\n");
 
 #else
 	static uint32_t (*fp)(void) = &pseudo_random_u32;
-	//dbg_print("pseudo_random_u32()\n");
 #endif
 
 	u1 = (uint64_t)(fp()) & 0xFFFF;
@@ -500,10 +499,10 @@ static inline uint64_t random_u64_fewbits(void)
  * @magic:	 a magic constant used to hash the key
  * @bits_in_idx: the number of bits in the index
  */
-	static inline uint64_t
+	static inline unsigned int
 magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_idx)
 {
-	return ((key * magic) >> (64 - bits_in_idx));
+	return (unsigned int)((key * magic) >> (64 - bits_in_idx));
 }
 
 
@@ -528,14 +527,14 @@ magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_id
  * e5, e7, b4, and c4.
  *
  *      The blocker mask        A blocker board         The move board
- *   8  0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  8
- *   7  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0  7
- *   6  0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  6
- *   5  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0  5
- *   4  0 1 1 1 0 1 1 0         0 1 1 0 0 0 0 0         0 0 1 1 0 1 1 1  4
- *   3  0 0 0 0 1 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 1 0 0 0  3
- *   2  0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0         0 0 0 0 1 0 0 0  2
- *   1  0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0         0 0 0 0 0 0 0 0  1
+ *   8  . . . . . . . .         . . . . . . . .         . . . . . . . .  8
+ *   7  . . . . 1 . . .         . . . . 1 . . .         . . . . . . . .  7
+ *   6  . . . . 1 . . .         . . . . . . . .         . . . . . . . .  6
+ *   5  . . . . 1 . . .         . . . . 1 . . .         . . . . 1 . . .  5
+ *   4  . 1 1 1 . 1 1 .         . 1 1 . . . . .         . . 1 1 . 1 1 1  4
+ *   3  . . . . 1 . . .         . . . . . . . .         . . . . 1 . . .  3
+ *   2  . . . . 1 . . .         . . . . 1 . . .         . . . . 1 . . .  2
+ *   1  . . . . . . . .         . . . . . . . .         . . . . . . . .  1
  *      a b c d e f g h         a b c d e f g h         a b c d e f g h
  *
  * There are 2^bits blocker boards, where bits is the number of 1's in the
@@ -545,7 +544,7 @@ magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_id
  * blocker mask, and turns it off/on accordingly to generate a unique blocker
  * board.
  */
-static uint64_t set_occupancy(const int index, const uint8_t bits_in_mask, uint64_t attack_mask)
+uint64_t set_occupancy(const int index, const uint8_t bits_in_mask, uint64_t attack_mask)
 {
 	/* occupancy map */
 	uint64_t occupancy = 0ULL;
@@ -565,6 +564,8 @@ static uint64_t set_occupancy(const int index, const uint8_t bits_in_mask, uint6
 			occupancy |= (1ULL << sq);
 		}
 	}
+
+	/* return blocker board variation */
 	return occupancy;
 }
 
@@ -581,8 +582,10 @@ static bool init_occupancy_indicies(const enum square sq, const uint8_t relv_bit
 		// init attacks
 		if (piece == BISHOP) {
 			attacks[idx] = bishop_attacks_on_the_fly(sq, occupancies[idx]);
+			dbg_print("bishop attacks[%d] = 0x%llx\n", idx, attacks[idx]);
 		} else if (piece == ROOK) {
 			attacks[idx] = rook_attacks_on_the_fly(sq, occupancies[idx]);
+			dbg_print("rook attacks[%d] = 0x%llx\n", idx, attacks[idx]);
 		} else {
 			/* unreachable code for valid piece */
 			dbg_print("Invalid piece for Slider magic generation\n");
@@ -621,19 +624,22 @@ static inline bool skip_magic(const uint64_t attack_mask, const uint64_t magic)
 
 /* test magic number for hash collisions */
 static bool test_magic(const uint8_t relv_bits, const uint64_t magic,
-		const uint64_t occupancies[], const uint64_t attacks[], uint64_t used_attacks[])
+		const uint64_t occupancies[], const uint64_t attacks[],
+		uint64_t used_attacks[])
 {
+	unsigned int magic_idx;
+
 	// test magic index loop
 	for (int idx = 0; (idx < (1 << relv_bits)); idx++) {
 		// get magic index
-		uint64_t magic_idx = magic_hashing(occupancies[idx], magic, relv_bits);
+		magic_idx = magic_hashing(occupancies[idx], magic, relv_bits);
 
 		// check if magic index works
 		if (used_attacks[magic_idx] == 0ULL) {
 			used_attacks[magic_idx] = attacks[idx];
 		} else {
 			if (used_attacks[magic_idx] != attacks[idx]) {
-				dbg_print("Hash collision for magic index: %llx\n", magic_idx);
+				//dbg_print("Hash collision for magic index: %llx\n", magic_idx);
 				return false; // magic index doesn't work
 			}
 		}
@@ -653,35 +659,57 @@ static bool test_magic(const uint8_t relv_bits, const uint64_t magic,
  * variation for each square/piece combo.
  *
  * @piece:		switch for slider piece type (rook or bishop)
- * @attack_mask:	attack mask for a current piece
+ * @occu_mask:		occupancy mask for a current piece excluding edges
  * @sq:			source square of the piece
  * @relv_bits:		relevant occupancy bit count (e.g. m=12
  *			for Rook on a1 and m=6 for Bishop on a1
  */
-uint64_t find_magic_number(const enum chessmen piece, const enum square sq, const uint64_t attack_mask, const uint8_t relv_bits)
+uint64_t find_magic_number(const enum chessmen piece, const enum square sq, const uint64_t occu_mask, const uint8_t relv_bits)
 {
-	uint64_t occupancies[4096];	// blockers occupancies mask
-	uint64_t attacks[4096];		// attack tables for given blockers
-	uint64_t used_attacks[4096];	// already used/occupied attacks
-	uint64_t magic;			// random magic number candidate
+	uint64_t occupancies[4096];		// blockers occupancies mask
+	uint64_t attacks[4096];			// attack tables for given blockers
+	uint64_t used_attacks[4096];		// already used/occupied attacks
+	uint64_t magic;				// random magic number candidate
+	unsigned int skipped, hash_col;		// skipped magics count, hash collisions count
+	long double skip_ratio, col_ratio;	// skipped count ratio, hash collisions ratio
 
-	if (!init_occupancy_indicies(sq, relv_bits, piece, attack_mask, occupancies, attacks)) {
+	if (!init_occupancy_indicies(sq, relv_bits, piece, occu_mask, occupancies, attacks)) {
 		return 0ULL;
 	}
 
-	for (int try = 1; try; try++)
+	for (signed int try = 1, skipped = 0, hash_col = 0; try < MAX_MAGIC_RETRIES; try++)
 	{
 		magic = random_u64_fewbits();
-		//dbg_print("sq: %u\ttry: %u\tmagic: 0x%llx\n", sq, try, magic);
 
-		if (skip_magic(attack_mask, magic)) {
+		if (skip_magic(occu_mask, magic)) {
+#ifdef DEBUG
+			++skipped;
+			skip_ratio = ((long double)skipped / try) * 100;
+			if (try % 100000 == 0) {
+				printf("\rpiece: %d\tsq: %u\ttry: %u\tmagic: 0x%#-16llx\tskipped:%d (%.2Lf%%)\thash_col:%d (%.2Lf%%)\n",
+						piece, sq, try, magic, skipped, skip_ratio, hash_col, col_ratio);
+			}
+#endif
 			continue;
 		}
 
 		init_used_attacks(used_attacks);
 
 		if (test_magic(relv_bits, magic, occupancies, attacks, used_attacks)) {
-			return magic;
+#ifdef DEBUG
+			printf("\rpiece: %d\tsq: %u\ttry: %u\tmagic: 0x%#-16llx\tskipped:%d (%.2Lf%%)\thash_col:%d (%.2Lf%%)\n",
+					piece, sq, try, magic, skipped, skip_ratio, hash_col, col_ratio);
+#endif
+			return magic;	// return plain magic bitboard
+		} else {
+#ifdef DEBUG
+			++hash_col;
+			col_ratio = ((long double)hash_col / try) * 100;
+			if (try % 100000 == 0) {
+				printf("\rpiece: %d\tsq: %u\ttry: %u\tmagic: 0x%#-16llx\tskipped:%d (%.2Lf%%)\thash_col:%d (%.2Lf%%)\n",
+						piece, sq, try, magic, skipped, skip_ratio, hash_col, col_ratio);
+			}
+#endif
 		}
 	}
 
