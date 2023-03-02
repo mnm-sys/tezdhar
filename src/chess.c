@@ -38,6 +38,7 @@
 
 #include "chess.h"
 #include <stdio.h>	// for printf
+#include <stdlib.h>	// for exit
 
 
 static bool is_player_turn(const struct board * const brd)
@@ -96,8 +97,13 @@ int main(int argc, char *argv[])
 	printf("This is free software: you are free to redistribute it.\n");
 	printf("There is NO WARRANTY, to the extent permitted by law.\n\n");
 
-	init_board(NULL, &board, HUMAN, AI);
+	if (!init_board(NULL, &board, HUMAN, AI)) {
+		printf("Failed to initialize chess board. Exiting ...\n");
+		exit(EXIT_FAILURE);
+	}
+
 	init_leaper_attacks();
+	init_magic_numbers();
 	init_slider_attacks();
 
 	start_game(HUMAN, HUMAN, &board);

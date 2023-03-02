@@ -41,8 +41,8 @@ void init_king_attacks(void)
 	for (enum square sq = A1; sq <= H8; sq++) {
 		king_attacks_lut[sq] = mask_king_attacks(sq);
 #ifdef DEBUG
-		printf("Attack map for king at [%s]", sqr_to_coords[sq]);
-		print_bitboard(king_attacks_lut[sq]);
+		//printf("Attack map for king at [%s]", sqr_to_coords[sq]);
+		//print_bitboard(king_attacks_lut[sq]);
 #endif
 	}
 }

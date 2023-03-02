@@ -96,8 +96,8 @@ static void set_castling_rights(struct board * const board, const char pos)
 	}
 }
 
-/* Parse pieces from FEN string and place them on board 
- * at their designated squares according to FEN
+/* Parse pieces from FEN string and place
+ * them on board at their designated squares
  * TODO: Also, parse FEN id, if provided
  */
 static char *parse_pieces_from_fen(char *fen, struct board * const board)
@@ -135,7 +135,7 @@ static char *parse_pieces_from_fen(char *fen, struct board * const board)
 		if (*fen != '/') {
 			if(!isdigit(*fen)) {
 				board->sqr[i][j] = piece;
-				dbg_print("brd->sqr[%d][%d] = %c\n", i, j, *fen);
+				//dbg_print("brd->sqr[%d][%d] = %c\n", i, j, *fen);
 			}
 			j++;
 		}
@@ -167,7 +167,7 @@ static char *parse_fen_flags(char *fen, struct board *board)
 
 			case 'b': case 'B':
 				  /* Since 'b' can represent both black's turn
-				   * or file 'b' on board, so we toggle turn
+				   * or file 'b' on board, so we toggle 'turn'
 				   * after assigning the player's turn value,
 				   * so that when 'b' is encountered again, it
 				   * is used to assign en-passant square. */
