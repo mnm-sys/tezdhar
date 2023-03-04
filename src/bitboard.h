@@ -220,20 +220,20 @@
 #define SHIFT_SWW(bb)		(((bb) >> 10) & NOT_GH_FILE)
 #define SHIFT_SEE(bb)		(((bb) >> 6) & NOT_AB_FILE)
 
-#define MAX_MAGIC_RETRIES	(0x1 << (26))
+#define MAX_MAGIC_RETRIES	(0x1 << (28))
 
 /* Sliding pieces lookup table for magic numbers */
 struct magic_lut {
 	uint64_t mask;		// occupancy mask of piece excluding edges
 	uint64_t magic;		// magic number for a particular square
-	uint8_t  obits;		// occupancy mask relevant bits
+	int obits;		// occupancy mask relevant bits
 };
 
 
 /* Pre-calculated magic numbers: To use these magics define the macro
  * USE_PRE_CALCULATED_MAGIC during compile time else the engine will
  * generate new magic numbers using pseudo random number generator */
-//#define USE_PRE_CALCULATED_MAGIC	1
+#define USE_PRE_CALCULATED_MAGIC	1
 
 static const uint64_t bishop_magic_numbers[64] = {
     0x40040844404084ULL,	0x2004208a004208ULL,	0x10190041080202ULL,	0x108060845042010ULL,

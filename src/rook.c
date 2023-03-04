@@ -19,12 +19,12 @@ static uint64_t Rattacks[64][4096];	// 2048 KiB (32 KiB for each square)
 
 
 /* mask relevant rook occupancy bits excluding edges */
-static uint64_t rook_occu_mask(const int8_t sq)
+static uint64_t rook_occu_mask(const enum square sq)
 {
-	uint64_t mask = 0ULL;		// rook occupancy mask bitboard
-	int8_t r, f;			// occupancy rank & file of rook
-	const int8_t tr = sq / 8;	// target rank
-	const int8_t tf = sq % 8;	// target file
+	uint64_t mask = 0ULL;	// rook occupancy mask bitboard
+	signed int r, f;	// occupancy rank & file of rook
+	const int tr = sq / 8;	// target rank
+	const int tf = sq % 8;	// target file
 
 	/* mask North occupancy bits */
 	for (r = tr + 1; r <= RANK_7; r++) {
@@ -51,12 +51,12 @@ static uint64_t rook_occu_mask(const int8_t sq)
 
 
 /* generate rook attacks on the fly */
-uint64_t rook_attacks_on_the_fly(const int8_t sq, const uint64_t blockers)
+uint64_t rook_attacks_on_the_fly(const enum square sq, const uint64_t blockers)
 {
 	uint64_t bb, attacks = 0ULL;	// rook attacks bitboard
-	int8_t r, f;			// attacks rank and file
-	const int8_t tr = sq / 8;	// target rank
-	const int8_t tf = sq % 8;	// target file
+	signed int r, f;		// attacks rank and file
+	const int tr = sq / 8;		// target rank
+	const int tf = sq % 8;		// target file
 
 	/* mask North attack bits */
 	for (r = tr + 1; r <= RANK_8; r++) {
@@ -113,21 +113,17 @@ bool init_rook_magic(const bool use_pre_calc_magic)
 		/* rook relevant occupancy bits count */
 		R_lut[sq].obits = count_bits(R_lut[sq].mask);
 
-#ifdef USE_PRE_CALCULATED_MAGIC
-		R_lut[sq].magic = rook_magic_numbers[sq];
-#else
 		if (use_pre_calc_magic) {
 			R_lut[sq].magic = rook_magic_numbers[sq];
 		} else {
 			R_lut[sq].magic = find_magic_number(ROOK, sq, R_lut[sq].mask, R_lut[sq].obits);
 		}
-#endif
 
 		if (!R_lut[sq].magic) {
 			dbg_print("Failed to get rook magic no. for sq %s\n", sqr_to_coords[sq]);
 			return false;
 		}
-		printf("\rGenerating magic numbers for Rook: %.2Lf %%", ((long double)sq / 0.63));
+		printf("\rGenerating magic numbers for Rook: %.2f %%", ((double)sq / 0.63));
 		fflush(stdout);
 	}
 	printf("\n");
@@ -145,7 +141,7 @@ bool init_rook_magic(const bool use_pre_calc_magic)
 
 
 /* Initialize rook attacks lookup table */
-bool init_rook_attacks(void)
+void init_rook_attacks(void)
 {
 	enum square sq;		// board square
 	uint64_t occu;		// occupancy variation
@@ -157,7 +153,7 @@ bool init_rook_attacks(void)
 			occu = set_occupancy(i, R_lut[sq].obits, R_lut[sq].mask);
 			printf("Rook Occu variation [%2d][%4d] = 0x%-16llx\t", sq, i, occu);
 
-			magic_idx = (occu * R_lut[sq].magic) >> (64 - R_lut[sq].obits);
+			magic_idx = (int)((occu * R_lut[sq].magic) >> (64 - R_lut[sq].obits));
 			printf("Relv bits: %2d\tMagic[%2d]: 0x%-16llx\t", R_lut[sq].obits, sq, R_lut[sq].magic);
 			printf("Magic index: %4d\t", magic_idx);
 

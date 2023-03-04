@@ -30,7 +30,7 @@ static uint_fast64_t knight_attacks_lut[64];
  *            -17   -15
  *        soSoWe     soSoEa
  */
-static uint64_t mask_knight_attacks(const uint8_t sq)
+static uint64_t mask_knight_attacks(const enum square sq)
 {
 	const uint64_t bb = BIT(sq);	// current knight bitboard
 

@@ -87,26 +87,35 @@ void setup_move_struct(const char * const movetext, struct move * const move)
 /* Init leaper pieces (King, Knight and Pawns) attacks lookup table */
 void init_leaper_attacks(void)
 {
-		init_pawn_attacks();
-		init_knight_attacks();
-		init_king_attacks();
+	init_pawn_attacks();
+	init_knight_attacks();
+	init_king_attacks();
 }
 
 void init_magic_numbers(void)
 {
-	init_random_seed();
-
-	if (!init_bishop_magic(false)) {
-		printf("Max bishop magic generation retries %u exhaused.\n", MAX_MAGIC_RETRIES);
-		printf("Falling back to use pre-calculated bishop magic numbers\n");
+#ifdef USE_PRE_CALCULATED_MAGIC
+	do {
 		init_bishop_magic(true);
-	}
-
-	if (!init_rook_magic(false)) {
-		printf("Max rook magic generation retries %u exhaused.\n", MAX_MAGIC_RETRIES);
-		printf("Falling back to use pre-calculated rook magic numbers\n");
 		init_rook_magic(true);
-	}
+	} while(0);
+#else
+	do {
+		init_random_seed();
+
+		if (!init_bishop_magic(false)) {
+			printf("Max bishop magic generation retries %u exhaused.\n", MAX_MAGIC_RETRIES);
+			printf("Falling back to use pre-calculated bishop magic numbers\n");
+			init_bishop_magic(true);
+		}
+
+		if (!init_rook_magic(false)) {
+			printf("Max rook magic generation retries %u exhaused.\n", MAX_MAGIC_RETRIES);
+			printf("Falling back to use pre-calculated rook magic numbers\n");
+			init_rook_magic(true);
+		}
+	} while (0);
+#endif
 }
 
 /* Init slider pieces (Bishop, Rook and Queen) attacks lookup table */

@@ -500,7 +500,7 @@ static inline uint64_t random_u64_fewbits(void)
  * @bits_in_idx: the number of bits in the index
  */
 	static inline unsigned int
-magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_idx)
+magic_hashing(const uint64_t key, const uint64_t magic, const int bits_in_idx)
 {
 	return (unsigned int)((key * magic) >> (64 - bits_in_idx));
 }
@@ -544,16 +544,17 @@ magic_hashing(const uint64_t key, const uint64_t magic, const uint8_t bits_in_id
  * blocker mask, and turns it off/on accordingly to generate a unique blocker
  * board.
  */
-uint64_t set_occupancy(const int index, const uint8_t bits_in_mask, uint64_t attack_mask)
+uint64_t set_occupancy(const int index, const int bits_in_mask, uint64_t attack_mask)
 {
 	/* occupancy map */
 	uint64_t occupancy = 0ULL;
+	enum square sq;
 
 	/* loop over the range of bits within attack mask */
 	for (uint8_t count = 0; count < bits_in_mask; count++)
 	{
 		/* get LS1B index of attacks mask */
-		enum square sq = get_ls1b(attack_mask);
+		sq = (unsigned int)get_ls1b(attack_mask);
 
 		/* pop LS1B in attack map */
 		POP_BIT(attack_mask, sq);
@@ -570,7 +571,7 @@ uint64_t set_occupancy(const int index, const uint8_t bits_in_mask, uint64_t att
 }
 
 
-static bool init_occupancy_indicies(const enum square sq, const uint8_t relv_bits, const enum chessmen piece,
+static bool init_occupancy_indicies(const enum square sq, const int relv_bits, const enum chessmen piece,
 		const uint64_t attack_mask, uint64_t occupancies[], uint64_t attacks[])
 {
 	// loop over occupancy indicies
@@ -623,7 +624,7 @@ static inline bool skip_magic(const uint64_t attack_mask, const uint64_t magic)
 
 
 /* test magic number for hash collisions */
-static bool test_magic(const uint8_t relv_bits, const uint64_t magic,
+static bool test_magic(const int relv_bits, const uint64_t magic,
 		const uint64_t occupancies[], const uint64_t attacks[],
 		uint64_t used_attacks[])
 {
@@ -664,53 +665,43 @@ static bool test_magic(const uint8_t relv_bits, const uint64_t magic,
  * @relv_bits:		relevant occupancy bit count (e.g. m=12
  *			for Rook on a1 and m=6 for Bishop on a1
  */
-uint64_t find_magic_number(const enum chessmen piece, const enum square sq, const uint64_t occu_mask, const uint8_t relv_bits)
+uint64_t find_magic_number(const enum chessmen piece, const enum square sq, const uint64_t occu_mask, const int relv_bits)
 {
 	uint64_t occupancies[4096];		// blockers occupancies mask
 	uint64_t attacks[4096];			// attack tables for given blockers
 	uint64_t used_attacks[4096];		// already used/occupied attacks
 	uint64_t magic;				// random magic number candidate
-	unsigned int skipped, hash_col;		// skipped magics count, hash collisions count
-	long double skip_ratio, col_ratio;	// skipped count ratio, hash collisions ratio
+	signed int try, skipped, hash_col;	// tries count, skipped magics count, hash collisions count
+	double skip_ratio, col_ratio;		// skipped count ratio, hash collisions ratio
 
 	if (!init_occupancy_indicies(sq, relv_bits, piece, occu_mask, occupancies, attacks)) {
 		return 0ULL;
 	}
 
-	for (signed int try = 1, skipped = 0, hash_col = 0; try < MAX_MAGIC_RETRIES; try++)
+	for (try = 1, skipped = 0, hash_col = 0; try < MAX_MAGIC_RETRIES; try++)
 	{
 		magic = random_u64_fewbits();
 
 		if (skip_magic(occu_mask, magic)) {
-#ifdef DEBUG
 			++skipped;
-			skip_ratio = ((long double)skipped / try) * 100;
-			if (try % 100000 == 0) {
-				printf("\rpiece: %d\tsq: %u\ttry: %u\tmagic: 0x%#-16llx\tskipped:%d (%.2Lf%%)\thash_col:%d (%.2Lf%%)\n",
-						piece, sq, try, magic, skipped, skip_ratio, hash_col, col_ratio);
-			}
-#endif
 			continue;
 		}
 
 		init_used_attacks(used_attacks);
 
 		if (test_magic(relv_bits, magic, occupancies, attacks, used_attacks)) {
-#ifdef DEBUG
-			printf("\rpiece: %d\tsq: %u\ttry: %u\tmagic: 0x%#-16llx\tskipped:%d (%.2Lf%%)\thash_col:%d (%.2Lf%%)\n",
-					piece, sq, try, magic, skipped, skip_ratio, hash_col, col_ratio);
-#endif
 			return magic;	// return plain magic bitboard
 		} else {
-#ifdef DEBUG
 			++hash_col;
-			col_ratio = ((long double)hash_col / try) * 100;
-			if (try % 100000 == 0) {
-				printf("\rpiece: %d\tsq: %u\ttry: %u\tmagic: 0x%#-16llx\tskipped:%d (%.2Lf%%)\thash_col:%d (%.2Lf%%)\n",
-						piece, sq, try, magic, skipped, skip_ratio, hash_col, col_ratio);
-			}
-#endif
 		}
+#ifdef DEBUG
+		if (try % 100000 == 0) {
+			skip_ratio = ((double)skipped / try) * 100;
+			col_ratio = ((double)hash_col / try) * 100;
+			printf("\rpiece: %d\tsq: %u\ttry: %u\tmagic: 0x%#-16llx\tskipped:%d (%.2f%%)\thash_col:%d (%.2f%%)\n",
+					piece, sq, try, magic, skipped, skip_ratio, hash_col, col_ratio);
+		}
+#endif
 	}
 
 	dbg_print("Magic number generation failed!\n");

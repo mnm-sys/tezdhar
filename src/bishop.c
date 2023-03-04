@@ -22,7 +22,7 @@ static uint64_t Battacks[64][512];	// 256 KiB (4 KiB for each square)
 static uint64_t bishop_occu_mask(const enum square sq)
 {
 	uint64_t mask = 0ULL;	// bishop occupancy mask bitboard
-	int r, f;		// occupancy rank & file of bishop
+	signed int r, f;	// occupancy rank & file of bishop
 	const int tr = sq / 8;	// target rank
 	const int tf = sq % 8;	// target file
 
@@ -51,12 +51,12 @@ static uint64_t bishop_occu_mask(const enum square sq)
 
 
 /* generate bishop attacks on the fly */
-uint64_t bishop_attacks_on_the_fly(const int8_t sq, const uint64_t blockers)
+uint64_t bishop_attacks_on_the_fly(const enum square sq, const uint64_t blockers)
 {
 	uint64_t bb, attacks = 0ULL;	// bishop attacks bitboard
-	int8_t r, f;			// attacks rank and file
-	const int8_t tr = sq / 8;	// target rank
-	const int8_t tf = sq % 8;	// target file
+	signed int r, f;		// attacks rank and file
+	const int tr = sq / 8;		// target rank
+	const int tf = sq % 8;		// target file
 
 	/* mask North East attack bits */
 	for (r = tr + 1, f = tf + 1; r <= RANK_8 && f <= H_FILE; r++, f++) {
@@ -113,21 +113,17 @@ bool init_bishop_magic(const bool use_pre_calc_magic)
 		/* bishop relevant occupancy bits count */
 		B_lut[sq].obits = count_bits(B_lut[sq].mask);
 
-#ifdef USE_PRE_CALCULATED_MAGIC
-		B_lut[sq].magic = bishop_magic_numbers[sq];
-#else
 		if (use_pre_calc_magic) {
 			B_lut[sq].magic = bishop_magic_numbers[sq];
 		} else {
 			B_lut[sq].magic = find_magic_number(BISHOP, sq, B_lut[sq].mask, B_lut[sq].obits);
 		}
-#endif
 
 		if (!B_lut[sq].magic) {
 			dbg_print("Failed to get bishop magic no. for sq %s\n", sqr_to_coords[sq]);
 			return false;
 		}
-		printf("\rGenerating magic numbers for Bishop: %.2Lf %%", ((long double)sq / 0.63));
+		printf("\rGenerating magic numbers for Bishop: %.2f %%", ((double)sq / 0.63));
 		fflush(stdout);
 	}
 	printf("\n");
@@ -145,7 +141,7 @@ bool init_bishop_magic(const bool use_pre_calc_magic)
 
 
 /* Initialize bishop attacks lookup table */
-bool init_bishop_attacks(void)
+void init_bishop_attacks(void)
 {
 	enum square sq;		// board square
 	uint64_t occu;		// occupancy variation
@@ -157,7 +153,7 @@ bool init_bishop_attacks(void)
 			occu = set_occupancy(i, B_lut[sq].obits, B_lut[sq].mask);
 			printf("Bishop Occu variation [%2d][%3d] = 0x%-16llx\t", sq, i, occu);
 
-			magic_idx = (occu * B_lut[sq].magic) >> (64 - B_lut[sq].obits);
+			magic_idx = (int)((occu * B_lut[sq].magic) >> (64 - B_lut[sq].obits));
 			printf("Relv bits: %2d\tMagic[%2d]: 0x%-16llx\t", B_lut[sq].obits, sq, B_lut[sq].magic);
 			printf("Magic index: %3d\t", magic_idx);
 
