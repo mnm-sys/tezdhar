@@ -37,7 +37,8 @@
  */
 
 #include "chess.h"
-#include <stdio.h>	// for printf
+#include "bitboard.h"
+
 #include <stdlib.h>	// for exit
 
 
@@ -106,7 +107,30 @@ int main(int argc, char *argv[])
 	init_magic_numbers();
 	init_slider_attacks();
 
-	start_game(HUMAN, HUMAN, &board);
+#ifdef TEST_CODE
+	// define test bitboard
+	U64 occupancy = 0ULL;
+
+	// set blocker pieces on board
+	SET_BIT(occupancy, C5);
+	SET_BIT(occupancy, F2);
+	SET_BIT(occupancy, G7);
+	SET_BIT(occupancy, B2);
+	SET_BIT(occupancy, G5);
+	SET_BIT(occupancy, E2);
+	SET_BIT(occupancy, E7);
+
+	// print occupancies
+	print_bitboard(occupancy);
+
+	// print rook attacks
+	//print_bitboard(get_rook_attacks(e5, occupancy));
+
+	// print bishop attacks
+	print_bitboard(get_bishop_attacks(E3, occupancy));
+#endif
+
+	//start_game(HUMAN, HUMAN, &board);
 
 	return 0;
 }

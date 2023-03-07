@@ -148,18 +148,31 @@ void init_bishop_attacks(void)
 	int i, magic_idx;	// occupancy index & magic index
 
 	for (sq = A1; sq <= H8; sq++) {
-		printf("\n\n\n <<<<================= [ %d ] =================>>>>\n\n", sq);
+		//printf("\n\n\n <<<<================= [ %d ] =================>>>>\n\n", sq);
 		for (i = 0; i < (1 << B_lut[sq].obits); i++) {
 			occu = set_occupancy(i, B_lut[sq].obits, B_lut[sq].mask);
-			printf("Bishop Occu variation [%2d][%3d] = 0x%-16llx\t", sq, i, occu);
 
 			magic_idx = (int)((occu * B_lut[sq].magic) >> (64 - B_lut[sq].obits));
-			printf("Relv bits: %2d\tMagic[%2d]: 0x%-16llx\t", B_lut[sq].obits, sq, B_lut[sq].magic);
-			printf("Magic index: %3d\t", magic_idx);
 
 			Battacks[sq][magic_idx] = bishop_attacks_on_the_fly(sq, occu);
-			printf("Battacks[%2d][%3d] = 0x%llx\n", sq, magic_idx, Battacks[sq][magic_idx]);
+#if DEBUG
+			//printf("Bishop Occu variation [%2d][%3d] = 0x%-16llx\t", sq, i, occu);
+			//printf("Relv bits: %2d\tMagic[%2d]: 0x%-16llx\t", B_lut[sq].obits, sq, B_lut[sq].magic);
+			//printf("Magic index: %3d\t", magic_idx);
+			//printf("Battacks[%2d][%3d] = 0x%llx\n", sq, magic_idx, Battacks[sq][magic_idx]);
+#endif
 		}
 	}
+}
+
+
+/* Return bishop attacks for a particular blocker occupancy */
+uint64_t get_bishop_attacks(const enum square sq, uint64_t occu)
+{
+	occu &= B_lut[sq].mask;
+	occu *= B_lut[sq].magic;
+	occu >>= 64 - B_lut[sq].obits;
+
+	return Battacks[sq][occu];
 }
 
