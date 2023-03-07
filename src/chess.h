@@ -311,6 +311,7 @@ void print_bitboard(const uint64_t bb);
 void dbg_print_all_bitboards(const struct bitboards * const bb);
 uint64_t bishop_attacks_on_the_fly(const enum square sq, const uint64_t blockers);
 uint64_t get_bishop_attacks(const enum square sq, uint64_t occu);
+uint64_t get_rook_attacks(const enum square sq, uint64_t occu);
 uint64_t rook_attacks_on_the_fly(const enum square sq, const uint64_t blockers);
 void init_random_seed(void);
 uint64_t find_magic_number(const enum chessmen piece, const enum square sq, const uint64_t attack_mask, const int relv_bits);

@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 	init_magic_numbers();
 	init_slider_attacks();
 
-#ifdef TEST_CODE
+//#ifdef TEST_CODE
 	// define test bitboard
 	U64 occupancy = 0ULL;
 
@@ -124,11 +124,11 @@ int main(int argc, char *argv[])
 	print_bitboard(occupancy);
 
 	// print rook attacks
-	//print_bitboard(get_rook_attacks(e5, occupancy));
+	print_bitboard(get_rook_attacks(C2, occupancy));
 
 	// print bishop attacks
 	print_bitboard(get_bishop_attacks(E3, occupancy));
-#endif
+//#endif
 
 	//start_game(HUMAN, HUMAN, &board);
 

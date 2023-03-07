@@ -148,18 +148,31 @@ void init_rook_attacks(void)
 	int i, magic_idx;	// occupancy index & magic index
 
 	for (sq = A1; sq <= H8; sq++) {
-		printf("\n\n\n <<<<================= [ %d ] =================>>>>\n\n", sq);
+		//printf("\n\n\n <<<<================= [ %d ] =================>>>>\n\n", sq);
 		for (i = 0; i < (1 << R_lut[sq].obits); i++) {
 			occu = set_occupancy(i, R_lut[sq].obits, R_lut[sq].mask);
-			printf("Rook Occu variation [%2d][%4d] = 0x%-16llx\t", sq, i, occu);
 
 			magic_idx = (int)((occu * R_lut[sq].magic) >> (64 - R_lut[sq].obits));
-			printf("Relv bits: %2d\tMagic[%2d]: 0x%-16llx\t", R_lut[sq].obits, sq, R_lut[sq].magic);
-			printf("Magic index: %4d\t", magic_idx);
 
 			Rattacks[sq][magic_idx] = rook_attacks_on_the_fly(sq, occu);
-			printf("Rattacks[%2d][%4d] = 0x%llx\n", sq, magic_idx, Rattacks[sq][magic_idx]);
+#if DEBUG
+			//printf("Rook Occu variation [%2d][%4d] = 0x%-16llx\t", sq, i, occu);
+			//printf("Relv bits: %2d\tMagic[%2d]: 0x%-16llx\t", R_lut[sq].obits, sq, R_lut[sq].magic);
+			//printf("Magic index: %4d\t", magic_idx);
+			//printf("Rattacks[%2d][%4d] = 0x%llx\n", sq, magic_idx, Rattacks[sq][magic_idx]);
+#endif
 		}
 	}
+}
+
+
+/* Return rook attacks for a particular blocker occupancy */
+uint64_t get_rook_attacks(const enum square sq, uint64_t occu)
+{
+	occu &= R_lut[sq].mask;
+	occu *= R_lut[sq].magic;
+	occu >>= 64 - R_lut[sq].obits;
+
+	return Rattacks[sq][occu];
 }
 
