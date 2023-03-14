@@ -12,6 +12,7 @@ tezdhar_SOURCES = bishop.c	\
 		  knight.c	\
 		  parse.c	\
 		  pawn.c	\
+		  queen.c	\
 		  rook.c	\
 		  ui.c
 

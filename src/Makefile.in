@@ -106,8 +106,8 @@ am_tezdhar_OBJECTS = tezdhar-bishop.$(OBJEXT) \
 	tezdhar-bitboard.$(OBJEXT) tezdhar-board.$(OBJEXT) \
 	tezdhar-chess.$(OBJEXT) tezdhar-king.$(OBJEXT) \
 	tezdhar-knight.$(OBJEXT) tezdhar-parse.$(OBJEXT) \
-	tezdhar-pawn.$(OBJEXT) tezdhar-rook.$(OBJEXT) \
-	tezdhar-ui.$(OBJEXT)
+	tezdhar-pawn.$(OBJEXT) tezdhar-queen.$(OBJEXT) \
+	tezdhar-rook.$(OBJEXT) tezdhar-ui.$(OBJEXT)
 tezdhar_OBJECTS = $(am_tezdhar_OBJECTS)
 tezdhar_LDADD = $(LDADD)
 tezdhar_LINK = $(CCLD) $(tezdhar_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -131,8 +131,8 @@ am__depfiles_remade = ./$(DEPDIR)/tezdhar-bishop.Po \
 	./$(DEPDIR)/tezdhar-bitboard.Po ./$(DEPDIR)/tezdhar-board.Po \
 	./$(DEPDIR)/tezdhar-chess.Po ./$(DEPDIR)/tezdhar-king.Po \
 	./$(DEPDIR)/tezdhar-knight.Po ./$(DEPDIR)/tezdhar-parse.Po \
-	./$(DEPDIR)/tezdhar-pawn.Po ./$(DEPDIR)/tezdhar-rook.Po \
-	./$(DEPDIR)/tezdhar-ui.Po
+	./$(DEPDIR)/tezdhar-pawn.Po ./$(DEPDIR)/tezdhar-queen.Po \
+	./$(DEPDIR)/tezdhar-rook.Po ./$(DEPDIR)/tezdhar-ui.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -298,6 +298,7 @@ tezdhar_SOURCES = bishop.c	\
 		  knight.c	\
 		  parse.c	\
 		  pawn.c	\
+		  queen.c	\
 		  rook.c	\
 		  ui.c
 
@@ -490,6 +491,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-knight.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-parse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-pawn.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-queen.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-rook.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tezdhar-ui.Po@am__quote@ # am--include-marker
 
@@ -624,6 +626,20 @@ tezdhar-pawn.obj: pawn.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pawn.c' object='tezdhar-pawn.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-pawn.obj `if test -f 'pawn.c'; then $(CYGPATH_W) 'pawn.c'; else $(CYGPATH_W) '$(srcdir)/pawn.c'; fi`
+
+tezdhar-queen.o: queen.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-queen.o -MD -MP -MF $(DEPDIR)/tezdhar-queen.Tpo -c -o tezdhar-queen.o `test -f 'queen.c' || echo '$(srcdir)/'`queen.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-queen.Tpo $(DEPDIR)/tezdhar-queen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='queen.c' object='tezdhar-queen.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-queen.o `test -f 'queen.c' || echo '$(srcdir)/'`queen.c
+
+tezdhar-queen.obj: queen.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-queen.obj -MD -MP -MF $(DEPDIR)/tezdhar-queen.Tpo -c -o tezdhar-queen.obj `if test -f 'queen.c'; then $(CYGPATH_W) 'queen.c'; else $(CYGPATH_W) '$(srcdir)/queen.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tezdhar-queen.Tpo $(DEPDIR)/tezdhar-queen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='queen.c' object='tezdhar-queen.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -c -o tezdhar-queen.obj `if test -f 'queen.c'; then $(CYGPATH_W) 'queen.c'; else $(CYGPATH_W) '$(srcdir)/queen.c'; fi`
 
 tezdhar-rook.o: rook.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tezdhar_CFLAGS) $(CFLAGS) -MT tezdhar-rook.o -MD -MP -MF $(DEPDIR)/tezdhar-rook.Tpo -c -o tezdhar-rook.o `test -f 'rook.c' || echo '$(srcdir)/'`rook.c
@@ -787,6 +803,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/tezdhar-knight.Po
 	-rm -f ./$(DEPDIR)/tezdhar-parse.Po
 	-rm -f ./$(DEPDIR)/tezdhar-pawn.Po
+	-rm -f ./$(DEPDIR)/tezdhar-queen.Po
 	-rm -f ./$(DEPDIR)/tezdhar-rook.Po
 	-rm -f ./$(DEPDIR)/tezdhar-ui.Po
 	-rm -f Makefile
@@ -842,6 +859,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/tezdhar-knight.Po
 	-rm -f ./$(DEPDIR)/tezdhar-parse.Po
 	-rm -f ./$(DEPDIR)/tezdhar-pawn.Po
+	-rm -f ./$(DEPDIR)/tezdhar-queen.Po
 	-rm -f ./$(DEPDIR)/tezdhar-rook.Po
 	-rm -f ./$(DEPDIR)/tezdhar-ui.Po
 	-rm -f Makefile

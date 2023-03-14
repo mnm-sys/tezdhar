@@ -124,10 +124,10 @@ int main(int argc, char *argv[])
 	print_bitboard(occupancy);
 
 	// print rook attacks
-	print_bitboard(get_rook_attacks(C2, occupancy));
+	print_bitboard(get_queen_attacks(C2, occupancy));
 
 	// print bishop attacks
-	print_bitboard(get_bishop_attacks(E3, occupancy));
+	print_bitboard(get_queen_attacks(E3, occupancy));
 //#endif
 
 	//start_game(HUMAN, HUMAN, &board);
