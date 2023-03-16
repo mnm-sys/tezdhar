@@ -39,3 +39,8 @@ void init_pawn_attacks(void)
 	}
 }
 
+uint64_t get_pawn_attacks(const enum color turn, const enum square sq)
+{
+	return pawn_attacks_lut[turn][sq];
+}
+
