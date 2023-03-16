@@ -51,3 +51,8 @@ void init_knight_attacks(void)
 	}
 }
 
+uint64_t get_knight_attacks(const enum square sq)
+{
+	return knight_attacks_lut[sq];
+}
+
