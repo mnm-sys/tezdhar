@@ -47,3 +47,8 @@ void init_king_attacks(void)
 	}
 }
 
+uint64_t get_king_attacks(const enum square sq)
+{
+	return king_attacks_lut[sq];
+}
+
