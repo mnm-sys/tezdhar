@@ -32,7 +32,7 @@ $ git clone https://github.com/mnm-sys/tezdhar.git
 $ cd tezdhar
 $ ./configure
 $ make
-$ make install
+$ sudo make install
 $ tezdhar
 ```
 If you don't want to install, you can run it locally after `make`
